@@ -23,10 +23,6 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance interfaceClazz, "
-                    + interfaceClazz.getName() + " is not annotation " + Component.class);
-        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -67,6 +63,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance interfaceClazz, "
+                    + interfaceClazz.getName() + " is not annotation " + Component.class);
+        }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
