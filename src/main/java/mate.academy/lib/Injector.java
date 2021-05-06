@@ -15,14 +15,12 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
 
-    private final Map<Class<?>, Object> instanceMap = new HashMap<>();
-
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-
+        Object clazzInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Annotation @Component not found in "
@@ -31,21 +29,20 @@ public class Injector {
         Object clazzInstance = createNewInstance(clazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            if (field.getType().isPrimitive()) {
-                continue;
-            }
-            Object fieldInstance = getInstance(field.getType());
-            clazzInstance = createNewInstance(clazz);
-            try {
-                field.setAccessible(true);
-                field.set(clazzInstance, fieldInstance);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("can't set field" + field.getName()
-                        + " in class " + clazz.getName(), e);
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                clazzInstance = createNewInstance(clazz);
+                try {
+                    field.setAccessible(true);
+                    field.set(clazzInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("can't set field" + field.getName()
+                            + " in class " + clazz.getName(), e);
+                }
             }
         }
         if (clazzInstance == null) {
-            clazzInstance = createNewInstance(interfaceClazz);
+            clazzInstance = createNewInstance(clazz);
         }
         return clazzInstance;
     }
@@ -56,7 +53,13 @@ public class Injector {
         interfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplMap.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplMap.get(interfaceClazz);
+            Class<?> result = interfaceImplMap.get(interfaceClazz);
+            if (!result.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Can't create instance of "
+                        + result.getSimpleName()
+                        + ". Missing @Component annotation");
+            }
+            return result;
         }
         return interfaceClazz;
     }
@@ -65,18 +68,16 @@ public class Injector {
         if (instanceMap.containsKey(clazz)) {
             return instanceMap.get(clazz);
         }
-        Constructor<?> constructor = null;
-        Object instance = null;
         try {
-            constructor = clazz.getConstructor();
-            instance = constructor.newInstance();
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instanceMap.put(clazz, instance);
+            return instance;
         } catch (NoSuchMethodException
                 | InstantiationException
                 | IllegalAccessException
                 | InvocationTargetException e) {
             throw new RuntimeException("can't create instance", e);
         }
-        instanceMap.put(clazz, instance);
-        return instance;
     }
 }
