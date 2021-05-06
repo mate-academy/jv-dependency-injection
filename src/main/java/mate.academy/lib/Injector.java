@@ -33,7 +33,7 @@ public class Injector {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field "
                             + field.getName() + " in Class "
-                            + interfaceImplClass.getName());
+                            + interfaceImplClass.getName(), e);
                 }
             }
         }
@@ -56,7 +56,7 @@ public class Injector {
         } catch (InstantiationException | NoSuchMethodException
                 | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException("Can't create new instance of: "
-                    + interfaceClassImpl.getName());
+                    + interfaceClassImpl.getName(), e);
         }
     }
 
