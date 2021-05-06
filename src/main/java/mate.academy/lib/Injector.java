@@ -50,8 +50,7 @@ public class Injector {
         }
         Object instance = null;
         try {
-            Constructor<?> constructor = clazz.getConstructor();
-            instance = constructor.newInstance();
+            instance = clazz.getConstructor().newInstance();
         } catch (NoSuchMethodException | InvocationTargetException
                 | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
