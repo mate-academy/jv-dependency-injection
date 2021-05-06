@@ -1,16 +1,18 @@
 package mate.academy.lib;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import mate.academy.exception.WrongInitializingException;
+import mate.academy.exception.WrongInstanceCreatingException;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -24,17 +26,22 @@ public class Injector {
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceInstance);
         Field[] declaredFields = clazz.getDeclaredFields();
-        for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Component.class)) {
-                Object fieldInstance = getInstance(field.getType());
-                classImplementationInstance = createNewInstance(clazz);
-                try {
-                    field.setAccessible(true);
-                    field.set(classImplementationInstance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field " + field.getName());
+        if (clazz.isAnnotationPresent(Component.class)) {
+            for (Field field : declaredFields) {
+                if (field.isAnnotationPresent(Inject.class)) {
+                    Object fieldInstance = getInstance(field.getType());
+                    classImplementationInstance = createNewInstance(clazz);
+                    try {
+                        field.setAccessible(true);
+                        field.set(classImplementationInstance, fieldInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Can't initialize field " + field.getName());
+                    }
                 }
             }
+        } else {
+            throw new WrongInitializingException("Class " + clazz.getName()
+                    + " without annotation");
         }
         if (classImplementationInstance == null) {
             classImplementationInstance = createNewInstance(clazz);
@@ -54,7 +61,8 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can't create an instance of " + clazz.getName());
+            throw new WrongInstanceCreatingException("Can't create an instance of "
+                    + clazz.getName());
         }
     }
 
