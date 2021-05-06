@@ -23,10 +23,6 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance of class without "
-                    + "@Component annotation");
-        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -70,7 +66,12 @@ public class Injector {
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            Class<?> result = interfaceImplementations.get(interfaceClazz);
+            if (!result.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Can't create instance of class without "
+                        + "@Component annotation");
+            }
+            return result;
         }
         return interfaceClazz;
     }
