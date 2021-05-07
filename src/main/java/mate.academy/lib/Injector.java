@@ -71,7 +71,6 @@ public class Injector {
                 && checkComponentAnnotation(interfaceImplementations.get(interfaceClazz))) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        checkComponentAnnotation(interfaceImplementations.get(interfaceClazz));
         return interfaceClazz;
     }
 
