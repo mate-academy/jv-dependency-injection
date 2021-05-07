@@ -28,7 +28,7 @@ public class Injector {
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Component.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 classImplementationInstance = createNewInstance(clazz);
                 try {
