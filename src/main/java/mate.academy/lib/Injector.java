@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -52,23 +51,23 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException
-                | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't inject the interface implementation, "
+                    + interfaceClazz.getName() + " as it is not marked by @Component");
+        }
         Map<Class<?>, Class<?>> componentImplementations = new HashMap<>();
         componentImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         componentImplementations.put(ProductParser.class, ProductParserImpl.class);
         componentImplementations.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            return componentImplementations.get(interfaceClazz);
-        }
+
         if (interfaceClazz.isInterface()) {
-            throw new RuntimeException("Can't inject the interface implementation if interface "
-                    + "is not market by @Component");
+            return componentImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
