@@ -29,7 +29,6 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 classImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
@@ -59,8 +58,7 @@ public class Injector {
             throw new RuntimeException("Can't create instance for class: " + clazz.getName()
                     + ". It isn't marked with @Component annotation");
 
-        } catch (NoSuchMethodException | InstantiationException
-                | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of class: " + clazz.getName());
         }
     }
