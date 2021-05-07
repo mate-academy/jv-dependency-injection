@@ -63,10 +63,9 @@ public class Injector {
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isLocalClass()) {
+        if (!interfaceClazz.isInterface()) {
             return interfaceClazz;
-        }
-        if (interfaceClazz.isInterface() && interfaceImplementations.get(interfaceClazz)
+        } else if (interfaceImplementations.get(interfaceClazz)
                 .isAnnotationPresent(Component.class)) {
             return interfaceImplementations.get(interfaceClazz);
         }
