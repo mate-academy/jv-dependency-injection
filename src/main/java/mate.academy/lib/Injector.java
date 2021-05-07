@@ -25,7 +25,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Component.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
@@ -34,7 +34,7 @@ public class Injector {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class: "
                             + clazz.getName() + " . Field: "
-                            + field.getName());
+                            + field.getName(), e);
                 }
             }
         }
@@ -57,11 +57,15 @@ public class Injector {
                 | IllegalAccessException
                 | InstantiationException
                 | InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance interfaceClazz, "
+                    + interfaceClazz.getName() + " it hasn't annotation " + Component.class);
+        }
         Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
