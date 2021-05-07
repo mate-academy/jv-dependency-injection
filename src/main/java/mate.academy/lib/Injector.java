@@ -15,7 +15,7 @@ public class Injector {
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instances = new HashMap<>();
 
-    public static Injector getInjector() { // патерн проектування single Tone
+    public static Injector getInjector() {
         return injector;
     }
 
