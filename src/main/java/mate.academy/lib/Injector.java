@@ -24,7 +24,7 @@ public class Injector {
         Class<?> interfaceImplClass = findImplementation(interfaceClass);
         Field[] fields = interfaceImplClass.getDeclaredFields();
         for (Field field : fields) {
-            if (field.isAnnotationPresent(Component.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 interfaceClassInstance = createNewInstance(interfaceImplClass);
                 try {
@@ -42,10 +42,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> interfaceClassImpl) {
-        if (!interfaceClassImpl.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(interfaceClassImpl.getName()
-            + " is not marked with annotation for instantiation");
-        }
         if (instances.containsKey(interfaceClassImpl)) {
             return instances.get(interfaceClassImpl);
         }
@@ -65,9 +61,13 @@ public class Injector {
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClass.isInterface()) {
-            return interfaceImplementation.get(interfaceClass);
+        Class<?> interfaceClassImpl = interfaceClass.isInterface()
+                ? interfaceImplementation.get(interfaceClass)
+                : interfaceClass;
+        if (!interfaceClassImpl.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(interfaceClassImpl.getName()
+                    + " is not marked with annotation for instantiation");
         }
-        return interfaceClass;
+        return interfaceClassImpl;
     }
 }
