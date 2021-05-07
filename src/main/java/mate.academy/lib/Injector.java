@@ -22,13 +22,6 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz.getInterfaces().length > 0
-                && !clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance of a " + clazz.getSimpleName()
-                    + " class. "
-                    + "Missing @" + Component.class.getSimpleName()
-                    + " annotation.");
-        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -72,7 +65,14 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            Class<?> clazz = interfaceImplementations.get(interfaceClazz);
+            if (!clazz.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Can't create instance of a " + clazz.getSimpleName()
+                        + " class. "
+                        + "Missing @" + Component.class.getSimpleName()
+                        + " annotation.");
+            }
+            return clazz;
         }
         return interfaceClazz;
     }
