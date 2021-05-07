@@ -58,17 +58,16 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance interfaceClazz, "
-                    + interfaceClazz.getName() + " it hasn't annotation " + Component.class);
-        }
         Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isInterface()) {
+        if (interfaceClazz.isInterface()
+                && interfaceImplementation.get(interfaceClazz)
+                .isAnnotationPresent(Component.class)) {
             return interfaceImplementation.get(interfaceClazz);
         }
-        return interfaceClazz;
+        throw new RuntimeException("Can't create instance interfaceClazz, "
+                + interfaceClazz.getName() + " it hasn't annotation " + Component.class);
     }
 }
