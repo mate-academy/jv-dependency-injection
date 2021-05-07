@@ -43,10 +43,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance of: " + clazz.getName()
-                    + ". Class has no @Component mark.");
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -61,12 +57,17 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            Class<?> result = interfaceImplementations.get(interfaceClazz);
+            if (!result.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Can't create instance of: " + result.getName()
+                        + ". Class has no @Component mark.");
+            }
+            return result;
         }
         return interfaceClazz;
     }
