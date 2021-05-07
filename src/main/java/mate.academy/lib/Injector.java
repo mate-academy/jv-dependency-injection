@@ -15,6 +15,8 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
 
+    private final Map<Class<?>, Object> instanceMap = new HashMap<>();
+
     public static Injector getInjector() {
         return injector;
     }
@@ -22,11 +24,6 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Annotation @Component not found in "
-                    + interfaceClazz.getName());
-        }
-        Object clazzInstance = createNewInstance(clazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
