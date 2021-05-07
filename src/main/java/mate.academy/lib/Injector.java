@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -25,7 +24,7 @@ public class Injector {
         for (Field currentField : declaredFields) {
             if (currentField.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(currentField.getType());
-                clazzImplementationInstance = createNewInstnace(clazz);
+                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     currentField.setAccessible(true);
                     currentField.set(clazzImplementationInstance, fieldInstance);
@@ -36,12 +35,12 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstnace(clazz);
+            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstnace(Class<?> clazz) {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -54,8 +53,7 @@ public class Injector {
             }
             throw new RuntimeException("Class: " + clazz.getName()
                     + ". Isn't marked with @Component annotation");
-        } catch (NoSuchMethodException | IllegalAccessException
-                | InstantiationException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
     }
