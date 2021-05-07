@@ -1,6 +1,5 @@
 package mate.academy.lib;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -60,10 +59,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-            Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-            interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-            interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-            interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isAnnotationPresent(Component.class)) {
             if (interfaceClazz.isInterface()) {
                 return interfaceImplementations.get(interfaceClazz);
