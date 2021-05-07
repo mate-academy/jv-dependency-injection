@@ -57,17 +57,18 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't inject the interface implementation, "
-                    + interfaceClazz.getName() + " as it is not marked by @Component");
-        }
         Map<Class<?>, Class<?>> componentImplementations = new HashMap<>();
         componentImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         componentImplementations.put(ProductParser.class, ProductParserImpl.class);
         componentImplementations.put(ProductService.class, ProductServiceImpl.class);
 
         if (interfaceClazz.isInterface()) {
-            return componentImplementations.get(interfaceClazz);
+            Class<?> implementation = componentImplementations.get(interfaceClazz);
+            if (!implementation.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Can't inject the interface implementation, "
+                        + implementation.getName() + " as it is not marked by @Component");
+            }
+            return implementation;
         }
         return interfaceClazz;
     }
