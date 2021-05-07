@@ -67,14 +67,19 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        if (interfaceClazz.isInterface()) {
-            if (!interfaceImplementations.get(interfaceClazz)
-                    .isAnnotationPresent(Component.class)) {
-                throw new RuntimeException(interfaceClazz.getName() + " interface doesn't have: "
-                        + Component.class + " annotation");
-            }
+        if (interfaceClazz.isInterface()
+                && checkComponentAnnotation(interfaceImplementations.get(interfaceClazz))) {
             return interfaceImplementations.get(interfaceClazz);
         }
+        checkComponentAnnotation(interfaceImplementations.get(interfaceClazz));
         return interfaceClazz;
+    }
+
+    private boolean checkComponentAnnotation(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(clazz.getName() + " class doesn't have: @"
+                    + Component.class.getSimpleName() + " annotation");
+        }
+        return true;
     }
 }
