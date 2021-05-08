@@ -23,11 +23,15 @@ public class Injector {
     public Object getInstance(Class<?> intefaceClass) {
         Object classImplementationInstance = null;
         Class<?> implClass = findImplementation(intefaceClass);
+        if (!implClass.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Implementation is not supported "
+                    + implClass.getSimpleName());
+        }
         Field[] declaredFields = implClass.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
                 classImplementationInstance = createNewInstance(implClass);
+                Object fieldInstance = getInstance(field.getType());
                 field.setAccessible(true);
                 try {
                     field.set(classImplementationInstance, fieldInstance);
@@ -57,7 +61,7 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | IllegalAccessException
                 | InstantiationException | InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of"
+            throw new RuntimeException("Can't create a new instance of "
                     + clazz.getName(), e);
         }
     }
