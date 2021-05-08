@@ -27,12 +27,13 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
+
                 clazzImplementationInstance = createNewInstance(clazz);
+                field.setAccessible(true);
                 try {
-                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Cant initialize field value. "
+                    throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName() + ". Field: " + field.getName());
                 }
             }
@@ -54,17 +55,22 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | IllegalAccessException
                 | InstantiationException | InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of" + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            Class<?> result = interfaceImplementations.get(interfaceClazz);
+            if (!result.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Can't create instance of class without "
+                        + "@Component annotation");
+            }
+            return result;
         }
         return interfaceClazz;
     }
