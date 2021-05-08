@@ -6,4 +6,10 @@ public class Injector {
     public static Injector getInjector() {
         return injector;
     }
+
+    public Object getInstance(Class<?> interfaceClazz) {
+
+        return null;
+    }
 }
+
