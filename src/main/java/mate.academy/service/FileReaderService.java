@@ -2,7 +2,7 @@ package mate.academy.service;
 
 import java.util.List;
 
+@Component
 public interface FileReaderService {
-    @Component
     List<String> readFile(String fileName);
 }

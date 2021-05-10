@@ -2,9 +2,9 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.Component;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -15,7 +15,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -54,8 +54,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instatnce of " + clazz.getName());
         }
     }
@@ -65,9 +64,14 @@ public class Injector {
         interfaceImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImpl.put(ProductService.class, ProductServiceImpl.class);
         interfaceImpl.put(ProductParser.class, ProductParserImpl.class);
-        if (interfaceClass.isInterface()) {
-            return interfaceImpl.get(interfaceClass);
+        Class<?> implementationClass = interfaceClass;
+        if (implementationClass.isInterface()) {
+            implementationClass = interfaceImpl.get(interfaceClass);
         }
-        return interfaceClass;
+        if (implementationClass.isAnnotationPresent(Component.class)) {
+            return implementationClass;
+        }
+        throw new RuntimeException("This class:  " + interfaceClass.getName()
+                + " is not marked with 'Component' annotation.");
     }
 }
