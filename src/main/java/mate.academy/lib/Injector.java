@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -52,8 +51,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | IllegalAccessException
-                | InstantiationException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName());
         }
     }
@@ -64,10 +62,13 @@ public class Injector {
         interfaceImplMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
 
-        if (interfaceImplMap.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+        if (interfaceClazz.isInterface()) {
+            if (!interfaceImplMap.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Class " + interfaceClazz.getName() + " doesn't have "
+                        + Component.class.getName() + " annotation");
+            }
             return interfaceImplMap.get(interfaceClazz);
         }
-        throw new RuntimeException("Class " + interfaceClazz.getName() + " doesn't have "
-                                            + Component.class.getName() + " annotation");
+        return interfaceClazz;
     }
 }
