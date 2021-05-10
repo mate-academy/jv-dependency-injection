@@ -1,20 +1,16 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
-
-import javax.crypto.interfaces.PBEKey;
-import java.io.Console;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -24,7 +20,7 @@ public class Injector {
         return injector;
     }
 
-    public Object getInstance (Class<?> interfaceClazze) {
+    public Object getInstance(Class<?> interfaceClazze) {
         Object clazzImplInstance = null;
         Class<?> clazz = findImpl(interfaceClazze);
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -41,7 +37,7 @@ public class Injector {
             }
         }
         if (clazzImplInstance == null) {
-            clazzImplInstance= createNewInstance(clazz);
+            clazzImplInstance = createNewInstance(clazz);
         }
         return clazzImplInstance;
     }
@@ -52,7 +48,7 @@ public class Injector {
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
-            Object instance =constructor.newInstance();
+            Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException | IllegalAccessException
@@ -61,7 +57,7 @@ public class Injector {
         }
     }
 
-    private Class<?> findImpl (Class<?> interfaceClazz) {
+    private Class<?> findImpl(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplMap = new HashMap<>();
         interfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplMap.put(ProductParser.class, ProductParserImpl.class);
