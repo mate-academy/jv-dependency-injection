@@ -20,26 +20,26 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationsInstance = null;
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredField = clazz.getDeclaredFields();
         for (Field field: declaredField) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationsInstance = createNewInstance(clazz);
+                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
-                    field.set(clazzImplementationsInstance, fieldInstance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName() + " .Field: " + field.getName());
                 }
             }
         }
-        if (clazzImplementationsInstance == null) {
-            clazzImplementationsInstance = createNewInstance(clazz);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
-        return clazzImplementationsInstance;
+        return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -64,7 +64,7 @@ public class Injector {
 
         Class<?> isComponent = interfaceImplementations.get(interfaceClazz);
         if (!isComponent.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class is not marked @Component");
+            throw new RuntimeException("Interface implementation is not marked with @Component");
         }
         return isComponent;
     }
