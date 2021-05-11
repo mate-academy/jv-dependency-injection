@@ -23,9 +23,6 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Doesn't marked by annotation @Component");
-        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -70,8 +67,8 @@ public class Injector {
         if (interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             return interfaceImplementation.get(interfaceClazz);
         }
-        throw new RuntimeException(interfaceClazz.getName()
-                + " doesn't have annotation @Component");
+        throw new RuntimeException("(" + interfaceClazz.getName()
+                + ") doesn't marked by annotation @Component");
 
     }
 }
