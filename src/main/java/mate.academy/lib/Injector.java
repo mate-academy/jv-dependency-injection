@@ -19,19 +19,20 @@ public class Injector {
         return injector;
     }
 
-    public Object getInstance(Class<?> interfaceClazze) {
+    public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplInstance = null;
-        Class<?> clazz = findImpl(interfaceClazze);
+        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInst = getInstance(field.getType());
+                Object fieldInstance  = getInstance(field.getType());
                 clazzImplInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
-                    field.set(clazzImplInstance, fieldInst);
+                    field.setAccessible(true);
+                    field.set(clazzImplInstance, fieldInstance );
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value", e);
+                    throw new RuntimeException("Can't initialize field value. Class: "
+                            + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
         }
@@ -51,22 +52,23 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance :( ");
+            throw new RuntimeException("Can't create new instance of" + clazz.getName());
         }
     }
 
-    private Class<?> findImpl(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplMap = new HashMap<>();
         interfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplMap.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         Class<?> implClazz = interfaceClazz;
-        if (implClazz.isInterface()) {
-            implClazz = interfaceImplMap.get(interfaceClazz);
+        if (!interfaceClazz.isInterface()) {
+            return interfaceClazz;
         }
-        if (implClazz.isAnnotationPresent(Component.class)) {
-            return implClazz;
+        if (!interfaceImplMap.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("This class:  " + interfaceClazz.getName()
+                    + " is not marked with 'Component' annotation.");
         }
-        throw new RuntimeException("Operation failed");
+        return interfaceImplMap.get(interfaceClazz);
     }
 }
