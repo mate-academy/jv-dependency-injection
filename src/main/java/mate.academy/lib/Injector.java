@@ -52,7 +52,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of (" + clazz.getName() + ")", e);
+            throw new RuntimeException("Can't create a new instance of ("
+                    + clazz.getName() + ")", e);
         }
 
     }
@@ -62,8 +63,8 @@ public class Injector {
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isInterface()
-                && interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+        if (interfaceClazz.isInterface() && interfaceImplementation.get(interfaceClazz)
+                .isAnnotationPresent(Component.class)) {
             return interfaceImplementation.get(interfaceClazz);
         }
         throw new RuntimeException("(" + interfaceClazz.getName()
