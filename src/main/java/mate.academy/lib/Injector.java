@@ -22,51 +22,51 @@ public class Injector {
     public Object getInstance(Class<?> inputType) {
         Class<?> inputImplClass = getImplementation(inputType);
         Object interfaceImplementation = null;
-        if (inputImplClass.isAnnotationPresent(Component.class)) {
-            Field[] allFields = inputImplClass.getDeclaredFields();
-            for (Field field : allFields) {
-                Class<?> fieldType = field.getType();
-                Class<?> fieldImplClass = getImplementation(fieldType);
-                if (fieldImplClass.isAnnotationPresent(Component.class)) {
-                    Object fieldInstance = getInstance(fieldImplClass);
-                    interfaceImplementation = createNewInstance(inputImplClass);
+        Field[] allFields = inputImplClass.getDeclaredFields();
+        for (Field field : allFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                interfaceImplementation = createNewInstance(inputImplClass);
 
-                    try {
-                        field.setAccessible(true);
-                        field.set(interfaceImplementation, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value. Class "
-                                + inputType + ". Field " + field + e);
-                    }
+                try {
+                    field.setAccessible(true);
+                    field.set(interfaceImplementation, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. Class "
+                            + inputType + ". Field " + field + e);
                 }
             }
-            if (interfaceImplementation == null) {
-                interfaceImplementation = createNewInstance(inputImplClass);
-            }
+        }
+        if (interfaceImplementation == null) {
+            interfaceImplementation = createNewInstance(inputImplClass);
         }
         return interfaceImplementation;
     }
 
-    public Class<?> getImplementation(Class<?> inputType) {
-        Map<Class<?>, Class<?>> findImplementation = new HashMap<>();
-        findImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        findImplementation.put(ProductParser.class, ProductParserImpl.class);
-        findImplementation.put(ProductService.class, ProductServiceImpl.class);
+    private Class<?> getImplementation(Class<?> inputType) {
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (inputType.isInterface()) {
-            return findImplementation.get(inputType);
+            return interfaceImplementations.get(inputType);
         }
         return inputType;
     }
 
-    public Object createNewInstance(Class<?> inputImplClass) {
+    private Object createNewInstance(Class<?> inputImplClass) {
         if (instances.containsKey(inputImplClass)) {
             return instances.get(inputImplClass);
         }
         try {
-            Constructor<?> constructor = inputImplClass.getConstructor();
-            Object instance = constructor.newInstance();
-            instances.put(inputImplClass, instance);
-            return instance;
+            if (inputImplClass.isAnnotationPresent(Component.class)) {
+                Constructor<?> constructor = inputImplClass.getConstructor();
+                Object instance = constructor.newInstance();
+                instances.put(inputImplClass, instance);
+                return instance;
+            }
+            throw new RuntimeException(inputImplClass.getName()
+                    + " isn't marked with @Component annotation");
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + inputImplClass + e);
         }
