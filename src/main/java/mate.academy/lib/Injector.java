@@ -70,7 +70,8 @@ public class Injector {
             return interfaceImplementation.get(interfaceClazz);
         }
         throw new RuntimeException("(" + interfaceClazz.getName()
-                + ") is doesn't marked by annotation @Component");
+                + ") - the implementation of this interface is not marked"
+                + " by annotation @Component");
 
     }
 }
