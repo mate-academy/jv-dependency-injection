@@ -22,10 +22,6 @@ public class Injector {
     public Object getInstance(Class<?> intefaceClass) {
         Object classImplementationInstance = null;
         Class<?> implClass = findImplementation(intefaceClass);
-        if (!implClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Implementation is not supported "
-                    + implClass.getSimpleName());
-        }
         Field[] declaredFields = implClass.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -69,8 +65,14 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        return interfaceClass.isInterface()
-                ? interfaceImplementations.get(interfaceClass)
-                : interfaceClass;
+        if (interfaceClass.isInterface()) {
+            Class<?> implClass = interfaceImplementations.get(interfaceClass);
+            if (!implClass.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Implementation is not supported "
+                        + interfaceClass.getSimpleName());
+            }
+            return implClass;
+        }
+        return interfaceClass;
     }
 }
