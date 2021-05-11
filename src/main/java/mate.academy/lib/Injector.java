@@ -47,7 +47,6 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
@@ -63,7 +62,6 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-
         if (interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             return interfaceImplementations.get(interfaceClazz);
         }
