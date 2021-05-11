@@ -59,16 +59,18 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isInterface()) {
+            return interfaceClazz;
+        }
         Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isInterface() && interfaceImplementation.get(interfaceClazz)
-                .isAnnotationPresent(Component.class)) {
+        if (interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             return interfaceImplementation.get(interfaceClazz);
         }
         throw new RuntimeException("(" + interfaceClazz.getName()
-                + ") is not interface or doesn't marked by annotation @Component");
+                + ") is doesn't marked by annotation @Component");
 
     }
 }
