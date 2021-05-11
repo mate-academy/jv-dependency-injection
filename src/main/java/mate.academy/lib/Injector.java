@@ -30,10 +30,10 @@ public class Injector {
                 try {
                     field.setAccessible(true);
                     field.set(interfaceClassInstance, fieldInstance);
-                } catch (IllegalAccessException e) {
+                } catch (IllegalAccessException exception) {
                     throw new RuntimeException("Can't initialize field "
                             + field.getName() + " in Class "
-                            + interfaceImplClass.getName(), e);
+                            + interfaceImplClass.getName(), exception);
                 }
             }
         }
@@ -49,10 +49,9 @@ public class Injector {
             Object instance = interfaceClassImpl.getConstructor().newInstance();
             instances.put(interfaceClassImpl, instance);
             return instance;
-        } catch (InstantiationException | NoSuchMethodException
-                | InvocationTargetException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException exception) {
             throw new RuntimeException("Can't create new instance of: "
-                    + interfaceClassImpl.getName(), e);
+                    + interfaceClassImpl.getName(), exception);
         }
     }
 
@@ -61,13 +60,14 @@ public class Injector {
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        Class<?> interfaceClassImpl = interfaceClass.isInterface()
-                ? interfaceImplementation.get(interfaceClass)
-                : interfaceClass;
-        if (!interfaceClassImpl.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(interfaceClassImpl.getName()
-                    + " is not marked with annotation for instantiation");
+        if (interfaceClass.isInterface()) {
+            Class<?> interfaceClassImpl = interfaceImplementation.get(interfaceClass);
+            if (!interfaceClassImpl.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException(interfaceClassImpl.getName()
+                        + " is not marked with annotation for instantiation");
+            }
+            return interfaceClassImpl;
         }
-        return interfaceClassImpl;
+        return interfaceClass;
     }
 }
