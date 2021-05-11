@@ -48,10 +48,14 @@ public class Injector {
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        if (inputType.isInterface()) {
-            return interfaceImplementations.get(inputType);
+        if (!inputType.isInterface()) {
+            return inputType;
         }
-        return inputType;
+        if (!interfaceImplementations.get(inputType).isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(interfaceImplementations.get(inputType).getName()
+                    + " isn't marked with @Component annotation");
+        }
+        return interfaceImplementations.get(inputType);
     }
 
     private Object createNewInstance(Class<?> inputImplClass) {
@@ -59,14 +63,10 @@ public class Injector {
             return instances.get(inputImplClass);
         }
         try {
-            if (inputImplClass.isAnnotationPresent(Component.class)) {
-                Constructor<?> constructor = inputImplClass.getConstructor();
-                Object instance = constructor.newInstance();
-                instances.put(inputImplClass, instance);
-                return instance;
-            }
-            throw new RuntimeException(inputImplClass.getName()
-                    + " isn't marked with @Component annotation");
+            Constructor<?> constructor = inputImplClass.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(inputImplClass, instance);
+            return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + inputImplClass + e);
         }
