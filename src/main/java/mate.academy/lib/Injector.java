@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -36,7 +35,7 @@ public class Injector {
                 try {
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. Class;"
+                    throw new RuntimeException("Can't initialize field value. Class: "
                             + implClass.getName()
                             + ". Field:"
                             + field.getName(), e);
@@ -53,26 +52,25 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
         try {
+            Constructor<?> constructor = null;
             constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | IllegalAccessException
-                | InstantiationException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of "
                     + clazz.getName(), e);
         }
     }
 
-    private Class<?> findImplementation(Class<?> intefaceClass) {
-        Map<Class<?>, Class<?>> intefaceImplementations = new HashMap<>();
-        intefaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        intefaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        intefaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        return intefaceClass.isInterface()
-                ? intefaceImplementations.get(intefaceClass)
-                : intefaceClass;
+    private Class<?> findImplementation(Class<?> interfaceClass) {
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        return interfaceClass.isInterface()
+                ? interfaceImplementations.get(interfaceClass)
+                : interfaceClass;
     }
 }
