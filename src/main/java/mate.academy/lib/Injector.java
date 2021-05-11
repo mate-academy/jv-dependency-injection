@@ -61,10 +61,13 @@ public class Injector {
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        if (!interfaceClazz.isInterface()) {
+            return interfaceClazz;
+        }
         if (interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        throw new RuntimeException("Can't create Class: " + interfaceClazz.getName()
-                + ". It doesn't contain @Component annotation");
+        throw new RuntimeException("Can't get implementation of interface: " + interfaceClazz.getName()
+                + ". Its implementation doesn't contain @Component annotation");
     }
 }
