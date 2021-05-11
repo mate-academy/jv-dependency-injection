@@ -59,7 +59,7 @@ class InjectorTest {
     @Test
     public void getInstance_invalidClassThrowsException() {
         Assertions.assertThrows(RuntimeException.class, () -> injector.getInstance(String.class)
-                , "If Invalid class is passed throw RuntimeException");
+                , "When unsupported class is passed you should throw RuntimeException");
     }
 
     @Test
