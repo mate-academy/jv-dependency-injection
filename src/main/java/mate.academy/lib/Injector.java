@@ -64,15 +64,15 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
 
         if (!interfaceClazz.isInterface()) {
-            return interfaceClazz;
+            throw new RuntimeException("(" + interfaceClazz.getName()
+                    + ") - the implementation of this interface is not marked"
+                    + " by annotation @Component");
         }
 
         if (interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             return interfaceImplementations.get(interfaceClazz);
         }
 
-        throw new RuntimeException("(" + interfaceClazz.getName()
-                + ") - the implementation of this interface is not marked"
-                + " by annotation @Component");
+        return interfaceClazz;
     }
 }
