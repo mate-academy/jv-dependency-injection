@@ -54,7 +54,7 @@ public class Injector {
                 | NoSuchMethodException
                 | InvocationTargetException
                 | IllegalAccessException e) {
-            throw new RuntimeException("Can't create object of this class: " + clazz);
+            throw new RuntimeException("Can't create object of this class: " + clazz.getName());
         }
         return instance;
     }
