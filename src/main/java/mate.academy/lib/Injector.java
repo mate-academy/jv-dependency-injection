@@ -35,7 +35,7 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 field.setAccessible(true);
                 try {
-                    field.set(clazzImplInstance, getInstance(field.getClass()));
+                    field.set(clazzImplInstance, getInstance(field.getType()));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can`t initialize field " + field.getName());
                 }
@@ -46,8 +46,7 @@ public class Injector {
 
     private Object createNewInstance(Class<?> clazz) {
         if (clazz == null) {
-            throw new RuntimeException("Can't instantiate."
-                    + " Could not find implementation of the interface.");
+            throw new RuntimeException("Could not find implementation of the interface.");
         }
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class have not the annotation @Component!");
