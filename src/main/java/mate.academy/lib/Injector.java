@@ -20,7 +20,6 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
