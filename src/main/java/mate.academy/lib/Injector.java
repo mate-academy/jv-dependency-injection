@@ -20,26 +20,26 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object classImplementationInstance = null;
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getClass());
-                classImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
                 try {
-                    field.set(classImplementationInstance, fieldInstance);
+                    field.setAccessible(true);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. Class "
-                            + clazz.getName() + " . Field: " + field.getName());
+                    throw new RuntimeException("Can`t initialize field value. Class: "
+                            + clazz.getName() + "Field: " + field.getName());
                 }
             }
         }
-        if (classImplementationInstance == null) {
-            classImplementationInstance = createNewInstance(clazz);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
-        return classImplementationInstance;
+        return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -47,12 +47,11 @@ public class Injector {
             throw new RuntimeException("Cannot create instance of " + clazz.getName()
                     + ",there is no @Component annotation");
         }
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
-        Constructor<?> constructor = null;
         try {
-            constructor = clazz.getConstructor();
+            if (instances.containsKey(clazz)) {
+                return instances.get(clazz);
+            }
+            Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
@@ -62,12 +61,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
