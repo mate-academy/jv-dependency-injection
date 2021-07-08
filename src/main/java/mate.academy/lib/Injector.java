@@ -19,8 +19,8 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> clazz = findImplementationOf(interfaceClazz);
-        Object classImplementationInstance = newInstanceOf(clazz);
+        Class<?> clazz = getImplementation(interfaceClazz);
+        Object classImplementationInstance = getNewInstance(clazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -30,15 +30,14 @@ public class Injector {
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Cannot set a value:" + classImplementationInstance
-                                    + " to field: "
-                            + fieldInstance);
+                                    + " to field: " + fieldInstance);
                 }
             }
         }
         return classImplementationInstance;
     }
 
-    private Object newInstanceOf(Class<?> clazz) {
+    private Object getNewInstance(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Cannot create instance of " + clazz.getName()
                     + ",there is no @Component annotation");
@@ -55,11 +54,11 @@ public class Injector {
         }
     }
 
-    private Class<?> findImplementationOf(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementationsOfInterfaces = new HashMap<>();
-        implementationsOfInterfaces.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementationsOfInterfaces.put(ProductParser.class, ProductParserImpl.class);
-        implementationsOfInterfaces.put(ProductService.class, ProductServiceImpl.class);
-        return implementationsOfInterfaces.get(interfaceClazz);
+    private Class<?> getImplementation(Class<?> interfaceClazz) {
+        Map<Class<?>, Class<?>> implementations = new HashMap<>();
+        implementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        implementations.put(ProductParser.class, ProductParserImpl.class);
+        implementations.put(ProductService.class, ProductServiceImpl.class);
+        return implementations.get(interfaceClazz);
     }
 }
