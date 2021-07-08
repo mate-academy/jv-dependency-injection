@@ -1,7 +1,6 @@
 package mate.academy.lib;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -32,7 +31,7 @@ public class Injector {
             throw new RuntimeException("Its not possible to create instance of "
                     + interfaceClazz.getName());
         }
-        Object clazzImplementationInstance  = createNewInstance(clazz);
+        Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
