@@ -22,7 +22,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object implementationInstanceClazz = null;
-        Class<?> clazz = fingImplementation(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class isn`t have  annotation - \"@Component\" "
                     + clazz.getName());
@@ -62,7 +62,7 @@ public class Injector {
         }
     }
 
-    private Class<?> fingImplementation(Class<?> clazz) {
+    private Class<?> findImplementation(Class<?> clazz) {
         Map<Class<?>, Class<?>> interfaceImpl = new HashMap<>();
         interfaceImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImpl.put(ProductParser.class, ProductParserImpl.class);
