@@ -25,7 +25,6 @@ public class Injector {
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                classImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
