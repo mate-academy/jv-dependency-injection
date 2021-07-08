@@ -19,7 +19,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] fields = interfaceClazz.getDeclaredFields();
+        Field[] fields = clazz.getDeclaredFields();
         if (clazz.isAnnotationPresent(Component.class)) {
             for (Field field: fields) {
                 if (field.isAnnotationPresent(Inject.class)) {
@@ -50,7 +50,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (((ImplementationStorageImpl)implementations)
-                .haveImplementation(interfaceClazz)) {
+                .isPresent(interfaceClazz)) {
             return implementations.get(interfaceClazz);
         }
         return interfaceClazz;

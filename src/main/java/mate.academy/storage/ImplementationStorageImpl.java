@@ -20,7 +20,8 @@ public class ImplementationStorageImpl implements Storage<Class<?>, Class<?>> {
         return implementations.get(key);
     }
 
-    public static boolean haveImplementation(Class<?> key) {
+    @Override
+    public boolean isPresent(Class<?> key) {
         return implementations.containsKey(key);
     }
 }

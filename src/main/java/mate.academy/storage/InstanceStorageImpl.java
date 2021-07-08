@@ -24,4 +24,9 @@ public class InstanceStorageImpl implements Storage<Class<?>, Object> {
             throw new RuntimeException("Bad Instance of " + key.getName());
         }
     }
+
+    @Override
+    public boolean isPresent(Class<?> key) {
+        return instances.containsKey(key);
+    }
 }
