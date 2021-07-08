@@ -63,12 +63,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
-        Map<Class<?>, Class<?>> interfaceImpl = new HashMap<>();
-        interfaceImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImpl.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImpl.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (clazz.isInterface()) {
-            return interfaceImpl.get(clazz);
+            return interfaceImplementations.get(clazz);
         }
         return clazz;
     }
