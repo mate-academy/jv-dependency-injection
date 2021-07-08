@@ -13,6 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -44,6 +45,9 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
         Constructor<?> constructor;
         Object instance;
         try {
@@ -52,6 +56,7 @@ public class Injector {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create object of this class: " + clazz.getName());
         }
+        instances.put(clazz, instance);
         return instance;
     }
 
