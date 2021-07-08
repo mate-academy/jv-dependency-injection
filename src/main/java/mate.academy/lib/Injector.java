@@ -23,11 +23,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredField = clazz.getDeclaredFields();
-        Object clazzImplementationInstance = null;
+        Object clazzImplementationInstance = createNewInstance(clazz);
         for (Field field : declaredField) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
