@@ -24,7 +24,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("This class without \"@Component\" annotation! Error! "
-                    + interfaceClazz.getName());
+                    + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
@@ -55,9 +55,8 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can't create new instance", e);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create new instance of class: " + clazz.getName(), e);
         }
     }
 
