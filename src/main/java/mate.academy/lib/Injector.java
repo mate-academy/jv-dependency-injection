@@ -26,7 +26,6 @@ public class Injector {
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                classImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
@@ -51,8 +50,7 @@ public class Injector {
             Object instance = clazz.getConstructor().newInstance();
             instances.put(clazz,instance);
             return instance;
-        } catch (InstantiationException | NoSuchMethodException
-                | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of " + clazz.getName());
         }
     }
