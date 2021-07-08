@@ -36,9 +36,6 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
         return clazzImplementationInstance;
     }
 
