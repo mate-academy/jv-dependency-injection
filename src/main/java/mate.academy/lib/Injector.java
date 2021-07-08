@@ -41,7 +41,10 @@ public class Injector {
         interfaceImplementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementationMap.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementationMap.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceImplementationMap.get(interfaceClazz);
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementationMap.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 
     private Object createNewInstance(Class<?> clazz) {
