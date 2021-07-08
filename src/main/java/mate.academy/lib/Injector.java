@@ -49,8 +49,7 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (((ImplementationStorageImpl)implementations)
-                .isPresent(interfaceClazz)) {
+        if ((implementations.isPresent(interfaceClazz))) {
             return implementations.get(interfaceClazz);
         }
         return interfaceClazz;
