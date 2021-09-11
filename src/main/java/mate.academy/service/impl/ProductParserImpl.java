@@ -1,7 +1,6 @@
 package mate.academy.service.impl;
 
 import java.math.BigDecimal;
-
 import mate.academy.lib.Component;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
@@ -13,7 +12,6 @@ public class ProductParserImpl implements ProductParser {
     public static final int CATEGORY_POSITION = 2;
     public static final int DESCRIPTION_POSITION = 3;
     public static final int PRICE_POSITION = 4;
-
 
     @Override
     public Product parse(String productInfo) {
