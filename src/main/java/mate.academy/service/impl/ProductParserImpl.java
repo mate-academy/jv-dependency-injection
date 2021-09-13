@@ -22,7 +22,6 @@ public class ProductParserImpl implements ProductParser {
         product.setCategory(data[CATEGORY_POSITION]);
         product.setDescription(data[DESCRIPTION_POSITION]);
         product.setPrice(new BigDecimal(data[PRICE_POSITION]));
-
         return product;
     }
 }
