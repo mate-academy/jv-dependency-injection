@@ -24,9 +24,6 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create this component: " + clazz.getName());
-        }
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -59,7 +56,6 @@ public class Injector {
                 | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName());
         }
-
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
@@ -67,9 +63,15 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Class<?> clazz;
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            clazz = interfaceImplementations.get(interfaceClazz);
+        } else {
+            clazz = interfaceClazz;
         }
-        return interfaceClazz;
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create this component: " + clazz.getName());
+        }
+        return clazz;
     }
 }
