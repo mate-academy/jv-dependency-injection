@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -50,7 +49,9 @@ public class Injector {
 
     private void checkIfAnnotationComponentPresent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + clazz.getName() + " don't have annotation Component.");
+            throw new RuntimeException("Class "
+                    + clazz.getName()
+                    + " don't have annotation Component.");
         }
     }
 
