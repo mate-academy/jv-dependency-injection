@@ -9,5 +9,4 @@ and `Inject` to mark fields that need to be initialized. If `Component` annotati
 NOTE: Pay attention to annotation's visibility when you want to use it with reflection API,
 `@Retention` property may help you to configure it.
 
-[Try to avoid these common mistakes while solving task](https://mate-academy.github.io/jv-program-common-mistakes/java-core/dependencyInjection/dependency-injection)
-
+[Try to avoid these common mistakes while solving task](https://mate-academy.github.io/jv-program-common-mistakes/java-core/dependency-injection/dependency-injection)
