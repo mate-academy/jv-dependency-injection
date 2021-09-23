@@ -38,7 +38,6 @@ public class Injector {
                     throw new RuntimeException("Can't initialized field value. "
                             + "Class: " + clazz.getName() + ". Field: " + field.getName());
                 }
-
             }
         }
         if (clazzImplementationInstance == null) {
