@@ -1,6 +1,8 @@
 package mate.academy.lib;
 
-public class Injector {
+import java.lang.annotation.Annotation;
+
+public class Injector implements Inject{
     private static final Injector injector = new Injector();
 
     public static Injector getInjector() {
@@ -8,6 +10,11 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+        return null;
+    }
+
+    @Override
+    public Class<? extends Annotation> annotationType() {
         return null;
     }
 }
