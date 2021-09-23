@@ -64,16 +64,16 @@ public class Injector {
             if (interfacesImplMap.containsKey(interfaceClazz)) {
                 return interfacesImplMap.get(interfaceClazz).stream()
                         .findFirst()
-                        .orElseThrow(() -> new RuntimeException("There are"
-                                + " no classes that implement this interface: " + interfaceClazz.getName()));
+                        .orElseThrow(() -> new RuntimeException("There are no classes that"
+                                + " implement this interface: " + interfaceClazz.getName()));
             }
             Reflections reflections = new Reflections("mate.academy.service");
             Set<Class<?>> classes = reflections.getSubTypesOf((Class<Object>) interfaceClazz);
             interfacesImplMap.put(interfaceClazz, classes);
             return classes.stream()
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("There are"
-                            + " no classes that implement this interface: " + interfaceClazz.getName()));
+                    .orElseThrow(() -> new RuntimeException("There are no classes that implement"
+                            + " this interface: " + interfaceClazz.getName()));
         }
         return interfaceClazz;
     }
