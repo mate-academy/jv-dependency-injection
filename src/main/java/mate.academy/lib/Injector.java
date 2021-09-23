@@ -1,19 +1,16 @@
 package mate.academy.lib;
 
-import mate.academy.service.FileReaderService;
-import mate.academy.service.ProductParser;
-import mate.academy.service.ProductService;
-import mate.academy.service.impl.FileReaderServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import org.reflections.Reflections;
 
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Set<Class<?>>> interfacesImplMap = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -48,7 +45,8 @@ public class Injector {
         }
         try {
             if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Class has no annotation @Component: " + clazz.getName());
+                throw new RuntimeException("Class has no annotation @Component:"
+                        + " " + clazz.getName());
             }
             Object instance = clazz.getConstructor().newInstance();
             instances.put(clazz, instance);
@@ -60,13 +58,20 @@ public class Injector {
         }
     }
 
+    @SuppressWarnings({"unchecked"})
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfacesImplMap = new HashMap<>();
-        interfacesImplMap.put(ProductService.class, ProductServiceImpl.class);
-        interfacesImplMap.put(ProductParser.class, ProductParserImpl.class);
-        interfacesImplMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfacesImplMap.get(interfaceClazz);
+            if (interfacesImplMap.containsKey(interfaceClazz)) {
+                return interfacesImplMap.get(interfaceClazz).stream()
+                        .findFirst()
+                        .get();
+            }
+            Reflections reflections = new Reflections("mate.academy.service");
+            Set<Class<?>> classes = reflections.getSubTypesOf((Class<Object>) interfaceClazz);
+            interfacesImplMap.put(interfaceClazz, classes);
+            return classes.stream()
+                    .findFirst()
+                    .get();
         }
         return interfaceClazz;
     }
