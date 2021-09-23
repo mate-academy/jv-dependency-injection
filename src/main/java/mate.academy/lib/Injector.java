@@ -24,8 +24,8 @@ public class Injector {
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         checkAnnotation(clazz);
-        Field[] fieldsDeclaration = clazz.getDeclaredFields();
-        for (Field field : fieldsDeclaration) {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 classImplementationInstance = createNewInstance(clazz);
