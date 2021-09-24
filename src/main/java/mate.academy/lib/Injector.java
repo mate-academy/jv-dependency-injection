@@ -9,8 +9,8 @@ import org.reflections.Reflections;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Set<Class<?>>> interfacesImplMap = new HashMap<>();
+    private static final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Set<Class<?>>> interfacesImplMap = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
