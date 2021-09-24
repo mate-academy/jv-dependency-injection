@@ -21,18 +21,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.equals(ProductServiceImpl.class)
-                && !interfaceClazz.equals(ProductService.class)
-                && !interfaceClazz.equals(ProductParser.class)
-                && !interfaceClazz.equals(ProductParserImpl.class)
-                && !interfaceClazz.equals(FileReaderServiceImpl.class)
-                && !interfaceClazz.equals(FileReaderService.class)) {
-            throw new RuntimeException("Unsupported class:" + interfaceClazz);
-        }
         Object clazzImplementationInstance = null;
-        if (interfaceClazz.equals(ProductService.class)) {
-            interfaceClazz = ProductServiceImpl.class;
-        }
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -51,7 +40,6 @@ public class Injector {
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
-
         return clazzImplementationInstance;
     }
 
@@ -74,6 +62,11 @@ public class Injector {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        if (interfaceImplementations.get(interfaceClazz) == null) {
+            throw new RuntimeException("unsupported class has been passed: "
+                    + interfaceClazz);
+        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
