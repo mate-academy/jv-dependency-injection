@@ -23,6 +23,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("This class doesn't have @Component annotation: " + interfaceClazz);
+        }
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
