@@ -16,9 +16,6 @@ public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
 
-    private Injector() {
-    }
-
     public static Injector getInjector() {
         return injector;
     }
@@ -59,23 +56,33 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance " + e);
         }
     }
+    private boolean isComponent(Class<?> Interface){
+        if (Interface.isAnnotationPresent(Component.class)){
+            return true;
+        }
+        throw new RuntimeException("Interface: "
+                + Interface.getName()
+                + " without annotation: "
+                + Component.class);
+    }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if(!interfaceClazz.isInterface()){
+            isComponent(interfaceClazz);
+            return interfaceClazz;
+        }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        if (interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
-            return interfaceImplementations.get(interfaceClazz);
+        Class<?> implementation = interfaceImplementations.get(interfaceClazz);
+        if (isComponent(implementation)) {
+            return implementation;
         }
-        throw new RuntimeException("Instance: "
-                + interfaceImplementations.get(interfaceClazz)
-                + " without annotation: "
-                + Component.class);
+        return null;
     }
 }
