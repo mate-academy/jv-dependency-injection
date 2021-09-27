@@ -22,8 +22,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't get instance of a class without annotation! "
-                    + clazz);
+            throw new RuntimeException("Can't get instance of a class without "
+                    + "@Component annotation! " + System.lineSeparator()
+                    + "Please add it in: " + clazz);
         }
         Object clazzImplementationInstance = null;
         Field[] declaredFields = clazz.getDeclaredFields();
