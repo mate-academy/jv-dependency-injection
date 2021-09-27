@@ -62,12 +62,17 @@ public class Injector {
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            if (interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+                return interfaceImplementation.get(interfaceClazz);
+            } else {
+                throw new RuntimeException("Missing @Component annotation "
+                        + "in implementation this interface " + interfaceClazz.getName());
+            }
         }
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Missing @Component annotation in this class "
-                    + interfaceClazz.getName());
+        if (interfaceClazz.isAnnotationPresent(Component.class)) {
+            return interfaceClazz;
         }
-        return interfaceClazz;
+        throw new RuntimeException("Missing @Component annotation in this class "
+                + interfaceClazz.getName());
     }
 }
