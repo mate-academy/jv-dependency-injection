@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -23,8 +22,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class: "
-                    + interfaceClazz.getName() + " can`t be initialized with injector.");
+            throw new RuntimeException("Class: " + interfaceClazz.getName()
+                    + " can`t be initialized with injector. "
+                    + "Because annotation @Components is absent.");
         }
         Field[] fields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
