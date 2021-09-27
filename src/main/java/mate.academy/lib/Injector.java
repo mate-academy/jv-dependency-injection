@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -21,9 +20,11 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!(interfaceClazz.isInterface())
-                && !(interfaceClazz.isAnnotationPresent(Component.class))) {
-            throw new RuntimeException("Class is unsupported.");
+        if (!interfaceClazz.isInterface()
+                && !interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class can't be an interface "
+                    + "and must have an annotation @Component."
+                    + "Unsupported class/interface: " + interfaceClazz.getName());
         }
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementationInstance(interfaceClazz);
@@ -62,8 +63,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName());
         }
     }
