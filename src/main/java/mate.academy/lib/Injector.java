@@ -26,6 +26,11 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = interfaceClazz.isInterface()
                 ? interfaceImplementations.get(interfaceClazz) : interfaceClazz;
+        if (clazz == null) {
+            throw new RuntimeException("Injection failed, "
+                    + "there is no implementation for interface " + interfaceClazz.getName());
+        }
+        checkAnnotation(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -47,10 +52,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed, "
-                    + "missing @Component annotation on the class " + clazz.getName());
-        }
         if (classInstances.containsKey(clazz)) {
             return classInstances.get(clazz);
         }
@@ -63,6 +64,14 @@ public class Injector {
                 | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName(), e);
         }
+    }
+
+    private boolean checkAnnotation(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, "
+                    + "missing @Component annotation on the class " + clazz.getName());
+        }
+        return true;
     }
 
     private static void createMap() {
