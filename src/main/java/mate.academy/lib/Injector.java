@@ -21,15 +21,9 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface()) {
-            if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Injection failed, missing @Component annotation"
-                        + " on the class " + interfaceClazz.getName());
-            }
-        }
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -69,6 +63,10 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        if (!interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, missing @Component annotation"
+                     + " on the class " + interfaceClazz.getName());
+        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
