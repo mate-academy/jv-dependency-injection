@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -52,15 +51,19 @@ public class Injector {
                 Object instance = constructor.newInstance();
                 instances.put(clazz, instance);
                 return instance;
-            } catch (NoSuchMethodException | InvocationTargetException
-                    | InstantiationException | IllegalAccessException e) {
+            } catch (ReflectiveOperationException e) {
                 throw new RuntimeException("Can't create new instance of " + clazz.getName());
             }
         }
-        throw new RuntimeException("Can't create new instance of " + clazz.getName());
+        throw new RuntimeException("Can't create new instance of " + clazz.getName()
+                + "annotation \"Component\" is absent");
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isInterface()) {
+            throw new RuntimeException(interfaceClazz.getName()
+                    + "is not an interface! Please provide valid interface.");
+        }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
