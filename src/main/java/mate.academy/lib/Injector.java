@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -24,7 +23,8 @@ public class Injector {
         Object classImplInstance = null;
         Class<?> clazz = getImplementation(interfaceClazz);
         if (clazz == null) {
-            throw new RuntimeException("Injection failed, pass Null");
+            throw new RuntimeException("Injection failed, pass Null. "
+                    + "No implementation of the interface: " + interfaceClazz);
         }
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed,"
@@ -59,8 +59,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                | IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Can't create new instance of " + clazz);
         }
     }
