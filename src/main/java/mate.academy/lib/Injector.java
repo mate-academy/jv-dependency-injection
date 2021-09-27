@@ -21,11 +21,11 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class: "
                     + interfaceClazz.getName() + " can`t be initialized with injector.");
         }
-        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] fields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
         for (Field field : fields) {
