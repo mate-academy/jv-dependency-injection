@@ -1,6 +1,5 @@
 package mate.academy.lib;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,12 +18,12 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClass) {
         Class<?> classImplementation = ImplementationMap.get(interfaceClass);
         if (!classImplementation.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed, missing annotation @Component on the class "
-                    + classImplementation.getName());
+            throw new RuntimeException("Injection failed, missing annotation "
+                    + "@Component on the class " + classImplementation.getName());
         }
-        Field[] fields = classImplementation.getFields();
+        Field[] declaredFields = classImplementation.getDeclaredFields();
         Object classImplementationInstance = null;
-        for (Field field: fields) {
+        for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 classImplementationInstance = createNewInstance(classImplementation);
