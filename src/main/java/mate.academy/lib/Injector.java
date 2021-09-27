@@ -61,8 +61,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (!interfaceClazz.isInterface()) {
-            throw new RuntimeException(interfaceClazz.getName()
-                    + "is not an interface! Please provide valid interface.");
+            return interfaceClazz;
         }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
