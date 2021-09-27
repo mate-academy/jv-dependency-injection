@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -60,29 +59,26 @@ public class Injector {
             throw new RuntimeException("Can't create a new instance " + e);
         }
     }
-    private boolean isComponent(Class<?> Interface){
-        if (Interface.isAnnotationPresent(Component.class)){
+
+    private boolean isComponent(Class<?> interfaceToCheck) {
+        if (interfaceToCheck.isAnnotationPresent(Component.class)) {
             return true;
         }
         throw new RuntimeException("Interface: "
-                + Interface.getName()
+                + interfaceToCheck.getName()
                 + " without annotation: "
                 + Component.class);
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if(!interfaceClazz.isInterface()){
-            isComponent(interfaceClazz);
-            return interfaceClazz;
-        }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         Class<?> implementation = interfaceImplementations.get(interfaceClazz);
-        if (isComponent(implementation)) {
-            return implementation;
+        if(implementation.isInterface() && isComponent(interfaceClazz)){
+            return interfaceImplementations.get(implementation);
         }
-        return null;
+        return interfaceClazz;
     }
 }
