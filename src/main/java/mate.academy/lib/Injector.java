@@ -54,7 +54,7 @@ public class Injector {
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of "
-                    + clazz.getName() + " @Component annotation is missing.");
+                    + clazz.getName());
         }
     }
 
@@ -65,7 +65,8 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (!interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't create an instance of the class"
-                    + interfaceImplementations.get(interfaceClazz).getName());
+                    + interfaceImplementations.get(interfaceClazz).getName()
+                    + " @Component annotation is missing.");
         }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
