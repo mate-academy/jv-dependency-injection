@@ -19,6 +19,7 @@ public class Injector {
     public static Injector getInjector() {
         return injector;
     }
+
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
