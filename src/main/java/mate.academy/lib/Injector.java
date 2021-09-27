@@ -22,6 +22,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        isComponent(clazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -60,24 +61,22 @@ public class Injector {
         }
     }
 
-    private boolean isComponent(Class<?> interfaceToCheck) {
-        if (interfaceToCheck.isAnnotationPresent(Component.class)) {
-            return true;
+    private void isComponent(Class<?> interfaceToCheck) {
+        if (!interfaceToCheck.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Interface: "
+                    + interfaceToCheck.getName()
+                    + " without annotation: "
+                    + Component.class);
         }
-        throw new RuntimeException("Interface: "
-                + interfaceToCheck.getName()
-                + " without annotation: "
-                + Component.class);
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        Class<?> implementation = interfaceImplementations.get(interfaceClazz);
-        if(implementation.isInterface() && isComponent(interfaceClazz)){
-            return interfaceImplementations.get(implementation);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
