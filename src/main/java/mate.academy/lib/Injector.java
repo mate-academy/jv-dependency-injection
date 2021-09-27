@@ -57,22 +57,20 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>,Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>,Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Class<?> clazz;
         if (interfaceClazz.isInterface()) {
-            if (interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
-                return interfaceImplementation.get(interfaceClazz);
-            } else {
-                throw new RuntimeException("Missing @Component annotation "
-                        + "in implementation this interface " + interfaceClazz.getName());
-            }
+            clazz = interfaceImplementations.get(interfaceClazz);
+        } else {
+            clazz = interfaceClazz;
         }
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            return interfaceClazz;
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Missing @Component annotation in this class "
+                    + clazz.getName());
         }
-        throw new RuntimeException("Missing @Component annotation in this class "
-                + interfaceClazz.getName());
+        return clazz;
     }
 }
