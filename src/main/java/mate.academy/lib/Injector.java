@@ -51,8 +51,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(implementationClass, instance);
             return instance;
-        } catch (InstantiationException | InvocationTargetException
-                | NoSuchMethodException | IllegalAccessException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Can't create inctance of class "
                     + implementationClass.getName(), e);
         }

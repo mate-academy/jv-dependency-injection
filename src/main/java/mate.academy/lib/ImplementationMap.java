@@ -15,7 +15,10 @@ public class ImplementationMap {
             ProductService.class, ProductServiceImpl.class);
 
     public static Class<?> get(Class<?> interfaceClass) {
-        return interfaceImplementations.get(interfaceClass);
+        if (interfaceClass.isInterface()) {
+            return interfaceImplementations.get(interfaceClass);
+        }
+        return interfaceClass;
     }
 
 }
