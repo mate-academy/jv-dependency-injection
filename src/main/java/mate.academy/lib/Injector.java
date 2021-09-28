@@ -22,24 +22,29 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-        Object clazzImplementationInstance = createNewInstance(clazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Annotation @Component doesn't exist in class: "
-                    + clazz.getName());
-        }
         for (Field field : declaredFields) {
+            if (!clazz.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Annotation @Component doesn't exist in class: "
+                        + clazz.getName());
+            }
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
-                            + "Class: " + clazz.getName() + " Field: " + field.getName());
+                            + "Class: " + clazz.getName()
+                            + " Field: " + field.getName());
                 }
             }
+        }
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
