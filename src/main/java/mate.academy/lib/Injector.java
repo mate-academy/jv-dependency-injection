@@ -7,8 +7,7 @@ import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
-
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private static Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
