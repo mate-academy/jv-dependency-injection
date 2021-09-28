@@ -61,11 +61,11 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceOrImplementation) {
         if (!interfaceOrImplementation.isInterface()) {
-            interfaceAndImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-            interfaceAndImplementation.put(ProductService.class, ProductServiceImpl.class);
-            interfaceAndImplementation.put(ProductParser.class, ProductParserImpl.class);
             return interfaceOrImplementation;
         }
+        interfaceAndImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceAndImplementation.put(ProductService.class, ProductServiceImpl.class);
+        interfaceAndImplementation.put(ProductParser.class, ProductParserImpl.class);
         return interfaceAndImplementation.get(interfaceOrImplementation);
     }
 }
