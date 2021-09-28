@@ -20,7 +20,6 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
