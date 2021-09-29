@@ -62,7 +62,7 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can not create clazz");
+            throw new RuntimeException("Can not create clazz!!!");
         }
 
     }
@@ -78,6 +78,6 @@ public class Injector {
         if (interfaceImplementations.containsValue(interfaceClazz)) {
             return interfaceClazz;
         }
-        throw new RuntimeException("Can not found implement class");
+        throw new RuntimeException("Can not found implement class!!!");
     }
 }
