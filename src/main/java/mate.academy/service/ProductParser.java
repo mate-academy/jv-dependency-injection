@@ -11,4 +11,5 @@ public interface ProductParser {
      * @return newly create {@link Product} object based on the `productInfo` input.
      */
     Product parse(String productInfo);
+
 }
