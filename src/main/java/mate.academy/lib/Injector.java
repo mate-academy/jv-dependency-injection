@@ -24,21 +24,12 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = clazz.getDeclaredFields();
-        if (declaredFields.length == 0
-                || Arrays.stream(declaredFields)
-                .filter(f -> f.getType().isPrimitive())
-                .count() == declaredFields.length) {
-            return createNewInstance(clazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("No '@Component' Annotation");
         }
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
-            if (!field.getType().isPrimitive()
-                    && !findImplementation(field.getType()).isAnnotationPresent(Component.class)
-            ) {
-                throw new RuntimeException("No '@Component' Annotation");
-            } else if (!field.getType().isPrimitive()
-                    && field.isAnnotationPresent(Inject.class)
-                    && findImplementation(field.getType()).isAnnotationPresent(Component.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
@@ -49,9 +40,9 @@ public class Injector {
                             + " Class: " + clazz.getName() + "Field: " + field.getName());
                 }
             }
-            if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstance(clazz);
-            }
+        }
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
@@ -67,7 +58,7 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can't create a new instance " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
