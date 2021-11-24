@@ -24,7 +24,8 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
 
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Annotation \"@Component\" not find");
+            throw new RuntimeException("Annotation \"@Component\" not find in class: "
+                    + clazz.getName());
         }
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -35,7 +36,8 @@ public class Injector {
                 try {
                     field.set(clazzImpInst, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("I can`t initialized value in field");
+                    throw new RuntimeException("I can`t initialized value in field: "
+                            + field.getName());
                 }
             }
         }
