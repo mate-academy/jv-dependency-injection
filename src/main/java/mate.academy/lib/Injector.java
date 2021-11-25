@@ -21,7 +21,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = finedImplementations(interfaceClazz);
+        Class<?> clazz = finedImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + clazz.getName()
                     + " has not @Component annotation.");
@@ -61,7 +61,7 @@ public class Injector {
         }
     }
 
-    private Class<?> finedImplementations(Class<?> interfaceClazz) {
+    private Class<?> finedImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
