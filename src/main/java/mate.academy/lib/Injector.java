@@ -22,6 +22,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("The implementation of interface: "
+                    + interfaceClazz.getName() + "does not have annotation @Component");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -64,7 +68,6 @@ public class Injector {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        throw new RuntimeException("The implementation of interface: " + interfaceClazz.getName()
-                + "does not have annotation @Component");
+        return interfaceClazz;
     }
 }
