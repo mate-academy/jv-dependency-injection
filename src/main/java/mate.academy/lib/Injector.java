@@ -15,7 +15,7 @@ public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
-    public static final Injector getInjector() {
+    public static Injector getInjector() {
         return injector;
     }
 
