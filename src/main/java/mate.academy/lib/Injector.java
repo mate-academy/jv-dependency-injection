@@ -50,14 +50,13 @@ public class Injector {
             return instances.get(clazz);
         }
         Constructor<?> constructor;
-        Object instance;
         try {
             constructor = clazz.getConstructor();
-            instance = constructor.newInstance();
+            Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance in " + e);
+            throw new RuntimeException("Can't create a new instance in ", e);
         }
     }
 
