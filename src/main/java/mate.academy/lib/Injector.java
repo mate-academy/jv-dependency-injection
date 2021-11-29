@@ -20,7 +20,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImpInst = null;
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Annotation \"@Component\" not find in class: "
@@ -30,20 +30,20 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImpInst = createNewInstance(clazz);
+                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
-                    field.set(clazzImpInst, fieldInstance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("I can`t initialized value in field: "
-                            + field.getName());
+                    throw new RuntimeException("I can`t initialized value in class: "
+                            + clazz.getName() + ", Field:" + field.getName());
                 }
             }
         }
-        if (clazzImpInst == null) {
-            clazzImpInst = createNewInstance(clazz);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
-        return clazzImpInst;
+        return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -61,11 +61,11 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImpl = new HashMap<>();
-        interfaceImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImpl.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImpl.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         return interfaceClazz.isInterface()
-                ? interfaceImpl.get(interfaceClazz) : interfaceClazz;
+                ? interfaceImplementations.get(interfaceClazz) : interfaceClazz;
     }
 }
