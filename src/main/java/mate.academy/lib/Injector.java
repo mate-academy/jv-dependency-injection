@@ -23,7 +23,7 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("It's not @Component class");
+            throw new RuntimeException("It's not @Component class " + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
