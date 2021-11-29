@@ -23,7 +23,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Implementation must have @Component annotation");
+            throw new RuntimeException("Implementation must have @Component annotation. Class name "
+                    + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -60,12 +61,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
-        implementationMap.put(ProductParser.class, ProductParserImpl.class);
-        implementationMap.put(ProductService.class, ProductServiceImpl.class);
-        implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
+        Map<Class<?>, Class<?>> implementationsMap = new HashMap<>();
+        implementationsMap.put(ProductParser.class, ProductParserImpl.class);
+        implementationsMap.put(ProductService.class, ProductServiceImpl.class);
+        implementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return implementationMap.get(interfaceClazz);
+            return implementationsMap.get(interfaceClazz);
         }
         return interfaceClazz;
     }
