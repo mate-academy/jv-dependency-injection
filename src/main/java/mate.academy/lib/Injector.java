@@ -23,7 +23,8 @@ public class Injector {
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("this class does not have the required annotation");
+            throw new RuntimeException("Injection failed, "
+                    + "missing @Component annotation on the class " + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -34,7 +35,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t initialize field");
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class: " + clazz.getName() + ". Field: " + field.getName());
                 }
             }
         }
