@@ -70,14 +70,14 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private Class<?> findImpl(Class<?> interfaceClass){
-       Map<Class<?>, Class<?>> interfaceImpls = new HashMap<>();
-       interfaceImpls.put(FileReaderService.class, FileReaderServiceImpl.class);
-       interfaceImpls.put(ProductParser.class, ProductParserImpl.class);
-       interfaceImpls.put(ProductService.class, ProductServiceImpl.class);
-       if (interfaceClass.isInterface()){
-          return interfaceImpls.get(interfaceClass);
-       }
-       return interfaceClass;
+    private Class<?> findImpl(Class<?> interfaceClass) {
+        Map<Class<?>, Class<?>> interfaceImpls = new HashMap<>();
+        interfaceImpls.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImpls.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImpls.put(ProductService.class, ProductServiceImpl.class);
+        if (interfaceClass.isInterface()) {
+            return interfaceImpls.get(interfaceClass);
+        }
+        return interfaceClass;
     }
 }
