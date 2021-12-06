@@ -68,6 +68,9 @@ public class Injector {
                 FileReaderService.class, FileReaderServiceImpl.class,
                 ProductParser.class, ProductParserImpl.class,
                 ProductService.class, ProductServiceImpl.class);
-        return clazzImplementationMap.get(interfaceClazz);
+        if (interfaceClazz.isInterface()) {
+            return clazzImplementationMap.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 }
