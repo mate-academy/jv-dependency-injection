@@ -68,10 +68,10 @@ public class Injector {
     }
 
     private Class<?> getImpl(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> clazzImplementationMap = new HashMap<>();
-        clazzImplementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        clazzImplementationMap.put(ProductParser.class, ProductParserImpl.class);
-        clazzImplementationMap.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> clazzImplementationMap = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         return clazzImplementationMap.get(interfaceClazz);
     }
 }
