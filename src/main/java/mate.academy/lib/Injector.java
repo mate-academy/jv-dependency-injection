@@ -24,9 +24,6 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class");
-        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -70,6 +67,9 @@ public class Injector {
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
+        }
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException();
         }
         return interfaceClazz;
     }
