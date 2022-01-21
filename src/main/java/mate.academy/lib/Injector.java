@@ -15,7 +15,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
 
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Object> instances = new HashMap<>(); //clazz, instance
 
     public static Injector getInjector() {
         return injector;
@@ -25,7 +25,7 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class is passed" + clazz.getName());
+            throw new RuntimeException("Class " + clazz.getName() + " doesn`t have @Component annotation");
         }
         Field[] declaredFields = clazz.getDeclaredFields();//array of class' fields
         for (Field field: declaredFields) {
@@ -37,7 +37,6 @@ public class Injector {
                 clazzImplementationInstance = createNewInstance(clazz);
 
                 //set field type object to interfaceClazz object
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -57,8 +56,7 @@ public class Injector {
         //if we have already created an object than let's use it
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
-        }
-        //create a new object
+        } //else create a new object
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
