@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,6 +23,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("This class doesn't support dependency-injection. Class: " + clazz.getName());
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -43,9 +47,14 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
         try {
             Constructor<?> constructor = clazz.getConstructor();
-            return constructor.newInstance();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
         } catch (NoSuchMethodException | InstantiationException
                 | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Can't create new instance of " + clazz);
@@ -57,6 +66,9 @@ public class Injector {
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceImplementation.get(interfaceClazz);
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementation.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 }
