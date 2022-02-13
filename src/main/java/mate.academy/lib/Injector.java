@@ -30,7 +30,7 @@ public class Injector {
     public Object getInstance(Class<?> parseClazz) {
         Class<?> clazz = findImplementation(parseClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class have not anotation @Component "
+            throw new RuntimeException("Class have not annotation @Component "
                     + parseClazz.getName());
         }
         Object clazzImplInstance = createNewInstance(clazz);
