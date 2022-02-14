@@ -14,13 +14,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-    private final Map<Class<?>, Object> implementationsMap = new HashMap<>();
+    private static Map<Class<?>, Class<?>> interfacesMap = new HashMap<>();
+    private final Map<Class<?>, Object> instancesMap = new HashMap<>();
 
     static {
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfacesMap.put(ProductParser.class, ProductParserImpl.class);
+        interfacesMap.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfacesMap.put(ProductService.class, ProductServiceImpl.class);
     }
 
     public static Injector getInjector() {
@@ -54,13 +54,13 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (implementationsMap.containsKey(clazz)) {
-            return implementationsMap.get(clazz);
+        if (instancesMap.containsKey(clazz)) {
+            return instancesMap.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            implementationsMap.put(clazz, instance);
+            instancesMap.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
                 | InstantiationException | IllegalAccessException e) {
@@ -70,7 +70,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            return interfacesMap.get(interfaceClazz);
         }
         return interfaceClazz;
     }
