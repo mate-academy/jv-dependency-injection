@@ -24,9 +24,9 @@ public class Injector {
             throw new RuntimeException("Can't create instance of "
                     + interfaceClazz.getName() + " class");
         }
-        Field[] fields = clazz.getFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplInstance = null;
-        for (Field field : fields) {
+        for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplInstance = createNewInstance(clazz);
