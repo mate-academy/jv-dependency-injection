@@ -1,7 +1,6 @@
 package mate.academy;
 
 import java.util.List;
-
 import mate.academy.lib.Inject;
 import mate.academy.lib.Injector;
 import mate.academy.model.Product;
