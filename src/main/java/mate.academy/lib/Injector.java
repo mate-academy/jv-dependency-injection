@@ -34,7 +34,7 @@ public class Injector {
                     + "there is no annotation @Component on class "
                     + interfaceClazz.getName());
         }
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object instanceOfField = getInstance(field.getType());
@@ -56,7 +56,7 @@ public class Injector {
 
     private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
-            return instances.getClass();
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
