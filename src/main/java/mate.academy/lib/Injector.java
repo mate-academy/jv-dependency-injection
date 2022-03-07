@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -24,13 +23,13 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
-                    "class " + interfaceClazz.getName() + " in not a component"
+                    "class " + interfaceClazz.getName() + " is not a component"
             );
         }
 
         Class<?> implementationClazz = findImplementation(interfaceClazz);
         Object instanceOfImplClazz = null;
-        Field[] fields = interfaceClazz.getFields();
+        Field[] fields = implementationClazz.getFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -62,8 +61,7 @@ public class Injector {
             instance = constructor.newInstance();
             instances.put(clazzImpl, instance);
             return instance;
-        } catch (InstantiationException | IllegalAccessException
-                | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("cant create new Instance of: " + clazzImpl.getName());
         }
     }
@@ -73,6 +71,6 @@ public class Injector {
         implementationMap.put(ProductParser.class, ProductParserImpl.class);
         implementationMap.put(ProductService.class, ProductServiceImpl.class);
         implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        return implementationMap.get(interfaceClazz);
+        return implementationMap.getOrDefault(interfaceClazz, interfaceClazz);
     }
 }
