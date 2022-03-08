@@ -32,7 +32,7 @@ public class Injector {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can`t get instance, "
                     + "there is no annotation @Component on class "
-                    + interfaceClazz.getName());
+                    + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -44,7 +44,7 @@ public class Injector {
                     field.set(clazzImplInstance, instanceOfField);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Initialising the field " + field.getName()
-                            + " of " + field.getClass() + " class, was fault", e);
+                            + " of " + field.getClass() + " class, was failed", e);
                 }
             }
         }
@@ -65,7 +65,7 @@ public class Injector {
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Creating an instance of "
-            + clazz.getName() + " class was fault", e);
+            + clazz.getName() + " class was failed", e);
         }
     }
 
