@@ -21,13 +21,12 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        Class<?> implementationClazz = findImplementation(interfaceClazz);
+        if (!implementationClazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
-                    "class " + interfaceClazz.getName() + " is not a component"
+                    "class " + implementationClazz.getName() + " is not a component"
             );
         }
-
-        Class<?> implementationClazz = findImplementation(interfaceClazz);
         Object instanceOfImplClazz = null;
         Field[] fields = implementationClazz.getFields();
         for (Field field : fields) {
