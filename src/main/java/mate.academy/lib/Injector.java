@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -25,7 +24,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class don`t annotated");
+            throw new RuntimeException(interfaceClazz + "don`t annotated");
         }
         for (Field field:declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -54,8 +53,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             System.out.println("Cant construct");
         }
         return null;
