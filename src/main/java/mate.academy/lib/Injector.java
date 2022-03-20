@@ -24,7 +24,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(interfaceClazz + "don`t annotated");
+            throw new RuntimeException(interfaceClazz.getName() + " don`t annotated");
         }
         for (Field field:declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -34,7 +34,7 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance,fieldInstance);
                 } catch (IllegalAccessException e) {
-                    System.out.println("Cant set this field");
+                    System.out.println("Cant set field : " + field.getName());
                 }
             }
         }
@@ -54,7 +54,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            System.out.println("Cant construct");
+            System.out.println("Cant construct object of " + clazz.getName() + " class");
         }
         return null;
     }
