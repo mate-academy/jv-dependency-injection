@@ -23,8 +23,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(interfaceClazz.getName() + " don`t annotated");
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(clazz.getName() + " don`t annotated");
         }
         for (Field field:declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
