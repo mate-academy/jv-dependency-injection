@@ -1,5 +1,9 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -7,16 +11,9 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Injector {
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instancesMap = new HashMap<>();
-
-
 
     public static Injector getInjector() {
         return injector;
@@ -25,8 +22,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object implementationClassInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class))
-        {
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
                 clazz.getName() + "is not a component"
         );
@@ -44,11 +40,11 @@ public class Injector {
                             + "Class: " + clazz.getName() + ". Field: " + field.getName());
                 }
             }
-            }
-            if (implementationClassInstance  == null) {
-                implementationClassInstance  = createNewInstance(clazz);
-            }
-            return implementationClassInstance ;
+        }
+        if (implementationClassInstance == null) {
+            implementationClassInstance = createNewInstance(clazz);
+        }
+        return implementationClassInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -64,7 +60,6 @@ public class Injector {
             throw new RuntimeException(clazz.getName() + "this class cannot be instantiated", e);
         }
     }
-
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
