@@ -1,5 +1,6 @@
 package mate.academy.lib;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -10,13 +11,14 @@ import mate.academy.DirectoryScanner;
 public class Injector {
     private static final String HARD_CODED_IMPL_PACKAGE = "mate.academy.service.impl";
     private static final String HARD_CODED_IMPL_DIRECTORY
-            = "src\\main\\java\\mate.academy\\service\\impl";
+            = ("src\\main\\java\\mate.academy\\service\\impl").replace("\\", File.separator);
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Class<?>> implementedInterfaces;
 
     private static final Map<Class<?>, Object> createdObjects = new HashMap<>();
 
     static {
+        System.out.println(HARD_CODED_IMPL_DIRECTORY);
         implementedInterfaces = new DirectoryScanner()
                 .getComponents(HARD_CODED_IMPL_DIRECTORY, HARD_CODED_IMPL_PACKAGE);
     }
