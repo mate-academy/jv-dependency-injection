@@ -6,6 +6,7 @@ import java.util.Map;
 import mate.academy.lib.Component;
 
 public class DirectoryScanner {
+    private static final Integer EXTENSION_LENGTH = 5;
 
     public Map<Class<?>, Class<?>> getComponents(String directoryName, String packageName) {
         File directory = new File(directoryName);
@@ -16,7 +17,7 @@ public class DirectoryScanner {
                 continue;
             }
             String classFullName = packageName + '.'
-                    + file.substring(0, file.length() - 5);
+                    + file.substring(0, file.length() - EXTENSION_LENGTH);
             Class<?> clazz = null;
             try {
                 clazz = Class.forName(classFullName);

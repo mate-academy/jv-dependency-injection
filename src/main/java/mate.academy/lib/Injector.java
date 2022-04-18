@@ -14,7 +14,6 @@ public class Injector {
             = ("src\\main\\java\\mate.academy\\service\\impl").replace("\\", File.separator);
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Class<?>> implementedInterfaces;
-
     private static final Map<Class<?>, Object> createdObjects = new HashMap<>();
 
     static {
@@ -47,7 +46,6 @@ public class Injector {
             }
         }
         return clientObject;
-
     }
 
     private void throwIfTypeNotSupported(Class<?> clazzType) {
