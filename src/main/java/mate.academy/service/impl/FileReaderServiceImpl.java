@@ -7,7 +7,7 @@ import java.util.List;
 import mate.academy.lib.Component;
 import mate.academy.service.FileReaderService;
 
-@Component(implementationOf = FileReaderService.class)
+@Component
 public class FileReaderServiceImpl implements FileReaderService {
     @Override
     public List<String> readFile(String fileName) {

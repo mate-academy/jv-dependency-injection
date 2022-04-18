@@ -5,7 +5,7 @@ import mate.academy.lib.Component;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
 
-@Component(implementationOf = ProductParser.class)
+@Component
 public class ProductParserImpl implements ProductParser {
     public static final int ID_POSITION = 0;
     public static final int NAME_POSITION = 1;

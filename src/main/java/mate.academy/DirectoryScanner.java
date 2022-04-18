@@ -18,16 +18,16 @@ public class DirectoryScanner {
             }
             String classFullName = packageName + '.'
                     + file.substring(0, file.length() - EXTENSION_LENGTH);
-            Class<?> clazz = null;
+            Class<?> clazz;
             try {
                 clazz = Class.forName(classFullName);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Error during file defining. File=" + classFullName, e);
             }
             if (clazz.isAnnotationPresent(Component.class)) {
-                Component annotation = clazz.getAnnotation(Component.class);
-                Class<?> interfaceImplementedByClazz = annotation.implementationOf();
-                implementations.put(interfaceImplementedByClazz, clazz);
+                for (Class<?> interfaceImplementedByClazz : clazz.getInterfaces()) {
+                    implementations.put(interfaceImplementedByClazz, clazz);
+                }
             }
         }
         return implementations;

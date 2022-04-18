@@ -9,7 +9,7 @@ import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 
-@Component(implementationOf = ProductService.class)
+@Component
 public class ProductServiceImpl implements ProductService {
     @Inject
     private ProductParser productParser;
