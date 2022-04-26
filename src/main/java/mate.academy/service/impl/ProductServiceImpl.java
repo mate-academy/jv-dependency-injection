@@ -11,8 +11,10 @@ import mate.academy.service.ProductService;
 
 @Component
 public class ProductServiceImpl implements ProductService {
-    @Inject private ProductParser productParser;
-    @Inject private FileReaderService fileReaderService;
+    @Inject
+    private ProductParser productParser;
+    @Inject
+    private FileReaderService fileReaderService;
 
     @Override
     public List<Product> getAllFromFile(String filePath) {
