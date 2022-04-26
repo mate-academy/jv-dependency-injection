@@ -38,7 +38,6 @@ public class Injector {
                 | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Can't create new instance of" + clazz.getName());
         }
-
     }
 
     private Class<?> findImplementation(Class<?> interfaceClass) {
