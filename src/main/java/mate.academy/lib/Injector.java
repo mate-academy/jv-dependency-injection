@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -23,6 +22,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClass) {
         Object classImplementationInstance = null;
         Class<?> classToBeImplemented = findImplementation(interfaceClass);
+        if (!(classToBeImplemented.isAnnotationPresent(Component.class))) {
+            throw new RuntimeException("Unsupported class was passed "
+                    + classToBeImplemented.getName());
+        }
         Field[] declaredFields = classToBeImplemented.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -53,8 +56,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clas,instance);
             return instance;
-        } catch (InvocationTargetException | InstantiationException
-                | IllegalAccessException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + clas.getName());
         }
     }
@@ -67,9 +69,6 @@ public class Injector {
         if (interfaceClass.isInterface()) {
             return interfaceImplementation.get(interfaceClass);
         }
-        return interfaceImplementation.keySet()
-                .stream()
-                .filter(c -> c.isAnnotationPresent(Component.class))
-                .findFirst().orElseThrow(() -> new RuntimeException("Unsupported class is passed"));
+        return interfaceClass;
     }
 }
