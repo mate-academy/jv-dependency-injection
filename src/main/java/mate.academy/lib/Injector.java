@@ -23,7 +23,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("There is no @Component annotation over class implementation "
+            throw new RuntimeException("There is no @Component annotation"
+                    + " over class implementation "
                     + interfaceClazz + " of interface " + interfaceClazz);
         }
         Field[] declaredFields = clazz.getDeclaredFields();
