@@ -46,7 +46,6 @@ public class Injector {
             clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
-
     }
 
     private Object createNewInstance(Class<?> clazz) {
