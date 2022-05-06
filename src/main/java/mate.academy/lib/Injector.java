@@ -21,22 +21,21 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> implementationClazz = findImplementation(interfaceClazz);
-        if (!implementationClazz.isAnnotationPresent(Component.class)) {
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Unsupported operation for class: "
                     + interfaceClazz.getName());
         }
-        Class<?> clazz = implementationClazz;
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't set fields" + field.getName(), e);
+                    throw new RuntimeException("Can't set field -> " + field.getName(), e);
                 }
             }
         }
