@@ -38,7 +38,7 @@ public class Injector {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName()
-                            + "Field: " + field.getName());
+                            + "Field: " + field.getName(), e);
                 }
             }
         }
