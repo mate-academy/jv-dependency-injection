@@ -14,6 +14,14 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final HashMap<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations;
+
+    {
+        interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -23,7 +31,9 @@ public class Injector {
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("this class does not have the required annotation");
+            throw new RuntimeException("There is no @Component annotation for "
+                    + interfaceClazz.getName()
+                    + " class");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -34,7 +44,11 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t initialize field");
+                    throw new RuntimeException("Can`t initialize field "
+                            + field.getName()
+                            + ", of "
+                            + clazz.getName()
+                            + " class.", e);
                 }
             }
         }
@@ -54,15 +68,11 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can`t create new Instance" + clazz.getName());
+            throw new RuntimeException("Can`t create new Instance of " + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
