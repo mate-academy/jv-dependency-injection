@@ -35,7 +35,7 @@ public class Injector {
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Something went wrong...");
+                    throw new RuntimeException("Something went wrong...", e);
                 }
             }
         }
@@ -55,7 +55,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of Class: " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of Class: "
+                    + clazz.getName(), e);
         }
     }
 
