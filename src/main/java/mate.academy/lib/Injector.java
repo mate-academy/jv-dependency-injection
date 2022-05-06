@@ -13,13 +13,14 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object instancesClazz = null;
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findRightRealization(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, "
@@ -30,25 +31,27 @@ public class Injector {
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                instancesClazz = createInstances(clazz);
+                clazzImplementationInstance = createInstances(clazz);
                 field.setAccessible(true);
                 try {
-                    field.set(instancesClazz, fieldInstance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName()
-                            + "Field: " + field.getName());
+                            + "Field: " + field.getName(), e);
                 }
             }
         }
-        if (instancesClazz == null) {
-            instancesClazz = createInstances(clazz);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createInstances(clazz);
         }
-        return instancesClazz;
+        return clazzImplementationInstance;
     }
 
     private Object createInstances(Class<?> clazz) {
-        Map<Class<?>, Object> instances = new HashMap<>();
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
