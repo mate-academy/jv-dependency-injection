@@ -31,13 +31,13 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize a field value "
                             + "Class: " + clazz.getName()
-                            + ". Field: " + field.getName());
+                            + ". Field: " + field.getName(), e);
                 }
             }
         }
@@ -51,7 +51,7 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
@@ -59,7 +59,7 @@ public class Injector {
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new intstance of "
-            + clazz.getName());
+            + clazz.getName(), e);
         }
     }
 
