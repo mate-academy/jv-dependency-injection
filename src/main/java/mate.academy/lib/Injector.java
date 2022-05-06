@@ -21,21 +21,21 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        if (!findImplementation(interfaceClazz).isAnnotationPresent(Component.class)) {
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Unsupported operation for class: "
                     + interfaceClazz.getName());
         }
-        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Something went wrong...");
+                    throw new RuntimeException("Can't set field -> " + field.getName(), e);
                 }
             }
         }
@@ -55,7 +55,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of Class: " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of Class: "
+                    + clazz.getName(), e);
         }
     }
 
