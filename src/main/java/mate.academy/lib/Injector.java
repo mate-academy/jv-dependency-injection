@@ -22,7 +22,8 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        Object clazzImplementationInstance = createNewInstance(clazz);
+        Class<?> implementationClazz = findContainsAnnotation(clazz);
+        Object clazzImplementationInstance = createNewInstance(implementationClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -68,23 +69,17 @@ public class Injector {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        return findImplementationInterface(interfaceClazz);
+        return interfaceClazz;
     }
 
-    private Class<?> findImplementationInterface(Class<?> interfaceClazz) {
+    private Class<?> findContainsAnnotation(Class<?> interfaceClazz) {
         if (!interfaceClazz.isInterface()
                 && interfaceClazz.isAnnotationPresent(Component.class)) {
             return interfaceClazz;
+        } else {
+            throw new RuntimeException("Can`t find class which implements "
+                    + interfaceClazz.getName()
+                    + " interface and has valid annotation @Component");
         }
-        Class<?>[] interfaces = interfaceClazz.getInterfaces();
-        for (Class<?> singleInterface : interfaces) {
-            if (singleInterface.equals(interfaceClazz)
-                    && interfaceClazz.isAnnotationPresent(Component.class)) {
-                return interfaceClazz;
-            }
-        }
-        throw new RuntimeException("Can`t find class which implements "
-                + interfaceClazz.getName()
-                + " interface and has valid annotation @Component");
     }
 }
