@@ -18,11 +18,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllFromFile(String filePath) {
-        if (fileReaderService == null || productParser == null) {
-            throw new RuntimeException("Can`t get all product because this "
-                    + productParser + " or " + fileReaderService
-                    + " is null");
-        }
         return fileReaderService.readFile(filePath)
                 .stream()
                 .map(productParser::parse)
