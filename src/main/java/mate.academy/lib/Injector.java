@@ -22,7 +22,8 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
+            throw new RuntimeException("Class: " + interfaceClazz.getName()
+                    + " does not have @Component annotation");
         }
         Object clazzImplementationInstance = null;
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -34,7 +35,7 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, instance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't create an instance");
+                    throw new RuntimeException("Can't set field " + field.getName(), e);
                 }
             }
         }
