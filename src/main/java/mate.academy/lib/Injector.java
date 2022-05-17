@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -23,30 +22,31 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object classImplementationInstance = null;
-        if (clazz.isAnnotationPresent(Component.class)) {
-            Field[] declaredFields = clazz.getDeclaredFields();
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance of class " + clazz.getSimpleName()
+                    + " . Class does not have @Component annotation");
+        }
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
 
-                    classImplementationInstance = createNewInstance(clazz);
+                classImplementationInstance = createNewInstance(clazz);
 
-                    try {
-                        field.setAccessible(true);
-                        field.set(classImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value. "
-                                + "Class: " + clazz.getName()
-                                + "Field: " + field.getName());
-                    }
+                try {
+                    field.setAccessible(true);
+                    field.set(classImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class: " + clazz.getName()
+                            + "Field: " + field.getName());
                 }
             }
-            if (classImplementationInstance == null) {
-                classImplementationInstance = createNewInstance(clazz);
-            }
-            return classImplementationInstance;
         }
-        throw new RuntimeException("Can't create an object");
+        if (classImplementationInstance == null) {
+            classImplementationInstance = createNewInstance(clazz);
+        }
+        return classImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -58,8 +58,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create an instance of" + clazz.getName());
         }
     }
