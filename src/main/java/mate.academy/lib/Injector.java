@@ -70,10 +70,7 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
-        } else {
-            return interfaceClazz;
-        }
+        return interfaceClazz.isInterface()
+                ? interfaceImplementations.get(interfaceClazz) : interfaceClazz;
     }
 }
