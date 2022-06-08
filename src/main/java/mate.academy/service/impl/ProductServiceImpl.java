@@ -13,7 +13,6 @@ import mate.academy.service.ProductService;
 public class ProductServiceImpl implements ProductService {
     @Inject
     private ProductParser productParser;
-
     @Inject
     private FileReaderService fileReaderService;
 
