@@ -22,12 +22,12 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Cannot create annotation of class. " + clazz.getName()
+                    + " didn't mark with annotation @Component");
+        }
         for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(Inject.class)) {
-                if (!field.getType().isAnnotationPresent(Component.class)) {
-                    throw new RuntimeException("Class " + field.getName()
-                            + " didn't mark with annotation @Component");
-                }
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
