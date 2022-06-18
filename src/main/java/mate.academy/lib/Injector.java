@@ -1,10 +1,7 @@
 package mate.academy.lib;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,17 +9,21 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Injector {
-    private static final String SERVICE_INTERFACE_PACKAGE_PATH =
-            "target/classes/mate/academy/service";
-    private static final String SERVICE_INSTANCE_PACKAGE_PATH =
-            "target/classes/mate/academy/service/impl";
+    private static final String SERVICE_INTERFACE_PACKAGE =
+            "mate.academy.service";
+    private static final String SERVICE_INSTANCE_PACKAGE =
+            "mate.academy.service.impl";
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instances = new HashMap<>();
     private static Map<Class<?>, Class<?>> interfaceImplementationMap;
 
     {
-        List<Class<?>> interfacesList = getListOfClass(Path.of(SERVICE_INTERFACE_PACKAGE_PATH));
-        List<Class<?>> implementsList = getListOfClass(Path.of(SERVICE_INSTANCE_PACKAGE_PATH));
+        AccessingAllClassesInPackage accessingAllClassesInPackage =
+                new AccessingAllClassesInPackage();
+        List<Class<?>> interfacesList = accessingAllClassesInPackage
+                .findAllClassesUsingClassLoader(SERVICE_INTERFACE_PACKAGE);
+        List<Class<?>> implementsList = accessingAllClassesInPackage
+                .findAllClassesUsingClassLoader(SERVICE_INSTANCE_PACKAGE);
         interfaceImplementationMap = IntStream.range(0, interfacesList.size())
                 .boxed()
                 .collect(Collectors.toMap(interfacesList::get, implementsList::get));
@@ -71,27 +72,6 @@ public class Injector {
             return interfaceClazz;
         }
         return interfaceImplementationMap.get(interfaceClazz);
-    }
-
-    private List<Class<?>> getListOfClass(Path path) {
-        List<Path> pathList;
-        try {
-            pathList = Files.list(path).collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException("Can`t open path of package: " + path, e);
-        }
-        return pathList.stream().map(Path::toString)
-                .filter(s -> s.contains(".class"))
-                .map(s -> s.replace("target\\classes\\", "")
-                        .replace(".class", "").replace("\\","."))
-                .map(s -> {
-                    try {
-                        return Class.forName(s);
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException("Can`t create class type with name: " + s, e);
-                    }
-                })
-                .collect(Collectors.toList());
     }
 
     private void checkInstancesMap(Map<Class<?>, Class<?>> map) {
