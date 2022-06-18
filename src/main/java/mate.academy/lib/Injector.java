@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -21,17 +22,14 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class");
+            throw new RuntimeException(
+                    "Cant initialize instance of class " + interfaceClazz.getSimpleName());
         }
-        Object clazzImplInstance = null;
-        try {
-            Constructor<?> constructor = clazz.getConstructor();
-            clazzImplInstance = constructor.newInstance();
-        } catch (NoSuchMethodException | InstantiationException
-                 | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Can`t create new instance of " + clazz.getSimpleName(), e);
-        }
+        Object clazzImplInstance = createNewInstance(clazz);
 
         for (Field declaredField : clazz.getDeclaredFields()) {
             if (declaredField.isAnnotationPresent(Inject.class)) {
@@ -44,6 +42,7 @@ public class Injector {
                 }
             }
         }
+        instances.put(clazz, clazzImplInstance);
         return clazzImplInstance;
     }
 
@@ -56,5 +55,17 @@ public class Injector {
             return interfaceImpl.get(interfaceClazz);
         }
         return interfaceClazz;
+    }
+
+    private Object createNewInstance(Class<?> clazz) {
+        Object clazzImplInstance;
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            clazzImplInstance = constructor.newInstance();
+        } catch (NoSuchMethodException | InstantiationException
+                 | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Can`t create new instance of " + clazz.getSimpleName(), e);
+        }
+        return clazzImplInstance;
     }
 }
