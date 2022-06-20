@@ -13,9 +13,9 @@ public class Injector {
             "mate.academy.service";
     private static final String SERVICE_INSTANCE_PACKAGE =
             "mate.academy.service.impl";
-    private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instances = new HashMap<>();
     private static Map<Class<?>, Class<?>> interfaceImplementationMap;
+    private static Injector injector = new Injector();
 
     {
         AccessingAllClassesInPackage accessingAllClassesInPackage =
@@ -31,6 +31,9 @@ public class Injector {
     }
 
     public static Injector getInjector() {
+        if (injector == null) {
+            injector = new Injector();
+        }
         return injector;
     }
 
@@ -54,6 +57,11 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can`t create instances of class: " + clazz.getName()
+                    + ". No Component anotattion");
+        }
+
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
