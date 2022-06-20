@@ -51,14 +51,10 @@ public class Injector {
         implementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         implementationsMap.put(ProductParser.class, ProductParserImpl.class);
         implementationsMap.put(ProductService.class, ProductServiceImpl.class);
-        return clazz.isInterface() ? implementationsMap.getOrDefault(clazz, clazz) : clazz;
+        return implementationsMap.getOrDefault(clazz, clazz);
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed, missing @Component annotaion"
-                    + " on the class " + clazz);
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -68,7 +64,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Cannot create constructor of class " + clazz);
+            throw new RuntimeException("Cannot create constructor of class " + clazz, e);
         }
     }
 }
