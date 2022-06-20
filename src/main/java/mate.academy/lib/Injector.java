@@ -62,7 +62,6 @@ public class Injector {
             throw new RuntimeException("Can`t create instances of class: " + clazz.getName()
                     + ". No Component anotattion");
         }
-
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
