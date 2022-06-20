@@ -27,9 +27,7 @@ public class Injector {
             throw new RuntimeException("Class " + clazz.getName() + " cant't be created");
         }
         for (Field field: declaredFields) {
-
             if (field.isAnnotationPresent(Inject.class)) {
-                //need to init
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstrance(clazz);
                 try {
