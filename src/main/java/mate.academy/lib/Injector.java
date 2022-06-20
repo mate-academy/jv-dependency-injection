@@ -13,11 +13,12 @@ public class Injector {
             "mate.academy.service";
     private static final String SERVICE_INSTANCE_PACKAGE =
             "mate.academy.service.impl";
-    private static final Map<Class<?>, Object> instances = new HashMap<>();
+    private static Map<Class<?>, Object> instances;
     private static Map<Class<?>, Class<?>> interfaceImplementationMap;
-    private static Injector injector = new Injector();
+    private static Injector injector;
 
     {
+        instances = new HashMap<>();
         AccessingAllClassesInPackage accessingAllClassesInPackage =
                 new AccessingAllClassesInPackage();
         List<Class<?>> interfacesList = accessingAllClassesInPackage
