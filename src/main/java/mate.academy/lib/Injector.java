@@ -9,7 +9,7 @@ import java.util.ServiceLoader;
 public class Injector {
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instancesMap = new HashMap<>();
-    private static final Map<Class<?>, Class<?>> interfacesImplementationClassMap = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceImplementationsMap = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
