@@ -17,8 +17,6 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> implementationClazz = findImplementationClass(interfaceClazz);
-        /* It seems to be better to move this check to the 'findImplementationClass()' method
-        before filling the 'interfacesImplementationClassMap', but then one test fails */
         if (!implementationClazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
                     "Injection failed, missing @Component annotation on the class "
