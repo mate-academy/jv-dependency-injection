@@ -64,13 +64,13 @@ public class Injector {
     }
 
     private Class<?> findImplementationClass(Class<?> interfaceClazz) {
-        if (interfacesImplementationClassMap.containsKey(interfaceClazz)) {
-            return interfacesImplementationClassMap.get(interfaceClazz);
+        if (interfaceImplementationsMap.containsKey(interfaceClazz)) {
+            return interfaceImplementationsMap.get(interfaceClazz);
         }
         ServiceLoader<?> implementationsLoader = ServiceLoader.load(interfaceClazz);
         for (Object implementation : implementationsLoader) {
             Class<?> implementationClazz = implementation.getClass();
-            interfacesImplementationClassMap.put(interfaceClazz, implementationClazz);
+            interfaceImplementationsMap.put(interfaceClazz, implementationClazz);
             return implementationClazz;
         }
         return interfaceClazz;
