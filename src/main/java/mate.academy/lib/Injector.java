@@ -4,12 +4,23 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instancesMap = new HashMap<>();
     private static final Map<Class<?>, Class<?>> interfaceImplementationsMap = new HashMap<>();
+
+    static {
+        interfaceImplementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementationsMap.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementationsMap.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -62,14 +73,8 @@ public class Injector {
     }
 
     private Class<?> findImplementationClass(Class<?> interfaceClazz) {
-        if (interfaceImplementationsMap.containsKey(interfaceClazz)) {
+        if (interfaceClazz.isInterface()) {
             return interfaceImplementationsMap.get(interfaceClazz);
-        }
-        ServiceLoader<?> implementationsLoader = ServiceLoader.load(interfaceClazz);
-        for (Object implementation : implementationsLoader) {
-            Class<?> implementationClazz = implementation.getClass();
-            interfaceImplementationsMap.put(interfaceClazz, implementationClazz);
-            return implementationClazz;
         }
         return interfaceClazz;
     }
