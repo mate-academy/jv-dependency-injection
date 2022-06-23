@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 class InjectorTest {
-    private Injector injector = Injector.getInjector();
+    private final Injector injector = Injector.getInjector();
 
     @Test
     public void component_isRetentionSet() {
@@ -58,13 +58,13 @@ class InjectorTest {
 
     @Test
     public void getInstance_invalidClassThrowsException() {
-        Assertions.assertThrows(RuntimeException.class, () -> injector.getInstance(String.class)
+        Assertions.assertThrows(RuntimeException.class, () -> injector.getInjector(String.class)
                 , "When unsupported class is passed you should throw RuntimeException");
     }
 
     @Test
     public void getInstance_productParserInstance() {
-        Object actual = injector.getInstance(ProductParser.class);
+        Object actual = injector.getInjector(ProductParser.class);
 
         Assertions.assertTrue(actual instanceof ProductParser,
                 "Injector should be able to generate instance of ProductParser");
@@ -72,7 +72,7 @@ class InjectorTest {
 
     @Test
     public void getInstance_productServiceInstance() {
-        Object actual = injector.getInstance(ProductService.class);
+        Object actual = injector.getInjector(ProductService.class);
 
         Assertions.assertTrue(actual instanceof ProductService,
                 "Injector should be able to generate instance of ProductService");
@@ -80,7 +80,7 @@ class InjectorTest {
 
     @Test
     public void getInstance_fileReaderInstance() {
-        Object actual = injector.getInstance(FileReaderService.class);
+        Object actual = injector.getInjector(FileReaderService.class);
 
         Assertions.assertTrue(actual instanceof FileReaderService,
                 "Injector should be able to generate instance of FileReader");
