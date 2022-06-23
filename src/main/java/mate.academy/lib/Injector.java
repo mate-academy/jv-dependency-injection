@@ -20,10 +20,6 @@ public class Injector {
         return injector;
     }
 
-    public static Object getInjector(Class<?> clazz) {
-        return injector.getInstance(clazz);
-    }
-
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
