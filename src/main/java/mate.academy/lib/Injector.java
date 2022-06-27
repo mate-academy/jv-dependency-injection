@@ -21,7 +21,7 @@ public class Injector {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Component annotation is missing");
         }
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -31,7 +31,7 @@ public class Injector {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value."
-                            + "Class: " + clazz.getName() + ". Field: " + field.getName());
+                            + "Class: " + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
         }
