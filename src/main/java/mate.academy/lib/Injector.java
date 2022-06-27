@@ -20,7 +20,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        if (!interfaceClazz.isAnnotationPresent(Component.class) && !interfaceClazz.isInterface()) {
             throw new RuntimeException("We can't create instance of " + interfaceClazz
                     + " through Injector. "
                     + interfaceClazz + " class has no @Component annotation");
