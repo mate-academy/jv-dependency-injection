@@ -29,9 +29,9 @@ public class Injector {
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
+                field.setAccessible(true);
                 Object fieldInstance = getInstance(field.getType());
                 classImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
