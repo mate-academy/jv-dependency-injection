@@ -22,7 +22,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object classImplementationInstance = null;
         Class<?> clazz = getImplementation(interfaceClazz);
-        componentAnnotationCheck(clazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Annotation @Component missed for class: "
+                    + clazz.getName());
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -53,13 +56,6 @@ public class Injector {
             return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
-    }
-
-    private void componentAnnotationCheck(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Annotation @Component missed for class: "
-                    + clazz.getName());
-        }
     }
 
     private Object createNewInstance(Class<?> clazz) {
