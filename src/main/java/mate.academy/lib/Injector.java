@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -13,14 +12,14 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Map<Class<?>, Object> INSTANCES = new HashMap<>();
-    private static final Map<Class<?>, Class<?>> IMPLEMENTATIONS = new HashMap<>();
     private static final Injector injector = new Injector();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> implementations = new HashMap<>();
 
-    static {
-        IMPLEMENTATIONS.put(FileReaderService.class, FileReaderServiceImpl.class);
-        IMPLEMENTATIONS.put(ProductService.class, ProductServiceImpl.class);
-        IMPLEMENTATIONS.put(ProductParser.class, ProductParserImpl.class);
+    {
+        implementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        implementations.put(ProductService.class, ProductServiceImpl.class);
+        implementations.put(ProductParser.class, ProductParserImpl.class);
     }
 
     public static Injector getInjector() {
@@ -30,7 +29,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object outputInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Object of the class "
                     + interfaceClazz.getName() + " couldn't be created");
         }
@@ -55,13 +54,13 @@ public class Injector {
     }
 
     private Object createInstance(Class<?> clazz) {
-        if (INSTANCES.containsKey(clazz)) {
-            return INSTANCES.get(clazz);
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            INSTANCES.put(clazz, instance);
+            instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Couldn't create an Instance of class: " + clazz.getName());
@@ -69,18 +68,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
-        if (IMPLEMENTATIONS.containsKey(clazz)) {
-            return IMPLEMENTATIONS.get(clazz);
+        if (implementations.containsKey(clazz)) {
+            return implementations.get(clazz);
         }
         if (clazz.isInterface()) {
             throw new RuntimeException("unknown class: " + clazz + " for injector");
         }
-        Set<Map.Entry<Class<?>, Object>> entries = INSTANCES.entrySet();
-        for (Map.Entry<Class<?>, Object> entry: entries) {
-            if (clazz.isInstance(entry.getKey())) {
-                return clazz;
-            }
-        }
-        throw new RuntimeException("unknown class: " + clazz + " for injector");
+        return clazz;
     }
 }
