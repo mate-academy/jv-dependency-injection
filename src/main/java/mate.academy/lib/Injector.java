@@ -63,7 +63,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Couldn't create an Instance of class: " + clazz.getName());
+            throw new RuntimeException("Couldn't create an instance of class: " + clazz.getName());
         }
     }
 
