@@ -7,14 +7,14 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
 class InjectorTest {
-    private Injector injector = Injector.getInjector();
+    private final Injector injector = Injector.getInjector();
 
     @Test
     public void component_isRetentionSet() {
@@ -90,10 +90,8 @@ class InjectorTest {
     public void getInstance_nestedInstanceCreated() {
         Field[] serviceFields = ProductServiceImpl.class.getDeclaredFields();
         boolean areAllPresent = Arrays.stream(serviceFields)
-                .allMatch(field -> {
-                    return Arrays.stream(field.getDeclaredAnnotations())
-                            .anyMatch(annotation -> annotation.annotationType().equals(Inject.class));
-                });
+                .allMatch(field -> Arrays.stream(field.getDeclaredAnnotations())
+                        .anyMatch(annotation -> annotation.annotationType().equals(Inject.class)));
 
         Assertions.assertTrue(areAllPresent, "ProductServiceImpl fields "
                 + "should be marked with Inject annotation to be initialized");
