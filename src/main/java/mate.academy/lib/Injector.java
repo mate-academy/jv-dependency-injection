@@ -8,6 +8,7 @@ import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
@@ -20,18 +21,18 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Object of this class " + clazz.getName()
-                    + " should has annotation Component");
-        }
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
         for (Field field : declaredFields) {
+            if (!clazz.isAnnotationPresent(Component.class)) {
+                throw new RuntimeException("Object of this class " + clazz.getName()
+                        + " should has annotation Component");
+            }
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = injector.getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
+                field.setAccessible(true);
                 try {
-                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value."
@@ -65,7 +66,7 @@ public class Injector {
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParser.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
