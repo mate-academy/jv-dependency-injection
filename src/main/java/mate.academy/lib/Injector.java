@@ -68,10 +68,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
-        if (implementations.containsKey(clazz)) {
-            return implementations.get(clazz);
-        }
         if (clazz.isInterface()) {
+            if (implementations.containsKey(clazz)) {
+                return implementations.get(clazz);
+            }
             throw new RuntimeException("unknown class: " + clazz + " for injector");
         }
         return clazz;
