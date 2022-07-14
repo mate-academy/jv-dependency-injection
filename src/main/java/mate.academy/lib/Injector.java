@@ -34,7 +34,6 @@ public class Injector {
 
                 clazzImplementationInstance = createNewInstance(clazz);
 
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
