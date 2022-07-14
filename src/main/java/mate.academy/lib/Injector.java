@@ -27,13 +27,10 @@ public class Injector {
                     + clazz.getName() + " class");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
-
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-
                 clazzImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -65,7 +62,6 @@ public class Injector {
 
     private Class<?> findImplemetation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
