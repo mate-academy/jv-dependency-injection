@@ -1,65 +1,28 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
-import java.util.Enumeration;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Injector {
-    private static Map<String, Injector> injectors = new HashMap<>();
+    private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
-    private List<Class<?>> classes = new ArrayList<>();
 
-    public Injector(String mainPackageName) {
-        classes.addAll(getClasses(mainPackageName));
-    }
-
-    private static List<Class<?>> getClasses(String packageName)
-            throws IOException, ClassNotFoundException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader == null) {
-            throw new RuntimeException("Class loader is null");
-        }
-        String path = packageName.replace(".", "/");
-        Enumeration<URL> resources = classLoader.getResource(path);
-        List<File> dirs = new ArrayList<>();
-        while(resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            dirs.add(new File(resource.getFile()));
-        }
-        List<Class<?>> classes = new ArrayList<>();
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName));
-        }
-        return classes;
-    }
-
-
-    public static Injector getInstance(String mainPackageName) {
-        if (injectors.containsKey(mainPackageName)) {
-            injectors.get(mainPackageName);
-        }
-        Injector injector = new Injector(mainPackageName);
-        injectors.put(mainPackageName, injector);
+    public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
+        Class<?> clazz = findClassExtendingInterface(findImplementation(interfaceClazz));
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -69,8 +32,9 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can not initialize field value. Class: "
-                            + clazz.getName() + ". Field: " + field.getName());
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class: " + clazz.getName()
+                            + ". Field: " + field.getName());
                 }
             }
         }
@@ -80,18 +44,27 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
+    private Class<?> findClassExtendingInterface(Class<?> certainInterface) {
+        if (certainInterface.isAnnotationPresent(Component.class)) {
+            return certainInterface;
+        }
+        throw new RuntimeException("Can't find class which implements "
+                + certainInterface.getName()
+                + " interface and has valid annotation (Component)");
+    }
+
     private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
-            instances.get(clazz);
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can not create new instance of " + clazz.getName());
+        } catch (NoSuchMethodException | IllegalAccessException
+                 | InstantiationException | InvocationTargetException e) {
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
     }
 
