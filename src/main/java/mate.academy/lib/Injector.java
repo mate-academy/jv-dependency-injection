@@ -21,6 +21,13 @@ public class Injector {
         return injector;
     }
 
+    {
+        interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    }
+
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = fieldImplementation(interfaceClazz);
@@ -48,13 +55,6 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
-    {
-        interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-    }
-
     private Class<?> fieldImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
@@ -72,8 +72,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                | InstantiationException | IllegalAccessException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Can't create instance of " + clazz.getName());
         }
     }
