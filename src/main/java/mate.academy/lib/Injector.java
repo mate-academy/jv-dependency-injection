@@ -65,13 +65,12 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of " + clazz.getName());
         }
     }
