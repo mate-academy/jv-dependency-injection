@@ -49,15 +49,15 @@ public class Injector {
         }
         try {
             if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new ReflectiveOperationException();
+                throw new ReflectiveOperationException("Injection failed, missing @Component "
+                        + "annotation on the class " + clazz.getName());
             }
             Constructor<?> clazzConstructor = clazz.getConstructor();
             Object instance = clazzConstructor.newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Injection failed, missing @Component "
-                    + "annotation on the class " + clazz.getName(), e);
+            throw new RuntimeException("Can`t create a new instance of " + clazz.getName(), e);
         }
     }
 
