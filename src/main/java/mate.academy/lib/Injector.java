@@ -49,7 +49,7 @@ public class Injector {
         }
         try {
             if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new ReflectiveOperationException("Injection failed, missing @Component "
+                throw new RuntimeException("Injection failed, missing @Component "
                         + "annotation on the class " + clazz.getName());
             }
             Constructor<?> clazzConstructor = clazz.getConstructor();
