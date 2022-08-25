@@ -22,11 +22,14 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object injectedObject = null;
         Class<?> type = findTypeImplementationFor(interfaceClazz);
+        if (type == null) {
+            throw new RuntimeException("Don't have an implementation for the type: "
+                    + interfaceClazz.getName());
+        }
         if (!type.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(interfaceClazz.getName()
-                    + ": this class haven't annotation 'Component'.");
+                    + ": this class hasn't annotation 'Component'.");
         }
-
         Field[] fields = type.getDeclaredFields();
         for (Field field: fields) {
             if (field.isAnnotationPresent(Inject.class)) {
