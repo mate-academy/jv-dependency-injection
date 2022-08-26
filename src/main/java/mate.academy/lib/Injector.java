@@ -16,6 +16,7 @@ public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+
     {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
@@ -30,8 +31,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't initialize class" + interfaceClazz.getName()+
-                    " Component annotation should be present");
+            throw new RuntimeException("Can't initialize class" + interfaceClazz.getName()
+                    + " Component annotation should be present");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
