@@ -65,7 +65,7 @@ public class Injector {
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        if (!interfaceImplementation.containsKey(interfaceClazz)) {
+        if (!interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             throw new RuntimeException(interfaceClazz.getName() + " is not supported by Injector");
         }
         if (interfaceClazz.isInterface()) {
