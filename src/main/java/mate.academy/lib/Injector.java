@@ -22,6 +22,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object classImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance of class " + clazz.getName()
+                    + ", no Annotation @Component present");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -42,32 +46,26 @@ public class Injector {
         return classImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Component.class)) {
-            if (instances.containsKey(clazz)) {
-                return instances.get(clazz);
-            }
-            try {
-                Constructor<?> constructor = clazz.getConstructor();
-                Object instance = constructor.newInstance();
-                instances.put(clazz, instance);
-                return instance;
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Can't create a new instance of class "
-                        + clazz.getName(), e);
-            }
-
-        } else {
-            throw new RuntimeException("Can't create instance of class " + clazz.getName()
-                    + ", no Annotation @Component present");
-        }
-    }
-
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         return interfaceImplementations.get(interfaceClazz);
+    }
+
+    private Object createNewInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create a new instance of class "
+                    + clazz.getName(), e);
+        }
     }
 }
