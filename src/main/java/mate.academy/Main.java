@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
-        ProductService productService = (ProductService) Injector.getInstance(ProductService.class);
+        ProductService productService = (ProductService) injector.getInstance(ProductService.class);
         List<Product> products = productService.getAllFromFile("products.txt");
         products.forEach(System.out::println);
     }

@@ -20,7 +20,7 @@ public class Injector {
         return injector;
     }
 
-    public static Object getInstance(Class<?> interfaceClazz) {
+    public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
@@ -47,7 +47,7 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
-    private static Class<?> findImplementation(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
@@ -58,7 +58,7 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private static Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
