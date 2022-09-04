@@ -21,13 +21,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findClassImpl(interfaceClazz);
         checkClassAnnotation(clazz);
-
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         Object clazzImplInstance = null;
-
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
                 clazzImplInstance = createNewInstance(clazz);
             }
         }
