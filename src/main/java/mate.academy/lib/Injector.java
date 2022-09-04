@@ -32,10 +32,12 @@ public class Injector {
                 try {
                     field.set(implementationInstance, instance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value: ");
+                    throw new RuntimeException("Can't initialize field value: Class:"
+                            + clazzImplementation.getName() + ". Field: " + field);
                 }
             }
-            throw new RuntimeException();
+            throw new RuntimeException("Injection failed, missing @Component annotation "
+                    + "on the class" + clazzImplementation);
         }
 
         if (implementationInstance == null) {
@@ -56,7 +58,8 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
                  | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't create a new instance of class: "
+                    + clazzImplementation, e);
         }
     }
 
