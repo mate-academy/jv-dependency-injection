@@ -39,7 +39,6 @@ public class Injector {
             throw new RuntimeException("Injection failed, missing @Component annotation "
                     + "on the class" + clazzImplementation);
         }
-
         if (implementationInstance == null) {
             implementationInstance = createInstance(clazzImplementation);
         }
@@ -50,7 +49,6 @@ public class Injector {
         if (instances.containsKey(clazzImplementation)) {
             return instances.get(clazzImplementation);
         }
-
         try {
             Constructor<?> constructor = clazzImplementation.getConstructor();
             Object instance = constructor.newInstance();
