@@ -66,6 +66,9 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        return interfaceImplementations.get(interfaceClazz);
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementations.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 }
