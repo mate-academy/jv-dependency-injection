@@ -28,7 +28,15 @@ public class Injector {
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
                 newInstance = createNewInstance(clazz);
+                try {
+                    field.setAccessible(true);
+                    field.set(newInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. Class: "
+                            + clazz.getName() + ". Value: " + field.getName() + ".", e);
+                }
             }
         }
         if (newInstance == null) {
