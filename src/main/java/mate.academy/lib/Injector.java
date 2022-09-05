@@ -26,21 +26,21 @@ public class Injector {
             throw new RuntimeException("Class must be marked as Component "
                     + realizationClass.getName());
         }
-        Object result = null;
+        Object classInstance = null;
         Field[] fields = realizationClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                result = generateInstance(realizationClass);
+                classInstance = generateInstance(realizationClass);
                 try {
                     field.setAccessible(true);
-                    field.set(result, fieldInstance);
+                    field.set(classInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field " + field.getName(), e);
                 }
             }
         }
-        return result == null ? generateInstance(realizationClass) : result;
+        return classInstance == null ? generateInstance(realizationClass) : classInstance;
     }
 
     private Class<?> findRealizationClass(Class<?> interfaceClazz) {
