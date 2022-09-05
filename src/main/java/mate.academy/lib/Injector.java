@@ -27,7 +27,7 @@ public class Injector {
             throw new RuntimeException("Injection failed, missing @Component "
                     + "annotation on the class " + clazz.getName());
         }
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
