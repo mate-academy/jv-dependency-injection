@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -26,11 +25,8 @@ public class Injector {
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                //create a new object of field type
                 Object fieldInstance = getInstance(field.getType());
-                //create an object of "interfaceClazz object"
                 clazzImplementationInstance = createNewInstance(clazz);
-                //set "field type object" to "interfaceClazz object"
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -47,11 +43,9 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        // if we create an object - let's use it
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        //create a new object
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
