@@ -21,7 +21,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findInplementation(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -33,7 +33,7 @@ public class Injector {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName()
-                            + ". Field: " + field.getName());
+                            + ". Field: " + field.getName(), e);
                 }
             }
         }
@@ -53,11 +53,12 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of "
+                    + clazz.getName() + " :" + e);
         }
     }
 
-    private Class<?> findInplementation(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
