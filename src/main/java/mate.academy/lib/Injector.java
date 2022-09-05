@@ -25,7 +25,7 @@ public class Injector {
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't inject. Annotation @Component is absent in "
-                    + interfaceClazz);
+                    + clazz);
         }
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
