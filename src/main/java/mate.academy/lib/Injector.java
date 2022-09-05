@@ -61,12 +61,12 @@ public class Injector {
         }
     }
 
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> clazz) {
         Map<Class<?>, Class<?>> classImplementations = new HashMap<>();
         classImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         classImplementations.put(ProductService.class, ProductServiceImpl.class);
         classImplementations.put(ProductParser.class, ProductParserImpl.class);
-        return classImplementations.get(interfaceClazz) == null ? interfaceClazz
-                : classImplementations.get(interfaceClazz);
+        return classImplementations.containsKey(clazz) ? classImplementations.get(clazz)
+                : clazz;
     }
 }
