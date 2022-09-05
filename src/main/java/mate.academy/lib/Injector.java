@@ -22,10 +22,11 @@ public class Injector {
         Class<?> clazz = getImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + interfaceClazz
-                    + " can`t have annotation Component");
+                    + " doesn`t have annotation Component");
         }
         Object newInstance = null;
-        for (Field field : clazz.getDeclaredFields()) {
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 newInstance = createNewInstance(clazz);
             }
@@ -45,7 +46,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can`t create object " + clazz);
+            throw new RuntimeException("Can`t create object " + clazz
+            + "Exception " + e);
         }
     }
 
