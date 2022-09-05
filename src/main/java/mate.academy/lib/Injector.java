@@ -27,8 +27,9 @@ public class Injector {
         }
         if (!interfaceImplementation.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
-                    "The class is not marked with an appropriate annotation. "
-                    + "Unable to create an object.");
+                    "Class" + interfaceImplementation.getSimpleName()
+                            + "is not marked with an appropriate annotation. "
+                            + "Unable to create an object.");
         }
         Field[] declaredFields = interfaceImplementation.getDeclaredFields();
         Object interfaceClazzObject = null;
@@ -41,8 +42,8 @@ public class Injector {
                     field.set(interfaceClazzObject, fieldObject);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field. Class: "
-                            + interfaceClazz.getName()
-                            + ". Field: " + field.getName());
+                            + interfaceClazz.getSimpleName()
+                            + ". Field: " + field.getName(), e);
                 }
             }
         }
@@ -63,7 +64,7 @@ public class Injector {
             return newObject;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't get an instance of "
-                    + interfaceImplementation.getSimpleName());
+                    + interfaceImplementation.getSimpleName(), e);
         }
     }
 
