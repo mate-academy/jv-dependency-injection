@@ -23,7 +23,6 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -47,7 +46,6 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
@@ -59,16 +57,15 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class is not annotated as Component");
-        }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+        Class<?> clazzImpl = (interfaceClazz.isInterface())
+                ? interfaceImplementations.get(interfaceClazz) : interfaceClazz;
+        if (!clazzImpl.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class is not annotated as Component");
         }
-        return interfaceClazz;
+        return clazzImpl;
     }
 }
