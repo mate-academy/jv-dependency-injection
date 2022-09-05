@@ -23,7 +23,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(interfaceClazz.getName()
+            throw new RuntimeException(clazz.getName()
                     + " not have annotation @Component");
         }
         Object clazzImplementationInstance = null;
