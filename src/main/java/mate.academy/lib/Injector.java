@@ -60,6 +60,9 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isInterface()) {
+            return interfaceClazz;
+        }
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
