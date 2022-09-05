@@ -1,5 +1,11 @@
 package mate.academy.lib;
 
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -52,6 +58,17 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        return null;
+        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
+        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        if (!interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("@component annotation is missing. Class: "
+                    + interfaceClazz.getName());
+        }
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementation.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 }
