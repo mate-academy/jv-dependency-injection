@@ -25,7 +25,7 @@ public class Injector {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Unsupported class: " + clazz.getName());
         }
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
