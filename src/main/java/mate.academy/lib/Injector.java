@@ -22,18 +22,18 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findInplementation(interfaceClazz);
-
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("No no", e);
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class: " + clazz.getName()
+                            + ". Field: " + field.getName());
                 }
             }
         }
@@ -53,7 +53,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Cant create new instance of it");
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
     }
 
