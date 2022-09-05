@@ -25,7 +25,6 @@ public class Injector {
         if (interfaceClazz.isInterface()) {
             interfaceImplementation = interfaceImplementationMap.get(interfaceClazz);
         }
-
         if (!interfaceImplementation.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
                     "The class is not marked with an appropriate annotation. "
