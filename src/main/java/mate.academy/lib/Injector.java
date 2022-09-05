@@ -24,9 +24,8 @@ public class Injector {
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         Object clazzImplInstance = null;
         for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Component.class)) {
-                clazzImplInstance = createNewInstance(clazz);
-            }
+            field.equals(checkClassAnnotation(clazz));
+            clazzImplInstance = createNewInstance(clazz);
         }
         if (clazzImplInstance == null) {
             clazzImplInstance = createNewInstance(clazz);
