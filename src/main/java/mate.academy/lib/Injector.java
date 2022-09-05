@@ -26,8 +26,8 @@ public class Injector {
                     + "missing @Component annotation on the class "
                     + clazz.getName());
         }
-        Field[] declaredFields = clazz.getDeclaredFields();
-        for (Field field : declaredFields) {
+        Field[] clazzDeclaredFields = clazz.getDeclaredFields();
+        for (Field field : clazzDeclaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
@@ -71,3 +71,4 @@ public class Injector {
         return interfaceClazz;
     }
 }
+
