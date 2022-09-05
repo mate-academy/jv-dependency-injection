@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -24,20 +23,22 @@ public class Injector {
         Object implementationInstance = null;
         Class<?> clazzImplementation = findImplementation(interfaceClazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        if (!clazzImplementation.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, missing @Component annotation "
+                    + "on the class" + clazzImplementation);
+        }
         for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Inject.class)
-                    && clazzImplementation.isAnnotationPresent(Component.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object instance = getInstance(field.getType());
-                field.setAccessible(true);
+                implementationInstance = createInstance(clazzImplementation);
                 try {
+                    field.setAccessible(true);
                     field.set(implementationInstance, instance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value: Class:"
                             + clazzImplementation.getName() + ". Field: " + field);
                 }
             }
-            throw new RuntimeException("Injection failed, missing @Component annotation "
-                    + "on the class" + clazzImplementation);
         }
         if (implementationInstance == null) {
             implementationInstance = createInstance(clazzImplementation);
@@ -54,8 +55,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazzImplementation, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of class: "
                     + clazzImplementation, e);
         }
