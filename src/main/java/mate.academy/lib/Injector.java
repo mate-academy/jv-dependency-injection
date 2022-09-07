@@ -14,6 +14,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>,Class<?>> INTERFACE_IMPLEMENTATIONS = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class);
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -22,7 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
+        Class<?> clazz = INTERFACE_IMPLEMENTATIONS.get(interfaceClazz);
         if (clazz.isAnnotationPresent(Component.class)) {
             Field[] declaredFields = clazz.getDeclaredFields();
             for (Field field : declaredFields) {
@@ -61,16 +65,5 @@ public class Injector {
                  | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>,Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
-        }
-        return interfaceClazz;
     }
 }
