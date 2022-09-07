@@ -1,5 +1,6 @@
 package mate.academy.service;
 
+import mate.academy.lib.Component;
 import mate.academy.model.Product;
 
 public interface ProductParser {
