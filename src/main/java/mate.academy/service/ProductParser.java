@@ -1,6 +1,5 @@
 package mate.academy.service;
 
-import mate.academy.lib.Component;
 import mate.academy.model.Product;
 
 public interface ProductParser {
@@ -11,6 +10,5 @@ public interface ProductParser {
      * @param productInfo - the information about a product
      * @return newly create {@link Product} object based on the `productInfo` input.
      */
-    @Component
     Product parse(String productInfo);
 }
