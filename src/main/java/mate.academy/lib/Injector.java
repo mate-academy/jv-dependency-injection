@@ -23,6 +23,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplInst = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Annotation @Component is missing in class: "
+                    + clazz.getName());
+        }
         Field[] fields = clazz.getDeclaredFields();
         for (Field field: fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -59,7 +63,7 @@ public class Injector {
                 | InstantiationException
                 | IllegalAccessException e) {
             throw new RuntimeException("Can not create a new instance: "
-                    + clazz.getName());
+                    + clazz.getName(), e);
         }
     }
 
