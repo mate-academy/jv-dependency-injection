@@ -15,6 +15,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceAndImpl = new HashMap<>();
+
+    static {
+        interfaceAndImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceAndImpl.put(ProductService.class, ProductServiceImpl.class);
+        interfaceAndImpl.put(ProductParser.class, ProductParserImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -58,20 +65,13 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz,instance);
             return instances.get(clazz);
-        } catch (NoSuchMethodException
-                | InvocationTargetException
-                | InstantiationException
-                | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can not create a new instance: "
                     + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceAndImpl = new HashMap<>();
-        interfaceAndImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceAndImpl.put(ProductService.class, ProductServiceImpl.class);
-        interfaceAndImpl.put(ProductParser.class, ProductParserImpl.class);
         if (!interfaceAndImpl.containsKey(interfaceClazz)
                 && !interfaceAndImpl.containsValue(interfaceClazz)) {
             throw new RuntimeException("Wrong class: " + interfaceClazz.getName());
