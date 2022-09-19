@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -16,6 +15,12 @@ public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+
+    {
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -53,16 +58,12 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can`t create new instance of " + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (!interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can`t create instance of the "
                     + interfaceClazz.getName() + " missing annotation");
