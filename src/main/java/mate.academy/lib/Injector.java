@@ -39,7 +39,8 @@ public class Injector {
 
     private Object getNewInstance(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can`t create instance of " + clazz.getName()
+            throw new RuntimeException("Can`t create instance of "
+                    + clazz.getName()
                     + ",there is no @Component annotation");
         }
         if (instances.containsKey(clazz)) {
