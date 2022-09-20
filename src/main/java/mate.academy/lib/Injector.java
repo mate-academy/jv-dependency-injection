@@ -64,8 +64,9 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceImplementations.get(interfaceClazz).isAnnotationPresent(Component.class)
-                && interfaceImplementations.get(interfaceClazz) != null) {
+        if (interfaceImplementations.get(interfaceClazz) == null
+                && !interfaceImplementations.get(interfaceClazz)
+                .isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can`t create instance of the "
                     + interfaceClazz.getName() + " missing annotation");
         }
