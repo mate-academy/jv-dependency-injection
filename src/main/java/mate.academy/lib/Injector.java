@@ -13,13 +13,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static Map<Class<?>,Object> mapInstances = new HashMap<>();
+    private Map<Class<?>,Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
-    public static Object getInstance(Class<?> interfaceClazz) {
+    public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -29,7 +29,7 @@ public class Injector {
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createInstrance(clazz);
+                clazzImplementationInstance = createInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance,fieldInstance);
@@ -40,19 +40,19 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createInstrance(clazz);
+            clazzImplementationInstance = createInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private static Object createInstrance(Class<?> clazz) {
-        if (mapInstances.containsKey(clazz)) {
-            return mapInstances.get(clazz);
+    private Object createInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            mapInstances.put(clazz, instance);
+            instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(clazz.getName() + " cannot be created");
