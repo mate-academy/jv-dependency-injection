@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>,Object> instances = new HashMap<>();
+    private Map<Class<?>,Class<?>> interfaceMapImpl = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -36,10 +37,8 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplInstance == null) {
-            clazzImplInstance = createNewInstance(clazz);
-        }
-        return clazzImplInstance;
+        return (clazzImplInstance == null) ? createNewInstance(clazz)
+                : clazzImplInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -58,23 +57,12 @@ public class Injector {
     }
 
     private Class<?> findImplement(Class<?> interfaceClazz) {
-        Class<?> findClass = null;
-        Map<Class<?>,Class<?>> interfaceImpl = getMapInterfaceAndImplement();
-        if (interfaceImpl.containsKey(interfaceClazz)) {
-            findClass = interfaceImpl.get(interfaceClazz);
-        } else if (interfaceImpl.containsValue(interfaceClazz)) {
-            findClass = interfaceClazz;
+        Class<?> findClass = interfaceClazz;
+        if (interfaceMapImpl.containsKey(interfaceClazz)) {
+            findClass = interfaceMapImpl.get(interfaceClazz);
         }
         isAnnotationComponentPresent(findClass);
         return findClass;
-    }
-
-    private Map<Class<?>,Class<?>> getMapInterfaceAndImplement() {
-        Map<Class<?>,Class<?>> interfaceMapImpl = new HashMap<>();
-        interfaceMapImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceMapImpl.put(ProductParser.class, ProductParserImpl.class);
-        interfaceMapImpl.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceMapImpl;
     }
 
     private Boolean isAnnotationComponentPresent(Class<?> clazz) {
@@ -83,5 +71,11 @@ public class Injector {
         }
         throw new RuntimeException("Before create instance class "
                 + "should have @Component annotation " + clazz.getName());
+    }
+
+    {
+        interfaceMapImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceMapImpl.put(ProductParser.class, ProductParserImpl.class);
+        interfaceMapImpl.put(ProductService.class, ProductServiceImpl.class);
     }
 }
