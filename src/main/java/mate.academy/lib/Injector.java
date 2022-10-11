@@ -27,40 +27,40 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClass) {
-        if (!interfaceClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(interfaceClass.getName()
-                    + " does not marked with Component annotation");
-        }
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClass);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(interfaceClass.getName()
+                    + " does not marked with @Component annotation");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
-        Object classImplementationInstance = null;
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                classImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
-                    field.set(classImplementationInstance, fieldInstance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can not initialize field value. Class "
                             + clazz.getName() + " .Field " + field.getName(), e);
                 }
             }
         }
-        if (classImplementationInstance == null) {
-            classImplementationInstance = createNewInstance(clazz);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
-        return classImplementationInstance;
+        return clazzImplementationInstance;
     }
 
-    private static Class<?> findImplementation(Class<?> interfaceClass) {
+    private Class<?> findImplementation(Class<?> interfaceClass) {
         if (interfaceClass.isInterface()) {
             return interfaceImplementations.get(interfaceClass);
         }
         return interfaceClass;
     }
 
-    private static Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -70,7 +70,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create an instance of " + clazz.getName());
+            throw new RuntimeException("Can't create an instance of " + clazz.getName(), e);
         }
     }
 }
