@@ -26,11 +26,11 @@ public class Injector {
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                try {
+                if (clazz.isAnnotationPresent(Component.class)) {
                     clazzImplementationInstance = createNewInstance(clazz);
-                } catch (Exception e) {
+                } else {
                     throw new RuntimeException("Injection failed, missing @Component annotaion "
-                            + "on the class " + clazz.getName(), e);
+                            + "on the class " + clazz.getName());
                 }
                 field.setAccessible(true);
                 try {
@@ -42,31 +42,29 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            try {
+            if (clazz.isAnnotationPresent(Component.class)) {
                 clazzImplementationInstance = createNewInstance(clazz);
-            } catch (Exception e) {
+            } else {
                 throw new RuntimeException("Injection failed, missing @Component annotaion "
-                        + "on the class " + clazz.getName(), e);
+                        + "on the class " + clazz.getName());
             }
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) throws Exception {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        if (clazz.isAnnotationPresent(Component.class)) {
-            try {
-                Constructor<?> constructor = clazz.getConstructor();
-                Object instance = constructor.newInstance();
-                instances.put(clazz, instance);
-                return instance;
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Can't create a new instance of " + clazz.getName());
-            }
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create a new instance of "
+                    + clazz.getName());
         }
-        throw new Exception();
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
