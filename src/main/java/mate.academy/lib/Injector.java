@@ -15,13 +15,20 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private static Map<Class<?>,Object> instances = new HashMap<>();
-    private static Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+    private static Map<Class<?>, Class<?>> interfaceImplementations;
+
+    public Injector() {
+        interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
     }
 
-    public static Object getInstance(Class<?> interfaceClazz) {
+    public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Cant create instance");
         }
@@ -48,7 +55,7 @@ public class Injector {
         return clazzImplamentationInstance;
     }
 
-    private static Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -63,10 +70,7 @@ public class Injector {
         }
     }
 
-    private static Class<?> findImplamentation(Class<?> interfaceClazz) {
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    private Class<?> findImplamentation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
