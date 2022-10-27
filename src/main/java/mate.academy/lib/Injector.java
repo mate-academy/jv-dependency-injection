@@ -1,7 +1,6 @@
 package mate.academy.lib;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -22,15 +21,13 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface()
-                && interfaceClazz.getDeclaredAnnotation(Component.class) == null) {
+        Object clazzImplementationInstance = null;
+        Class<?> implementation = findImplementation(interfaceClazz);
+        if (!implementation.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
                     "Injection failed, missing @Component annotation on the class "
                     + interfaceClazz.getName());
         }
-
-        Object clazzImplementationInstance = null;
-        Class<?> implementation = findImplementation(interfaceClazz);
         Field[] fields = implementation.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -61,8 +58,7 @@ public class Injector {
         try {
             instance = clazz.getConstructor().newInstance();
             instances.put(clazz, instance);
-        } catch (InstantiationException | IllegalAccessException
-                 | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can`t create instance of " + clazz.getName(), e);
         }
         return instance;
