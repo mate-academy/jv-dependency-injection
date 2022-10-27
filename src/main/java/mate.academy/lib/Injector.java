@@ -50,8 +50,7 @@ public class Injector {
             return instances.get(clazz);
         }
         try {
-            Constructor<?> constructor = clazz.getConstructor();
-            Object instance = constructor.newInstance();
+            Object instance = clazz.getConstructor().newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
