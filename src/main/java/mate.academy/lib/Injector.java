@@ -60,7 +60,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (ReflectiveOperationException  e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException();
         }
     }
