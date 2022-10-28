@@ -19,15 +19,12 @@ public class Injector {
         return injector;
     }
 
-    private boolean isComponent(Class<?> clazz) {
-        return clazz.isAnnotationPresent(Component.class);
-    }
-
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplemetation(interfaceClazz);
         if (!isComponent(clazz)) {
-            throw new RuntimeException();
+            throw new RuntimeException("Class: " + clazz + " is not marked as annotations "
+                    + "thus cannot be injected");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
 
@@ -60,7 +57,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException();
+            throw new RuntimeException("Cannot create new instance of " + clazz.getName());
         }
     }
 
@@ -73,5 +70,9 @@ public class Injector {
             return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
+    }
+
+    private boolean isComponent(Class<?> clazz) {
+        return clazz.isAnnotationPresent(Component.class);
     }
 }
