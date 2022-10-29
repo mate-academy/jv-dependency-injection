@@ -27,7 +27,7 @@ public class Injector {
 
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object classImplementationInstance;
+        Object classImplementationInstance = null;
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Error trying create instance of "
                     + interfaceClazz.getName()
@@ -48,7 +48,10 @@ public class Injector {
                 }
             }
         }
-        return null;
+        if (classImplementationInstance == null) {
+            classImplementationInstance = createInstance(implementation);
+        }
+        return classImplementationInstance;
     }
 
     private Object createInstance(Class<?> clazz) {
