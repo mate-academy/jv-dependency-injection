@@ -23,7 +23,7 @@ public class Injector {
         Class<?> clazz = getClazz(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't create instance "
-                    + "of class that is not marked by @Component");
+                    + "of class " + clazz.getName() + " that is not marked by @Component");
         }
         Object clazzInstance = createNewInstance(clazz);
         for (Field field : clazz.getDeclaredFields()) {
