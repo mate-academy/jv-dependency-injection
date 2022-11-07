@@ -1,9 +1,10 @@
 package mate.academy.lib;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Inject {
-
-}
+@Target(ElementType.FIELD)
+public @interface Inject {}
