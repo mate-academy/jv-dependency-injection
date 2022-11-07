@@ -8,6 +8,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+
         return null;
     }
 }
