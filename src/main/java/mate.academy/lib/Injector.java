@@ -22,7 +22,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         this.interfaceClazz = interfaceClazz;
-        Object clazzImplementationInstance = null;
+        Object clazzImplementationInstance;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         if (clazz.isAnnotationPresent(Component.class)) {
@@ -38,6 +38,10 @@ public class Injector {
                     }
                 }
             }
+        } else {
+            throw new RuntimeException(
+                    "Injection failed, missing @Component annotaion on the class: "
+                    + clazz.getName());
         }
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
