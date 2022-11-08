@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -58,9 +57,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
 
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException
-                | IllegalAccessException e) {
-            throw new RuntimeException("Cant create a new istance of " + clazz.getName());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Cant create a new istance of " + clazz.getName(),e);
         }
     }
 
