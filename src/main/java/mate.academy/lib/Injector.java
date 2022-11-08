@@ -22,27 +22,26 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create an instance of class: "
+            throw new RuntimeException("Injection failed. "
+                    + "Missing @Component annotation on the class: "
                     + interfaceClazz.getName());
         }
 
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object instance = getInstance(field.getType());
+                Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
-                    field.set(clazzImplementationInstance, instance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName() + ". Field: " + field.getName());
                 }
             }
         }
-
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
@@ -53,7 +52,6 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
@@ -69,7 +67,6 @@ public class Injector {
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-
         if (interfaceImplementations.get(interfaceClazz) != null) {
             return interfaceImplementations.get(interfaceClazz);
         }
