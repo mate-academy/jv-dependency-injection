@@ -22,26 +22,25 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         this.interfaceClazz = interfaceClazz;
-        Object clazzImplementationInstance;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!(clazz.isAnnotationPresent(Component.class))) {
+            throw new RuntimeException(
+                    "Injection failed, missing @Component annotation on the class: "
+                            + clazz.getName());
+        }
+        Object clazzImplementationInstance;
         Field[] declaredFields = clazz.getDeclaredFields();
-        if (clazz.isAnnotationPresent(Component.class)) {
-            clazzImplementationInstance = createNewInstance(clazz);
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    field.setAccessible(true);
-                    try {
-                        field.set(clazzImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
+        clazzImplementationInstance = createNewInstance(clazz);
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                field.setAccessible(true);
+                try {
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        } else {
-            throw new RuntimeException(
-                    "Injection failed, missing @Component annotaion on the class: "
-                    + clazz.getName());
         }
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
