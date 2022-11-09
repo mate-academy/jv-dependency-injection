@@ -23,22 +23,21 @@ public class Injector {
         Object clazzImplInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-        if (clazz.isAnnotationPresent(Component.class)) {
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    clazzImplInstance = createNewInstance(clazz);
-                    try {
-                        field.setAccessible(true);
-                        field.set(clazzImplInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value. "
-                                + "Class: " + clazz.getName() + ". Field: " + field.getName());
-                    }
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz + " does not have @Component annotation!");
+        }
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplInstance = createNewInstance(clazz);
+                try {
+                    field.setAccessible(true);
+                    field.set(clazzImplInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class: " + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
-        } else {
-            throw new RuntimeException("Class " + clazz + " does not have @Component annotation!");
         }
         if (clazzImplInstance == null) {
             clazzImplInstance = createNewInstance(clazz);
@@ -56,7 +55,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create an instance of " + clazz.getName());
+            throw new RuntimeException("Can't create an instance of " + clazz.getName(), e);
         }
     }
 
