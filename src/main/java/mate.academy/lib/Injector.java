@@ -40,7 +40,8 @@ public class Injector {
                                 getInstance(field.getType())
                         );
                     } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Error while injecting instance into field", e);
+                        throw new RuntimeException("Error while injecting instance into field "
+                                + field.getName() + ", of class " + clazz.getName(), e);
                     }
                 });
         return createNewInstance(clazz);
@@ -56,7 +57,8 @@ public class Injector {
             instancedImplementations.put(clazz, instance);
             return instance;
         } catch (Exception e) {
-            throw new RuntimeException("Got error while instancing class", e);
+            throw new RuntimeException("Got error while instancing class with name "
+                    + clazz.getName(), e);
         }
     }
 
