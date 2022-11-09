@@ -55,7 +55,7 @@ public class Injector {
             Object instance = clazz.getConstructor().newInstance();
             instancedImplementations.put(clazz, instance);
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Got error while instancing class", e);
         }
     }
