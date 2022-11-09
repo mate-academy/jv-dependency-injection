@@ -14,14 +14,12 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
-    private Class<?> interfaceClazz;
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        this.interfaceClazz = interfaceClazz;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!(clazz.isAnnotationPresent(Component.class))) {
             throw new RuntimeException(
@@ -38,7 +36,8 @@ public class Injector {
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Can not initialize this filed: "
+                            + field.getName(), e);
                 }
             }
         }
@@ -58,8 +57,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(String.format("unexpected interface -  %s ",
-                    interfaceClazz.getName()));
+            throw new RuntimeException("Can not create new instance of "
+                    + clazz.getName(), e);
         }
     }
 
