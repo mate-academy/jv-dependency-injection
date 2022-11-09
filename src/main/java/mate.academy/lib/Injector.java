@@ -35,7 +35,8 @@ public class Injector {
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Cant initialize field value",e);
+                    throw new RuntimeException("Cant initialize field"
+                            + field.getName(), e);
                 }
             }
         }
@@ -55,7 +56,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Cant create a new Instance", e);
+            throw new RuntimeException("Cant create a new Instance "
+                    + clazz.getName(), e);
         }
     }
 
@@ -64,7 +66,6 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         return interfaceImplementations.get(interfaceClazz);
     }
 }
