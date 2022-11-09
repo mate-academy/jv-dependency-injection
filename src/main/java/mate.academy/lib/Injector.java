@@ -26,6 +26,10 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = getImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(interfaceClazz.getName()
+                    + "Is not supported. (Must annotated with Component)");
+        }
         Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(Inject.class))
                 .forEach(field -> {
