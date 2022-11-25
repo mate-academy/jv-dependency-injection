@@ -53,7 +53,7 @@ public class Injector {
                  | InvocationTargetException
                  | InstantiationException
                  | IllegalAccessException e) {
-            throw new RuntimeException("Can`t create class: " + e);
+            throw new RuntimeException("Can`t create instance of " + clazz.getName(), e);
         }
     }
 
