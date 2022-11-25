@@ -22,8 +22,7 @@ public class Injector {
 
     public Object getInstance(Class<?> clazz) {
         Object resObject = null;
-        clazz = clazz.isInterface() ?
-                getTypeOfImpl(clazz) : clazz;
+        clazz = clazz.isInterface() ? getTypeOfImpl(clazz) : clazz;
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class isn`t component");
         }
@@ -54,7 +53,10 @@ public class Injector {
             Object object = constructor.newInstance();
             instances.put(clazz, object);
             return object;
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+        } catch (NoSuchMethodException
+                 | InvocationTargetException
+                 | InstantiationException
+                 | IllegalAccessException e) {
             throw new RuntimeException("Can`t create class: " + e);
         }
     }
