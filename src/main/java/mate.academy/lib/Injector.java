@@ -21,15 +21,14 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> clazz) {
-        Object resObject = null;
         clazz = clazz.isInterface() ? getTypeOfImpl(clazz) : clazz;
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class isn`t component");
         }
+        Object resObject = createNewImpl(clazz);
         for (Field field: clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldObject = getInstance(field.getType());
-                resObject = createNewImpl(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(resObject, fieldObject);
@@ -37,9 +36,6 @@ public class Injector {
                     throw new RuntimeException("Can`t implement field. Class: " + e);
                 }
             }
-        }
-        if (resObject == null) {
-            resObject = createNewImpl(clazz);
         }
         return resObject;
     }
