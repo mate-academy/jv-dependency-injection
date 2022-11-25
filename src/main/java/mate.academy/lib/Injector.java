@@ -33,8 +33,8 @@ public class Injector {
                 try {
                     field.set(resObject, fieldObject);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t implement field. Class: " + clazz.getName(),
-                            e);
+                    throw new RuntimeException("Can`t implement field. Class: "
+                            + clazz.getName(), e);
                 }
             }
         }
