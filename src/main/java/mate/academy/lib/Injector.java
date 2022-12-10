@@ -28,21 +28,19 @@ public class Injector {
         }
         Field[] declaredFields = inputClass.getDeclaredFields();
         Object inputClassImplementationInstance = null;
-        if (interfaceClass.isAnnotationPresent(Component.class)) {
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    inputClassImplementationInstance = createNewInstatnce(inputClass);
-                    try {
-                        field.setAccessible(true);
-                        field.set(inputClassImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize filed value. Class: " 
-                    + inputClass.getName() + ", field: " + field.getName(), e);
-                    }
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                inputClassImplementationInstance = createNewInstatnce(inputClass);
+                try {
+                    field.setAccessible(true);
+                    field.set(inputClassImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize filed value. Class: " 
+                + inputClass.getName()
+                            + ", field: " + field.getName(), e);
                 }
             }
-
         }
         if (inputClassImplementationInstance == null) {
             inputClassImplementationInstance = createNewInstatnce(inputClass);
