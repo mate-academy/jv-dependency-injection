@@ -79,7 +79,7 @@ class InjectorTest {
     }
 
     @Test
-    public void getInstance_fileReaderInstance() {
+    public void щgetInstance_fileReaderInstance() {
         Object actual = injector.getInstance(FileReaderService.class);
 
         Assertions.assertTrue(actual instanceof FileReaderService,
