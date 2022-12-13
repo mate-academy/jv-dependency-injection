@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 class InjectorTest {
-    private Injector injector = Injector.getInjector();
+    private final Injector injector = Injector.getInjector();
 
     @Test
     public void component_isRetentionSet() {
@@ -79,7 +79,7 @@ class InjectorTest {
     }
 
     @Test
-    public void щgetInstance_fileReaderInstance() {
+    public void getInstance_fileReaderInstance() {
         Object actual = injector.getInstance(FileReaderService.class);
 
         Assertions.assertTrue(actual instanceof FileReaderService,
