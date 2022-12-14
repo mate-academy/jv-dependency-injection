@@ -67,8 +67,8 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
-        return (Class<?>) interfaceImplementations.get(interfaceClazz);
-          }
+            return (Class<?>) interfaceImplementations.get(interfaceClazz);
+        }
         return interfaceClazz;
     }
 }
