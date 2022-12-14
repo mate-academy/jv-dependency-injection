@@ -19,6 +19,7 @@ public class Injector {
             ProductService.class, ProductServiceImpl.class
     );
     private final Map<Class<?>, Object> instances = new HashMap<>();
+
     public static Injector getInjector() {
         return injector;
     }
