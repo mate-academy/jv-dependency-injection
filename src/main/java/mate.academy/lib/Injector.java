@@ -34,7 +34,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, filedInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Injection failed, missing @Component " +
+                    throw new RuntimeException("Injection failed, " +
+                            "missing @Component " +
                             "annotation on the class"
                             + interfaceClazz.getName(), e);
                 }
