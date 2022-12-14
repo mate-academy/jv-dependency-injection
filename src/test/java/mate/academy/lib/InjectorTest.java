@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 
 class InjectorTest {
-    private Injector injector = Injector.getInjector();
+    private final Injector injector = Injector.getInjector();
 
     @Test
     public void component_isRetentionSet() {
