@@ -58,7 +58,7 @@ public class Injector {
             interfaceImplementations.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Cant create a new instance" + clazz.getName());
+            throw new RuntimeException("Cant create a new instance" + clazz.getName(), e);
         }
 
     }
