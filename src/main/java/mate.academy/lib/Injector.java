@@ -20,35 +20,6 @@ public class Injector {
         return injector;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(clazz.getName() + " don't have Component annotation");
-        }
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
-
-        try {
-            Constructor<?> constructor = clazz.getConstructor();
-            Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
-            return instance;
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can not create new instance, was threw exception" + e);
-        }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
-        }
-        return interfaceClazz;
-    }
-
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
@@ -72,5 +43,34 @@ public class Injector {
             clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
+    }
+
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementation.get(interfaceClazz);
+        }
+        return interfaceClazz;
+    }
+
+    private Object createNewInstance(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(clazz.getName() + " don't have Component annotation");
+        }
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
+
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can not create new instance, was threw exception" + e);
+        }
     }
 }
