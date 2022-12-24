@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,7 +23,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance for the class. Class: "
+            throw new RuntimeException("Missing @Component annotation on the class. Class: "
                     + clazz.getName());
         }
         Object clazzInstance = null;
@@ -61,10 +62,11 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        if (interfaceImplementations.isEmpty()) {
+            interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+            interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+            interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
