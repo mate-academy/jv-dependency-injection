@@ -25,10 +25,10 @@ public class Injector {
         Object clazzImplementationInstance = 0;
         Class<?> clazz = findClass(interfaceClazz);
         Field[] fields = clazz.getDeclaredFields();
-        clazzImplementationInstance = createNewInstance(clazz);
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -50,26 +50,25 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(interfaceClazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                 | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance: "
                     + interfaceClazz.getName());
         }
     }
 
     private Class<?> findClass(Class<?> clazz) {
-
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (clazz.isInterface()) {
             return interfaceImplementations.get(clazz);
-        }
-        if (Arrays.stream(clazz.getAnnotations()).noneMatch(annotation ->
+        } else if (Arrays.stream(clazz.getAnnotations()).noneMatch(annotation ->
                 annotation.annotationType().equals(Component.class))) {
-            throw new RuntimeException("Unsupported class" + clazz.getName());
+            throw new RuntimeException("Can't find implemantation for class: "
+                    + clazz.getName());
+        } else {
+            return clazz;
         }
-        return clazz;
     }
 }
