@@ -3,6 +3,7 @@ package mate.academy.lib;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -57,12 +58,17 @@ public class Injector {
     }
 
     private Class<?> findClass(Class<?> clazz) {
+
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (clazz.isInterface()) {
             return interfaceImplementations.get(clazz);
+        }
+        if (Arrays.stream(clazz.getAnnotations()).noneMatch(annotation ->
+                annotation.annotationType().equals(Component.class))) {
+            throw new RuntimeException("Unsupported class" + clazz.getName());
         }
         return clazz;
     }
