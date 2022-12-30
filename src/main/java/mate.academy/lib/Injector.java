@@ -21,7 +21,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = 0;
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findClass(interfaceClazz);
         Field[] fields = clazz.getDeclaredFields();
         clazzImplementationInstance = createNewInstance(clazz);
