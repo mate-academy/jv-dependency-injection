@@ -24,10 +24,10 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findClass(interfaceClazz);
         Field[] fields = clazz.getDeclaredFields();
-        clazzImplementationInstance = createNewInstance(clazz);
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -36,6 +36,9 @@ public class Injector {
                             + field.getName());
                 }
             }
+        }
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
