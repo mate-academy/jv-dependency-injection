@@ -48,21 +48,18 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Component.class)) {
-            if (instances.containsKey(clazz)) {
-                return instances.get(clazz);
-            }
-            try {
-                Constructor<?> constructor = clazz.getConstructor();
-                Object instance = constructor.newInstance();
-                instances.put(clazz, instance);
-                return instance;
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Can't create a new instance of "
-                        + clazz.getName(), e);
-            }
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
-        return null;
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create a new instance of "
+                    + clazz.getName(), e);
+        }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
