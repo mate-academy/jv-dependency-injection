@@ -1,7 +1,5 @@
 package mate.academy.model;
 
-import mate.academy.lib.Inject;
-
 import java.math.BigDecimal;
 
 public class Product {
