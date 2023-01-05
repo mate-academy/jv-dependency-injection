@@ -10,3 +10,16 @@ NOTE: Pay attention to annotation's visibility when you want to use it with refl
 `@Retention` property may help you to configure it.
 
 [Try to avoid these common mistakes while solving task](https://mate-academy.github.io/jv-program-common-mistakes/java-core/dependency-injection/dependency-injection)
+
+/*
+# jv-dependency-injection
+
+Це простий проект аналізатора файлів.
+У цьому проекті ви можете знайти три інтерфейси з їх реалізаціями.
+
+Ваше завдання — реалізувати інжектор, який використовує анотації @Component і @Inject для ініціалізації та повернення
+Екземпляри об'єктів. Конвенція передбачає використання `Component` у класах, які використовуються для створення 
+екземплярів (зазвичай це реалізації інтерфейсу)
+і `Inject`, щоб позначити поля, які потрібно ініціалізувати. Якщо над класом відсутня анотація `Component`, 
+ми не зможемо створити екземпляр цього класу в Injector, і ми повинні створити виняток <br>
+ПРИМІТКА. 
