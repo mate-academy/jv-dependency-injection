@@ -13,13 +13,8 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final String INITIALIZE_ERROR = "Can`t initialize field value. Class: ";
-    private static final String INITIALIZE_ERROR_FIELD = ". Field: ";
-    private static final String CREATE_NEW_INSTANCE_ERROR_CLASS = "Class ";
-    private static final String CREATE_NEW_INSTANCE_ERROR_ANNOTATION =
-            " don`t has annotation @Component.";
-    private static final String CREATE_NEW_INSTANCE_ERROR = "Can`t create new instance of ";
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -37,8 +32,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(INITIALIZE_ERROR + clazz.getName()
-                            + INITIALIZE_ERROR_FIELD + field.getName());
+                    throw new RuntimeException("Can`t initialize field value. Class: "
+                            + clazz.getName() + ". Field: " + field.getName());
                 }
             }
         }
@@ -50,8 +45,8 @@ public class Injector {
 
     private Object createNewInstance(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(CREATE_NEW_INSTANCE_ERROR_CLASS + clazz.getName()
-                    + CREATE_NEW_INSTANCE_ERROR_ANNOTATION);
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " don`t has annotation @Component.");
         }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
@@ -62,12 +57,11 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(CREATE_NEW_INSTANCE_ERROR + clazz.getName());
+            throw new RuntimeException("Can`t create new instance of " + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
