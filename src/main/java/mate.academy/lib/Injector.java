@@ -35,7 +35,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t initialize field value " + field.getName()
+                    throw new RuntimeException("Can`t initialize field value "
+                            + field.getName()
                             + "Class " + implementationClazz.getName(), e);
                 }
             }
@@ -44,7 +45,8 @@ public class Injector {
             classImplementationInstance = getOrCreateInstance(implementationClazz);;
         } else {
             throw new RuntimeException("Injection failed, missing "
-                    + "@Component annotaion on the class" + implementationClazz.getName());
+                    + Component.class.getName() + " annotaion on the class: "
+                    + implementationClazz.getName());
         }
         return classImplementationInstance;
     }
@@ -53,15 +55,15 @@ public class Injector {
         if (instaces.containsKey(clazz)) {
             return instaces.get(clazz);
         }
-        Constructor<?> conctructor = null;
+        Constructor<?> constructor = null;
         try {
-            conctructor = clazz.getConstructor();
+            constructor = clazz.getConstructor();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
         Object instance = null;
         try {
-            instance = conctructor.newInstance();
+            instance = constructor.newInstance();
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Object can`t be generated", e);
         }
