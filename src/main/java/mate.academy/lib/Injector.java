@@ -31,7 +31,7 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t initialize field value " + field.getName()
+                    throw new RuntimeException("Can't initialize field value " + field.getName()
                             + "Class " + clats.getName(), e);
                 }
             }
