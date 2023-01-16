@@ -29,7 +29,7 @@ public class Injector {
                     + interfaceClazz.getName());
         }
         for (Field field : declaredFields) {
-            if (clazz.isAnnotationPresent(Inject.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
