@@ -24,16 +24,20 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("@Component annotation on the class is missed: "
+                    + interfaceClazz.getName());
+        }
         for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Inject.class)) {
+            if (clazz.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(interfaceClazz + " has no fields", e);
+                    throw new RuntimeException("It is impossible to initialize field "
+                            + field.getName() + " of " + interfaceClazz.getName(), e);
                 }
             }
         }
@@ -53,7 +57,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Class " + clazz + " is not correct", e);
+            throw new RuntimeException("It is impossible to create new instance of "
+                    + clazz.getName(), e);
         }
     }
 
@@ -62,11 +67,9 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-
         if (!interfaceImplementations.containsKey(interfaceClazz)) {
             throw new RuntimeException("Class " + interfaceClazz + " is not correct");
         }
-
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
