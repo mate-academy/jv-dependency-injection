@@ -14,7 +14,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
@@ -22,7 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
+        Class<?> clazz = interfaceImplementations.get(interfaceClazz);
         Field[] declaredField = clazz.getDeclaredFields();
         for (Field field : declaredField) {
             if (!clazz.isAnnotationPresent(Component.class)) {
@@ -59,12 +63,5 @@ public class Injector {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance: " + clazz.getName() + e);
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        return interfaceImplementations.get(interfaceClazz);
     }
 }
