@@ -2,10 +2,8 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -22,13 +20,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface()) {
-            Optional<Component> current = Optional.ofNullable(interfaceClazz
-                    .getAnnotation(Component.class));
-            if (current.isEmpty()) {
-                throw new RuntimeException(interfaceClazz + " should have Component annotation");
-            }
-        }
+        hasComponent(interfaceClazz);
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
@@ -51,6 +43,13 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
+    private static void hasComponent(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isInterface() && !interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance of class "
+                    + interfaceClazz + ". Should have @Component annotation");
+        }
+    }
+
     private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
@@ -61,8 +60,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | IllegalAccessException
-                 | InvocationTargetException | InstantiationException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of class " + clazz.getName());
         }
     }
