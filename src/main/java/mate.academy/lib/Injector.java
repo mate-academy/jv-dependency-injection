@@ -20,6 +20,10 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+        if (!findImplementation(interfaceClazz).isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, "
+                + "missing @Component annotation on the class " + interfaceClazz);
+        }
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -43,21 +47,17 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Component.class)) {
-            if (instances.containsKey(clazz)) {
-                return instances.get(clazz);
-            }
-            try {
-                Constructor<?> constructor = clazz.getConstructor();
-                Object instance = constructor.newInstance();
-                instances.put(clazz, instance);
-                return instance;
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Can`t create a new instance of " + clazz.getName());
-            }
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
-        throw new RuntimeException("Injection failed, "
-                + "missing @Component annotation on the class " + clazz);
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can`t create a new instance of " + clazz.getName());
+        }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
