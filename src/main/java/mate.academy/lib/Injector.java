@@ -51,9 +51,8 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
         try {
-            constructor = clazz.getConstructor();
+            Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
@@ -68,6 +67,8 @@ public class Injector {
                 ProductService.class, ProductServiceImpl.class,
                 ProductParser.class, ProductParserImpl.class,
                 FileReaderService.class, FileReaderServiceImpl.class);
-        return interfaceImplementations.get(interfaceClazz);
+        return interfaceClazz.isInterface()
+                ? interfaceImplementations.get(interfaceClazz)
+                : interfaceClazz;
     }
 }
