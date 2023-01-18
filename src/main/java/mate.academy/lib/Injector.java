@@ -13,7 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector INJECTOR = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances;
+
+    public Injector() {
+        instances = new HashMap<>();
+    }
 
     public static Injector getInjector() {
         return INJECTOR;
