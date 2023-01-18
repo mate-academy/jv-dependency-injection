@@ -12,6 +12,7 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+    private static final Class<Component> REQUIRED_CLASS = Component.class;
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
@@ -20,7 +21,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        hasComponent(interfaceClazz);
+        checkInterface(interfaceClazz);
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
@@ -43,8 +44,8 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
-    private static void hasComponent(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface() && !interfaceClazz.isAnnotationPresent(Component.class)) {
+    private static void checkInterface(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isInterface() && !interfaceClazz.isAnnotationPresent(REQUIRED_CLASS)) {
             throw new RuntimeException("Can't create instance of class "
                     + interfaceClazz + ". Should have @Component annotation");
         }
@@ -55,8 +56,7 @@ public class Injector {
             return instances.get(clazz);
         }
         try {
-            Constructor<?> constructor;
-            constructor = clazz.getConstructor();
+            Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;

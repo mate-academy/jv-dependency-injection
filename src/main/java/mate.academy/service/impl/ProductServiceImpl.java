@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import mate.academy.lib.Component;
 import mate.academy.lib.Inject;
-import mate.academy.lib.Injector;
 import mate.academy.model.Product;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -19,9 +18,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllFromFile(String filePath) {
-        Injector injector = Injector.getInjector();
-        fileReaderService = (FileReaderService) injector.getInstance(FileReaderService.class);
-        productParser = (ProductParser) injector.getInstance(ProductParser.class);
         return fileReaderService.readFile(filePath)
                 .stream()
                 .map(productParser::parse)
