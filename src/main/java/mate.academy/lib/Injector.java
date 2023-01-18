@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -14,12 +13,16 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-            FileReaderService.class, FileReaderServiceImpl.class,
-            ProductParser.class, ProductParserImpl.class,
-            ProductService.class, ProductServiceImpl.class
-    );
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations;
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    static {
+        interfaceImplementations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class
+        );
+    }
 
     public static Injector getInjector() {
         return injector;
