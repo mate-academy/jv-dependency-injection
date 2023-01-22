@@ -23,6 +23,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create class(absent annotation). Class: "
+                    + clazz.getName());
+        }
         Field[] declaredField = clazz.getDeclaredFields();
         for (Field field: declaredField) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -38,10 +42,6 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Can't create class(absent annotation). Class: "
-                        + clazz.getName());
-            }
             clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
@@ -56,8 +56,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e)  {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
     }
