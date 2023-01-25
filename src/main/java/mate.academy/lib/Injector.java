@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -14,6 +13,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Class<ProductParser> productParser = ProductParser.class;
+    private static final Class<ProductParserImpl> productParserImpl = ProductParserImpl.class;
+    private static final Class<FileReaderService> fileReaderService = FileReaderService.class;
+    private static final Class<FileReaderServiceImpl> fileReaderServiceImpl
+            = FileReaderServiceImpl.class;
+    private static final Class<ProductService> productService = ProductService.class;
+    private static final Class<ProductServiceImpl> productServiceImpl = ProductServiceImpl.class;
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -21,12 +27,12 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        Object clazzImplementationInstance = null;
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + interfaceClazz.getName()
                     + " don't have annotation Component.");
         }
-        Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -54,21 +60,18 @@ public class Injector {
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
 
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementation =
+                Map.of(fileReaderService, fileReaderServiceImpl,
+                productParser, productParserImpl, productService, productServiceImpl);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
         }
