@@ -7,7 +7,7 @@ import mate.academy.service.ProductService;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Main {
-    private static final Injector injector = new Injector();
+    private static Injector injector = Injector.getInjector();
 
     public static void main(String[] args) {
         ProductService productService =
