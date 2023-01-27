@@ -7,10 +7,9 @@ import mate.academy.service.ProductService;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Main {
-    private static Injector injector;
+    private static final Injector injector = new Injector();
 
     public static void main(String[] args) {
-        injector = Injector.getInjector();
         ProductService productService =
                 (ProductServiceImpl) injector.getInstance(ProductServiceImpl.class);
         List<Product> products = productService.getAllFromFile("products.txt");
