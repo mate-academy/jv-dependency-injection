@@ -1,7 +1,6 @@
 package mate.academy.lib;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -23,7 +22,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object initialisationClass = null;
         Class<?> classImpl = findClassImpl(interfaceClazz);
-        if (classImpl.isAnnotationPresent(Component.class)) {
+        if (!classImpl.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(classImpl + " is class doesn't annotation Component");
+        } else {
             Field[] declaredFields = classImpl.getDeclaredFields();
             for (Field fields : declaredFields) {
                 if (fields.isAnnotationPresent(Inject.class)) {
@@ -39,8 +40,6 @@ public class Injector {
                     }
                 }
             }
-        } else {
-            throw new RuntimeException(classImpl + " is class doesn't annotation Component");
         }
         if (initialisationClass == null) {
             return initialisationClass = createInitialisationClass(classImpl);
@@ -49,7 +48,6 @@ public class Injector {
     }
 
     private Object createInitialisationClass(Class<?> clazz) {
-
         if (instance.containsKey(clazz)) {
             return instance.get(clazz);
         }
@@ -57,8 +55,7 @@ public class Injector {
             Object object = clazz.getDeclaredConstructor().newInstance();
             instance.put(clazz, object);
             return object;
-        } catch (InstantiationException | IllegalAccessException
-                | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("error initialization clazz " + clazz.getName());
         }
     }
