@@ -15,6 +15,11 @@ public class Injector {
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
+    private final Map<Class<?>, Class<?>> implementationMap = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
+
     public static Injector getInjector() {
         return injector;
     }
@@ -56,11 +61,6 @@ public class Injector {
     }
 
     private Class<?> findImplemantation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
-        implementationMap.put(ProductService.class, ProductServiceImpl.class);
-        implementationMap.put(ProductParser.class, ProductParserImpl.class);
-        implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-
         return implementationMap.get(interfaceClazz) == null
                 ? interfaceClazz : implementationMap.get(interfaceClazz);
     }
