@@ -27,11 +27,24 @@ public class Injector {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object instance = getInstance(field.getType());
+                Object fieldInstance = getInstance(field.getType());
+
+                if (clazz.isAnnotationPresent(Component.class)) {
+                    clazzImplementationInstance = createNewInstance(clazz);
+                } else throw new RuntimeException("Injection failed, missing @Component annotation on the class "
+                        + clazz.getName());
+
+                try {
+                    field.setAccessible(true);
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. " +
+                            "Class " + clazz.getName() + ". Field " + field.getName());
+                }
             }
-            if (interfaceClazz.isAnnotationPresent(Component.class)) {
-                clazzImplementationInstance = createNewInstance(clazz);
-            }
+        }
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
