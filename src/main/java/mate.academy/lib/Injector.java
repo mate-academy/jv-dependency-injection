@@ -64,6 +64,9 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        if (!interfaceImplementations.containsKey(interfaceClazz)) {
+            throw new RuntimeException("invalid class: " + interfaceClazz.getName());
+        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
