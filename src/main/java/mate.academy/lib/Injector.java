@@ -4,6 +4,7 @@ import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -26,12 +27,11 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)
                     && field.getDeclaringClass().isAnnotationPresent(Component.class)) {
-                //Object fieldInstance = getInstance(field.getType());
+                Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
-                    Object fieldInst = createNewInstance(field.getDeclaringClass());
-                    field.set(clazzImplementationInstance, fieldInst);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Cant initialize field value, Class: "
                             + clazz.getName() + " field: " + field.getName());
@@ -62,7 +62,7 @@ public class Injector {
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
