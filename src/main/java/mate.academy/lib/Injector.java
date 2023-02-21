@@ -12,8 +12,12 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMENTATIONS = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instancesMap = new HashMap<>();
+    private final Map<Class<?>, Object> instancesMap = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -30,7 +34,7 @@ public class Injector {
                 clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     clazzDeclaredField.set(clazzImplementationInstance, instance);
-                } catch (IllegalAccessException e) {
+                } catch (ReflectiveOperationException e) {
                     throw new RuntimeException("Can't initialize field value. Class:"
                             + clazz.getName()
                             + " Field:"
@@ -63,10 +67,9 @@ public class Injector {
     }
 
     private Class<?> findImplmentantion(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        return interfaceImplementations.get(interfaceClazz);
+        if (interfaceClazz.isInterface()) {
+            return INTERFACE_IMPLEMENTATIONS.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 }
