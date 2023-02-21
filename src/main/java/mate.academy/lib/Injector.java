@@ -38,7 +38,7 @@ public class Injector {
                     throw new RuntimeException("Can't initialize field value. Class:"
                             + clazz.getName()
                             + " Field:"
-                            + clazzDeclaredField.getName());
+                            + clazzDeclaredField.getName(), e);
                 }
             }
             if (!clazz.isAnnotationPresent(Component.class)) {
@@ -62,7 +62,7 @@ public class Injector {
             instancesMap.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create an instance of:" + clazz.getName());
+            throw new RuntimeException("Can't create an instance of:" + clazz.getName(), e);
         }
     }
 
