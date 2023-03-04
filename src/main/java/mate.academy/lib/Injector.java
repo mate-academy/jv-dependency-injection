@@ -15,13 +15,9 @@ public class Injector {
     private static Map<Class<?>, Class<?>> implementations;
     private static Map<Class<?>, Object> instances;
     private static Injector injector;
-    private static final String ANNOTATION = "Component";
 
     public Injector() {
-        implementations = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
+        implementations = new HashMap<>();
         instances = new HashMap<>();
     }
 
@@ -72,18 +68,16 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        implementations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         if (!implementations.containsKey(interfaceClazz)) {
             throw new RuntimeException("Can't find interface implementation for "
                             + interfaceClazz.getName() + ".");
         }
         if (interfaceClazz.isInterface()) {
-            Class<?> implementationClazz = implementations.get(interfaceClazz);
-            if (!implementationClazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Can't find annotation "
-                                + ANNOTATION + " for class "
-                                + implementationClazz.getName() + ".");
-            }
-            return implementationClazz;
+            return implementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
