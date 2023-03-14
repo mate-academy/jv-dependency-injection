@@ -62,8 +62,10 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        if (!interfaceImplementations.containsKey(interfaceClazz)) {
-            throw new RuntimeException("Invalid class! " + interfaceClazz.getName());
+        if (!interfaceImplementations.containsKey(interfaceClazz)
+                && !interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("There is no implementation for your class! "
+                    + interfaceClazz.getName());
         }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
