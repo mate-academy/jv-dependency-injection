@@ -19,26 +19,26 @@ public class Injector {
         return injector;
     }
 
-    public Object getInstance(Class<?> interfaceClazz) {
+    public Object getInstance(Class<?> clazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Class<?> implClazz = findImplementation(clazz);
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = createNewInstance(implClazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class: "
-                            + clazz.getName()
+                            + implClazz.getName()
                             + ". Field: " + field.getName());
                 }
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+            clazzImplementationInstance = createNewInstance(implClazz);
         }
         return clazzImplementationInstance;
     }
@@ -57,19 +57,19 @@ public class Injector {
         }
     }
 
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> clazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        if (!interfaceImplementations.containsKey(interfaceClazz)
-                && !interfaceClazz.isAnnotationPresent(Component.class)) {
+        if (!interfaceImplementations.containsKey(clazz)
+                && !interfaceImplementations.get(clazz).isAnnotationPresent(Component.class)) {
             throw new RuntimeException("There is no implementation for your class! "
-                    + interfaceClazz.getName());
+                    + clazz.getName());
         }
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+        if (clazz.isInterface()) {
+            return interfaceImplementations.get(clazz);
         }
-        return interfaceClazz;
+        return clazz;
     }
 }
