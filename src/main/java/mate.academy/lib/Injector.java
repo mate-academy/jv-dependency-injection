@@ -1,13 +1,73 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
+
 public class Injector {
     private static final Injector injector = new Injector();
+    private final Map<Class<?>, Object> inctances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
-    public Object getInstance(Class<?> interfaceClazz) {
-        return null;
+    public Object getInstance(Class<?> interfaceClass) {
+        Class<?> instanceClass = findImplamentation(interfaceClass);
+        if (!instanceClass.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("This class doesn't have annotation "
+                    + Component.class.getName());
+        }
+        Object classImplamentationsIntance = null;
+        Field[] declaredClassFields = instanceClass.getDeclaredFields();
+        for (Field field : declaredClassFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldClassInstance = getInstance(field.getType());
+                classImplamentationsIntance = createNewInstance(instanceClass);
+                field.setAccessible(true);
+                try {
+                    field.set(classImplamentationsIntance, fieldClassInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialise field value. Class "
+                            + instanceClass.getName() + ". Field " + field.getName());
+                }
+            }
+        }
+        if (classImplamentationsIntance == null) {
+            classImplamentationsIntance = createNewInstance(instanceClass);
+        }
+        return classImplamentationsIntance;
+    }
+
+    private Object createNewInstance(Class<?> classInstance) {
+        if (inctances.containsKey(classInstance)) {
+            return inctances.get(classInstance);
+        }
+        try {
+            Constructor<?> constructor = classInstance.getConstructor();
+            Object instance = constructor.newInstance();
+            inctances.put(classInstance, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create instance " + classInstance.getName());
+        }
+    }
+
+    private Class<?> findImplamentation(Class<?> interfaceClass) {
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        if (interfaceClass.isInterface()) {
+            return interfaceImplementations.get(interfaceClass);
+        }
+        return interfaceClass;
     }
 }
