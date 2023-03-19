@@ -1,5 +1,8 @@
 package mate.academy.lib;
 
-public @interface Component {
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface Component {
 }
