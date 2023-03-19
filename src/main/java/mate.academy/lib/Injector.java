@@ -27,8 +27,8 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class: "
@@ -47,7 +47,7 @@ public class Injector {
             return instances.get(clazz);
         }
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class don't have Component annotation");
+            throw new RuntimeException("Class don't have Component annotation " + clazz.getName());
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
@@ -60,12 +60,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            Class<?> clazz = interfaceImplementation.get(interfaceClazz);
+            Class<?> clazz = interfaceImplementations.get(interfaceClazz);
             if (clazz == null) {
                 throw new RuntimeException("Unsupported interface: " + interfaceClazz.getName());
             }
