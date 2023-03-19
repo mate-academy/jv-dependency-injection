@@ -45,7 +45,7 @@ public class Injector {
 
     private Object createNewInstance(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Trying to create a non component class");
+            throw new RuntimeException("Trying to create a non component class: " + clazz);
         }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
