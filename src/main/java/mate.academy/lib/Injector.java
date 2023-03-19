@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -30,6 +29,7 @@ public class Injector {
                 clazzImplementationsInstance = getOrCreateNewInstance(clazz);
                 field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationsInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class; "
@@ -44,15 +44,15 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (!interfaceClazz.isAnnotationPresent(Component.class) && !interfaceClazz.isInterface()) {
             throw new RuntimeException("Class implementation don't mark with annotation Component"
                     + interfaceClazz);
         } else if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
@@ -66,8 +66,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (InvocationTargetException | InstantiationException
-                 | IllegalAccessException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
     }
