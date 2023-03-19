@@ -28,8 +28,8 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
@@ -57,7 +57,8 @@ public class Injector {
             return instance;
         } catch (InstantiationException | IllegalAccessException
                  | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(
+                    "Unable to create instance of a class " + clazz);
         }
     }
 
