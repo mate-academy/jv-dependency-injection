@@ -21,6 +21,15 @@ public class Injector {
         fillMap();
     }
 
+    private static void fillMap() {
+        implementations.put(FileReaderService.class,
+                FileReaderServiceImpl.class);
+        implementations.put(ProductParser.class,
+                ProductParserImpl.class);
+        implementations.put(ProductService.class,
+                ProductServiceImpl.class);
+    }
+
     public static Injector getInjector() {
         return injector;
     }
@@ -76,14 +85,5 @@ public class Injector {
         } else {
             return clazz;
         }
-    }
-
-    private void fillMap() {
-        implementations.put(FileReaderService.class,
-                FileReaderServiceImpl.class);
-        implementations.put(ProductParser.class,
-                ProductParserImpl.class);
-        implementations.put(ProductService.class,
-                ProductServiceImpl.class);
     }
 }
