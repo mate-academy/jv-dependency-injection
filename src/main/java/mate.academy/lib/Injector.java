@@ -63,7 +63,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (!interfaceClazz.isAnnotationPresent(Component.class) && !interfaceClazz.isInterface()) {
-            throw new RuntimeException("Class don`t have annotation mark!"
+            throw new RuntimeException("Class don`t have @Component annotation mark!"
                     + interfaceClazz);
         }
         if (interfaceClazz.isInterface()) {
