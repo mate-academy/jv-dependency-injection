@@ -12,7 +12,7 @@ public class Main {
         Injector injector = Injector.getInjector();
         Object instance = injector.getInstance(ProductService.class);
         System.out.println(instance.getClass().getName());
-        ProductService productService = (ProductService) injector.getInstance(ProductService.class);
+        ProductService productService = (ProductService) injector;
         List<Product> products = productService.getAllFromFile("products.txt");
         products.forEach(System.out::println);
     }

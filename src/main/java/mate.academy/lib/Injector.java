@@ -22,8 +22,8 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClass) {
         Class<?> instanceClass = findImplamentation(interfaceClass);
         if (!instanceClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("This class doesn't have annotation "
-                    + Component.class.getName());
+            throw new RuntimeException("Class " + instanceClass.getName()
+                    + " doesn't have annotation " + Component.class.getName());
         }
         Object classImplamentationsIntance = null;
         Field[] declaredClassFields = instanceClass.getDeclaredFields();
@@ -31,12 +31,15 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldClassInstance = getInstance(field.getType());
                 classImplamentationsIntance = createNewInstance(instanceClass);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(classImplamentationsIntance, fieldClassInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialise field value. Class "
                             + instanceClass.getName() + ". Field " + field.getName());
+                } catch (SecurityException e) {
+                    throw new RuntimeException("Accessibility of field "
+                            + field.getName() + " not be changed");
                 }
             }
         }
@@ -61,10 +64,10 @@ public class Injector {
     }
 
     private Class<?> findImplamentation(Class<?> interfaceClass) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClass.isInterface()) {
             return interfaceImplementations.get(interfaceClass);
         }
