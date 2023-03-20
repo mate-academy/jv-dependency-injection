@@ -13,7 +13,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -28,7 +31,6 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -60,9 +62,6 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (!interfaceClazz.isAnnotationPresent(Component.class)
                 && !interfaceImplementations.containsKey(interfaceClazz)) {
             throw new RuntimeException("Injection failed,"
@@ -73,6 +72,5 @@ public class Injector {
             return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
-
     }
 }
