@@ -13,12 +13,12 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector INJECTOR = new Injector();
-    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLS = Map.of(
+    private final Map<Class<?>, Class<?>> interfaceImpls = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class
     );
-    private static final Map<Class<?>, Object> INSTANCES = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return INJECTOR;
@@ -51,13 +51,13 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (INSTANCES.containsKey(clazz)) {
-            return INSTANCES.get(clazz);
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            INSTANCES.put(clazz, instance);
+            instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of " + clazz.getName());
@@ -66,9 +66,9 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (!interfaceClazz.isInterface()
-                && !INTERFACE_IMPLS.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+                && !interfaceImpls.get(interfaceClazz).isAnnotationPresent(Component.class)) {
             throw new RuntimeException("This class has no annotation Component");
         }
-        return interfaceClazz.isInterface() ? INTERFACE_IMPLS.get(interfaceClazz) : interfaceClazz;
+        return interfaceClazz.isInterface() ? interfaceImpls.get(interfaceClazz) : interfaceClazz;
     }
 }
