@@ -29,6 +29,11 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create an instance of "
+                    + clazz.getName()
+                    + ", class is not annotated with Component annotation");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field declaredField : declaredFields) {
             if (declaredField.isAnnotationPresent(Inject.class)) {
@@ -50,11 +55,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create an instance of "
-                    + clazz.getName()
-                    + ", class is not annotated with Component annotation");
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
