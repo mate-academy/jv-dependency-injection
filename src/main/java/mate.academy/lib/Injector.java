@@ -41,7 +41,7 @@ public class Injector {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can`t initialize field: " + field.getName()
-                            + " .In the class: " + clazz.getName());
+                            + " .In the class: " + clazz.getName(), e);
                 }
             }
         }
@@ -58,14 +58,16 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create new instance: " + clazz.getName());
+            throw new RuntimeException("Can't create new instance: " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        classImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        classImplementations.put(ProductParser.class, ProductParserImpl.class);
-        classImplementations.put(ProductService.class, ProductServiceImpl.class);
+        if (classImplementations.isEmpty()) {
+            classImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+            classImplementations.put(ProductParser.class, ProductParserImpl.class);
+            classImplementations.put(ProductService.class, ProductServiceImpl.class);
+        }
         if (interfaceClazz.isInterface()) {
             return classImplementations.get(interfaceClazz);
         }
