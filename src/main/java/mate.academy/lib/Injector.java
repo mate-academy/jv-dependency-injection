@@ -13,23 +13,18 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector INJECTOR = new Injector();
-    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLS = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLS = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
     private static final Map<Class<?>, Object> INSTANCES = new HashMap<>();
 
     public static Injector getInjector() {
         return INJECTOR;
     }
 
-    static {
-        INTERFACE_IMPLS.put(FileReaderService.class, FileReaderServiceImpl.class);
-        INTERFACE_IMPLS.put(ProductParser.class, ProductParserImpl.class);
-        INTERFACE_IMPLS.put(ProductService.class, ProductServiceImpl.class);
-    }
-
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("This class has no annotation Component");
-        }
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplInstance = null;
@@ -37,8 +32,8 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
@@ -70,6 +65,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isInterface()
+                && !INTERFACE_IMPLS.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("This class has no annotation Component");
+        }
         return interfaceClazz.isInterface() ? INTERFACE_IMPLS.get(interfaceClazz) : interfaceClazz;
     }
 }
