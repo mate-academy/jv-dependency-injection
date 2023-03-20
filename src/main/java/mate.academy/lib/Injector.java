@@ -14,13 +14,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementation;
-
-    {
-        interfaceImplementation = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
-    }
+    private final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -64,11 +61,9 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceImplementation.get(interfaceClazz) == null) {
-            throw new RuntimeException("Implementation of this interface does not exist "
-                    + interfaceClazz);
-        }
-        if (!interfaceImplementation.get(interfaceClazz).isAnnotationPresent(Component.class)) {
+        if (!interfaceImplementation.containsKey(interfaceClazz)
+                && !interfaceImplementation.get(interfaceClazz)
+                .isAnnotationPresent(Component.class)) {
             throw new RuntimeException("This class has no @Component annotation "
                     + interfaceImplementation.get(interfaceClazz));
         }
