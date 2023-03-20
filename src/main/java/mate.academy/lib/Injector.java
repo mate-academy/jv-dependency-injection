@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -23,7 +22,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!Objects.requireNonNull(clazz).isAnnotationPresent(Component.class)) {
+        if (clazz == null || !clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(interfaceClazz.getCanonicalName()
                     + "hasn't Component annotation");
         }
