@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -13,38 +12,28 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Map<Class<?>, Class<?>> implementations = new HashMap<>();
-    private static final Map<Class<?>, Object> components = new HashMap<>();
     private static final Injector injector = new Injector();
-
-    private Injector() {
-        fillMap();
-    }
-
-    private static void fillMap() {
-        implementations.put(FileReaderService.class,
-                FileReaderServiceImpl.class);
-        implementations.put(ProductParser.class,
-                ProductParserImpl.class);
-        implementations.put(ProductService.class,
-                ProductServiceImpl.class);
-    }
+    private final Map<Class<?>, Class<?>> implementations = Map.of(FileReaderService.class,
+            FileReaderServiceImpl.class, ProductParser.class,
+            ProductParserImpl.class, ProductService.class,
+            ProductServiceImpl.class);
+    private final Map<Class<?>, Object> components = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> implementation = getImpl(interfaceClazz);
+        Class<?> implementation = findImplementation(interfaceClazz);
         Object clazzImplementationsInstance = instanceOf(implementation);
         Field[] fields = implementation.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object value = getInstance(field.getType());
-                field.setAccessible(true);
                 try {
+                    Object value = getInstance(field.getType());
+                    field.setAccessible(true);
                     field.set(clazzImplementationsInstance, value);
-                } catch (IllegalAccessException e) {
+                } catch (SecurityException | IllegalAccessException e) {
                     throw new RuntimeException("Can't set value of field. "
                             + "Class: " + implementation.getName()
                             + ". Field: " + field.getName());
@@ -55,29 +44,25 @@ public class Injector {
     }
 
     private Object instanceOf(Class<?> implementation) {
-        boolean present = implementation.isAnnotationPresent(Component.class);
         boolean contains = components.containsKey(implementation);
-        if (present && contains) {
+        if (contains) {
             return components.get(implementation);
-        } else {
-            try {
-                Constructor<?> constructor = implementation.getConstructor();
-                Object instance = constructor.newInstance();
-                if (present) {
-                    components.put(implementation, instance);
-                }
-                return instance;
-            } catch (NoSuchMethodException | InvocationTargetException
-                     | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Can't create instance of " + implementation.getName());
-            }
+        }
+        try {
+            Constructor<?> constructor = implementation.getConstructor();
+            Object instance = constructor.newInstance();
+            components.put(implementation, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create instance of " + implementation.getName());
         }
     }
 
-    private Class<?> getImpl(Class<?> clazz) {
+    private Class<?> findImplementation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)
                 && !implementations.containsKey(clazz)) {
-            throw new RuntimeException("Unsupported class " + clazz.getName() + "!");
+            throw new RuntimeException("Unsupported class " + clazz.getName() + "!"
+                    + "Didn't have supported implementation or @Component annotation!");
         }
         Class<?> impl = implementations.get(clazz);
         if (impl != null) {
