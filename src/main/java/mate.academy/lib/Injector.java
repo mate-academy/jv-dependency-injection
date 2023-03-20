@@ -20,31 +20,26 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplInstance = getClazzImplInstance(interfaceClazz);
-        if (clazzImplInstance == null) {
-            clazzImplInstance = getOrCreateInstance(findImplementation(interfaceClazz));
-        }
-        return clazzImplInstance;
-    }
-
-    private Object getClazzImplInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
+        Object clazzImplInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = getOrCreateInstance(clazz);
+                clazzImplInstance = getOrCreateInstance(clazz);
                 try {
                     field.setAccessible(true);
-                    field.set(clazzImplementationInstance, fieldInstance);
+                    field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't set field value."
                             + "Class: " + clazz.getName() + ". Field: " + field.getName());
                 }
             }
         }
-        return clazzImplementationInstance;
+        if (clazzImplInstance == null) {
+            clazzImplInstance = getOrCreateInstance(clazz);
+        }
+        return clazzImplInstance;
     }
 
     private Object getOrCreateInstance(Class<?> clazz) {
@@ -63,10 +58,10 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementation = initializeImplMap();
-        throwExceptionIfNotComponent(interfaceClazz);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
         }
+        throwExceptionIfNotComponent(interfaceClazz);
         return interfaceClazz;
     }
 
