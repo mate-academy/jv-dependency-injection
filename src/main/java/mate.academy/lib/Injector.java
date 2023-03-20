@@ -14,7 +14,14 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    static {
+        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -37,7 +44,7 @@ public class Injector {
                     field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class: "
-                            + clazz.getName() + ". Field: " + field.getName());
+                            + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
         }
@@ -58,18 +65,12 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
                  | InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
-        }
-        return interfaceClazz;
+        return interfaceClazz.isInterface()
+                ? interfaceImplementation.get(interfaceClazz) : interfaceClazz;
     }
 }
