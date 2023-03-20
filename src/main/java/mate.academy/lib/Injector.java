@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-//import mate.academy.Main;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -22,10 +21,6 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Interface Implementation "
-                    + interfaceClazz + " has no Component annotation");
-        }
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
