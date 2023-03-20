@@ -13,7 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -21,7 +21,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementatnion(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, missing @Component"
                     + "annotaion on the class " + clazz.getName());
@@ -36,7 +36,7 @@ public class Injector {
                     field.set(clazzImplementationInstance, fieldIntsance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Failed to initialize field " + field.getName()
-                    + "in class" + clazz.getName());
+                    + " in class " + clazz.getName());
                 }
             }
         }
@@ -60,11 +60,11 @@ public class Injector {
         }
     }
 
-    private Class<?> findImplementatnion(Class<?> interfaceClazz) {
-        Map<Class<?>,Class<?>> intefaceImplementations = new HashMap<>();
-        intefaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        intefaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        intefaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        Map<Class<?>,Class<?>> intefaceImplementations = Map
+                .of(FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         return interfaceClazz.isInterface()
                 ? intefaceImplementations.get(interfaceClazz) : interfaceClazz;
     }
