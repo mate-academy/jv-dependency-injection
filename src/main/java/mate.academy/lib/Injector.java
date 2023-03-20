@@ -70,7 +70,7 @@ public class Injector {
     }
 
     private Class<?> findImpl(Class<?> clazz) {
-        Map<Class<?>,Class<?>> implClazzez = new HashMap<>();
+        Map<Class<?>, Class<?>> implClazzez = new HashMap<>();
         implClazzez.put(ProductService.class, ProductServiceImpl.class);
         implClazzez.put(ProductParser.class, ProductParserImpl.class);
         implClazzez.put(FileReaderService.class, FileReaderServiceImpl.class);
