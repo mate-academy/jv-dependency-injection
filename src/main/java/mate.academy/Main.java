@@ -11,13 +11,14 @@ public class Main {
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
 
-        FileReaderService readerService = (FileReaderService) injector.getInstance(FileReaderService.class);
+        FileReaderService readerService = (FileReaderService)
+                injector.getInstance(FileReaderService.class);
         System.out.println(readerService.toString());
 
         ProductService productService = (ProductService) injector.getInstance(ProductService.class);
         System.out.println(productService.toString());
-        Field [] fields = productService.getClass().getDeclaredFields();
-        for(Field field : fields) {
+        Field[] fields = productService.getClass().getDeclaredFields();
+        for (Field field : fields) {
             System.out.println(field.getName());
         }
 
