@@ -50,10 +50,6 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed, "
-                    + "missing @Component annotation on the class " + interfaceClazz);
-        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
@@ -61,6 +57,10 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, "
+                    + "missing @Component annotation on the class " + clazz);
+        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
