@@ -70,9 +70,6 @@ public class Injector {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        if (interfaceImplementations.containsValue(interfaceClazz)) {
-            return interfaceClazz;
-        }
         throw new RuntimeException("Unsupported class: " + interfaceClazz);
     }
 }
