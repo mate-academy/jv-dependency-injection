@@ -14,7 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -28,12 +28,17 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplInstance = createNewInstance(clazz);
-                field.setAccessible(true);
+                try {
+                    field.setAccessible(true);
+                } catch (SecurityException e) {
+                    throw new RuntimeException("Can`t set accessible true "
+                            + field.getName() + " in class " + field.getName());
+                }
                 try {
                     field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can`t initialize field value "
-                            + field.getName());
+                            + field.getName() + " in class " + field.getName());
                 }
             }
         }
@@ -51,7 +56,8 @@ public class Injector {
             Constructor<?> constructor = clazz.getConstructor();
             Object o = constructor.newInstance();
             if (!o.getClass().isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Class without annotation @Component");
+                throw new RuntimeException(o.getClass().getName()
+                        + " class without @Component annotation");
             }
             instances.put(clazz, o);
             return o;
@@ -62,10 +68,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
