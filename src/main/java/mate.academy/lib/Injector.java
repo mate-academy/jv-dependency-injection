@@ -14,61 +14,60 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplMap
+            = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> clazz = getImplementation(interfaceClazz);
+        Class<?> implementation = getImplementation(interfaceClazz);
         Object classImplementationInctance = null;
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create an instance of this class " + clazz.getName());
+        if (!implementation.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, missing annotation @Component on class "
+            + implementation.getName() + " Can't create an instance");
         }
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = implementation.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                // we need to initialize this field
                 Object fieldInstance = getInstance(field.getType());
-                // create a new object
-                classImplementationInctance = createNewInstance(clazz);
-                // create a new object of interface or impl class
-                field.setAccessible(true);
+                classImplementationInctance = createNewInstance(implementation);
                 try {
+                    field.setAccessible(true);
                     field.set(classImplementationInctance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value, Class "
-                            + clazz.getName() + "field " + field.getName());
+                    throw new RuntimeException("Can't initialize field value, "
+                            + "Class: " + implementation.getName()
+                            + " Field: " + field.getName()
+                            + " missing Inject annotation");
                 }
-                // set field type object to intarfeceClass object
             }
         }
         if (classImplementationInctance == null) {
-            classImplementationInctance = createNewInstance(clazz);
+            classImplementationInctance = createNewInstance(implementation);
         }
         return classImplementationInctance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
-        // if we crate an object let's use it
-        if (instances.containsKey(clazz)) {
-            instances.get(clazz);
+    private Object createNewInstance(Class<?> implementation) {
+        if (instances.containsKey(implementation)) {
+            return instances.get(implementation);
         }
         try {
-            Constructor<?> constructor = clazz.getConstructor();
+            Constructor<?> constructor = implementation.getConstructor();
             Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
+            instances.put(implementation, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create instance of Class " + clazz.getName());
+            throw new RuntimeException("Can't create new instance of Class: "
+                    + implementation.getName());
         }
     }
 
     private Class<?> getImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplMap = new HashMap<>();
-        interfaceImplMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplMap.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplMap.get(interfaceClazz);
         }
