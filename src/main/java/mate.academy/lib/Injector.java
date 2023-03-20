@@ -28,8 +28,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!(clazz.isAnnotationPresent(Component.class))) {
-            throw new RuntimeException("Can`t created instance of class."
-                    + " `@Component` annotation is missing");
+            throw new RuntimeException("Can`t created instance of class " + clazz.getName()
+                    + ", `@Component` annotation is missing");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
