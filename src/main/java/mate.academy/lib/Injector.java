@@ -16,7 +16,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static Map<Class<?>, Class<?>> implementations;
+    private static final Map<Class<?>, Class<?>> implementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
     private static final Map<Class<?>, Object> instances = new HashMap<>();
     private static final String NO_ANNOTATION
             = "Could not find class of %s annotated with @Component";
@@ -24,10 +27,6 @@ public class Injector {
     private static final String FIELD_INIT_EXCEPTION = "Can`t initialize field ";
 
     private Injector() {
-        implementations = new HashMap<>();
-        implementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementations.put(ProductParser.class, ProductParserImpl.class);
-        implementations.put(ProductService.class, ProductServiceImpl.class);
     }
 
     public static Injector getInjector() {
@@ -46,7 +45,7 @@ public class Injector {
             try {
                 field.set(result, fieldInstance);
             } catch (IllegalAccessException e) {
-                throw new RuntimeException(FIELD_INIT_EXCEPTION + field.getName());
+                throw new RuntimeException(FIELD_INIT_EXCEPTION + field.getName(), e);
             }
         }
         return result;
@@ -63,25 +62,18 @@ public class Injector {
             instances.put(clazz, created);
             return created;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(CREATION_EXCEPTION + clazz.getName());
+            throw new RuntimeException(CREATION_EXCEPTION + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        Class<?> impl = interfaceClazz;
         if (implementations.containsKey(interfaceClazz)) {
-            return implementations.get(interfaceClazz);
+            impl = implementations.get(interfaceClazz);
         }
-        if (!interfaceClazz.isInterface()) {
-            if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException(String.format(
-                        NO_ANNOTATION,
-                        interfaceClazz.getName()));
-            }
-            return interfaceClazz;
-        }
-        Class<?> impl = implementations.get(interfaceClazz);
         if (!impl.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(String.format(NO_ANNOTATION, interfaceClazz.getName()));
+            throw new RuntimeException(
+                    String.format(NO_ANNOTATION, interfaceClazz.getName()));
         }
         return impl;
     }
