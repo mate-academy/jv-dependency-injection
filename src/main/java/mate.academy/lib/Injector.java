@@ -14,7 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class);
@@ -64,12 +64,13 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceImplementation.containsKey(interfaceClazz)) {
+        if (interfaceClazz.isInterface()
+                && !interfaceImplementations.containsKey(interfaceClazz)) {
             throw new RuntimeException("Can't find implementation of this interface "
                     + interfaceClazz);
         }
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
