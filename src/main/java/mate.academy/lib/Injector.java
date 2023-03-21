@@ -13,7 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> inctances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
     private Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
             ProductService.class, ProductServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
@@ -24,7 +24,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClass) {
-        Class<?> instanceClass = findImplamentation(interfaceClass);
+        Class<?> instanceClass = findImplementation(interfaceClass);
         if (!instanceClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + instanceClass.getName()
                     + " doesn't have annotation " + Component.class.getName());
@@ -42,7 +42,7 @@ public class Injector {
                     throw new RuntimeException("Can't initialise field value. Class "
                             + instanceClass.getName() + ". Field " + field.getName());
                 } catch (SecurityException e) {
-                    throw new RuntimeException("Accessibility of field "
+                    System.out.println("Accessibility of field "
                             + field.getName() + " not be changed");
                 }
             }
@@ -54,20 +54,20 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> classInstance) {
-        if (inctances.containsKey(classInstance)) {
-            return inctances.get(classInstance);
+        if (instances.containsKey(classInstance)) {
+            return instances.get(classInstance);
         }
         try {
             Constructor<?> constructor = classInstance.getConstructor();
             Object instance = constructor.newInstance();
-            inctances.put(classInstance, instance);
+            instances.put(classInstance, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance " + classInstance.getName());
         }
     }
 
-    private Class<?> findImplamentation(Class<?> interfaceClass) {
+    private Class<?> findImplementation(Class<?> interfaceClass) {
         if (interfaceClass.isInterface()) {
             return interfaceImplementations.get(interfaceClass);
         }
