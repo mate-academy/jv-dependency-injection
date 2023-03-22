@@ -71,11 +71,13 @@ public class Injector {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName(), e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException("Don't have an access to the constructor of " + clazz.getName(), e);
+            throw new RuntimeException("Don't have an access to the constructor of "
+                    + clazz.getName(), e);
         } catch (InstantiationException e) {
             throw new RuntimeException("Can't initialize an object " + clazz.getName(), e);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Don't have an access to the method of " + clazz.getName(), e);
+            throw new RuntimeException("Don't have an access to the method of "
+                    + clazz.getName(), e);
         }
     }
 }
