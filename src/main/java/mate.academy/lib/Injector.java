@@ -26,7 +26,7 @@ public class Injector {
                     + interfaceClazz.getName() + " without Component annotation.");
         }
         Object clazzImplementationInstance = null;
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
