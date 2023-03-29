@@ -15,12 +15,12 @@ public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
 
-    private Map<Class<?>, Class<?>> interfaceImplementation1 = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
 
     {
-        interfaceImplementation1.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementation1.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation1.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
     }
 
     public static Injector getInjector() {
@@ -37,7 +37,7 @@ public class Injector {
         Class<?> clazz;
 
         if (interfaceClazz.isInterface()) {
-            clazz = interfaceImplementation1.get(interfaceClazz);
+            clazz = interfaceImplementation.get(interfaceClazz);
         } else {
             clazz = interfaceClazz;
         }
