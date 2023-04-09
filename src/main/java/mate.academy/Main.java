@@ -15,5 +15,6 @@ public class Main {
                 (ProductServiceImpl) injector.getInstance(ProductService.class);
         List<Product> products = productService.getAllFromFile("products.txt");
         products.forEach(System.out::println);
+        System.out.println(false);
     }
 }

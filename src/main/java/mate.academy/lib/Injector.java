@@ -35,8 +35,8 @@ public class Injector {
 
                 clazzImplementationInstance = createNewInstance(clazz);
 
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
@@ -53,12 +53,12 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new AnnotationException("Class " + clazz.getName()
                     + " hasn't Component annotation");
+        }
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
