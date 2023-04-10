@@ -33,6 +33,9 @@ public class Injector {
                 Object fieldInstance = getInstance(field.getType());
 
                 if (clazz.isAnnotationPresent(Component.class)) {
+                    if (instances.containsKey(clazz)) {
+                        return instances.get(clazz);
+                    }
                     clazzImplementationInstance = createNewInstance(clazz);
                 } else {
                     throw new RuntimeException("Injection failed, "
@@ -51,6 +54,9 @@ public class Injector {
 
         if (clazzImplementationInstance == null) {
             if (clazz.isAnnotationPresent(Component.class)) {
+                if (instances.containsKey(clazz)) {
+                    return instances.get(clazz);
+                }
                 clazzImplementationInstance = createNewInstance(clazz);
             } else {
                 throw new RuntimeException("Injection failed, "
@@ -61,9 +67,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
         Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor();
