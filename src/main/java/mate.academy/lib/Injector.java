@@ -1,5 +1,9 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -7,33 +11,31 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Injector {
     private static final Injector injector = new Injector();
+    private final Map<Class<?>, Object> interfaceImplementations =
+            Map.of(ProductService.class, ProductServiceImpl.class,
+                    ProductParser.class, ProductParserImpl.class,
+                    FileReaderService.class, FileReaderServiceImpl.class);
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
-    public Map<Class<?>, Object> interfaceImplementations =
-            Map.of(ProductService.class, ProductServiceImpl.class,
-            ProductParser.class, ProductParserImpl.class,
-                    FileReaderService.class, FileReaderServiceImpl.class);
-    public Map<Class<?>, Object> instances = new HashMap<>();
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = interfaceClazz.isInterface()
-                ? (Class<?>) interfaceImplementations.get(interfaceClazz) : interfaceClazz;
+        Class<?> clazz = (Class<?>) interfaceImplementations.get(interfaceClazz);
+        if (clazz == null) {
+            throw new RuntimeException("Unsupported class passed: " + interfaceClazz);
+        }
         Field[] declaredFields = null;
         if (clazz.isAnnotationPresent(Component.class)) {
             declaredFields = clazz.getDeclaredFields();
         }
-        assert declaredFields != null;
+        if (declaredFields == null) {
+            throw new RuntimeException("Can't get fields from class: " + interfaceClazz);
+        }
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
