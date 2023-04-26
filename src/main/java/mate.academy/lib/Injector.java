@@ -13,7 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -21,10 +25,6 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-
         if (!findImplementation(interfaceClazz).isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, missing @Component "
                     + "annotation on the class " + interfaceClazz);
@@ -32,7 +32,7 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredField = clazz.getDeclaredFields();
-        for (Field field: declaredField) {
+        for (Field field : declaredField) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
