@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -30,8 +29,9 @@ public class Injector {
         Object instance = null;
         Class<?> clazzImplementation = findImplementation(interfaceClazz);
         if (!clazzImplementation.isAnnotationPresent(CLASS_ANNOTATION)) {
-            throw new RuntimeException("Can't create an instance for the unsupported Class: "
-            + clazzImplementation.getName());
+            throw new RuntimeException(
+                    "Injection failed, missing @Component annotation on the class : "
+                            + clazzImplementation.getName());
         }
         Field[] fields = clazzImplementation.getDeclaredFields();
         for (Field field : fields) {
@@ -59,8 +59,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | IllegalAccessException
-                 | InstantiationException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create an instance for the Class: "
                     + clazz.getName());
         }
