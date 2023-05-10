@@ -1,6 +1,19 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
+
 public class Injector {
+    private static Map<Class<?>, Object> instances = new HashMap<>();
     private static final Injector injector = new Injector();
 
     public static Injector getInjector() {
@@ -8,6 +21,55 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        return null;
+        Object clazzImplementationInstance = null;
+        Class<?> clazz = findImplementation(interfaceClazz);
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
+                try {
+                    field.setAccessible(true);
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't lipopo field value", e);
+                }
+            }
+        }
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
+        }
+        if (clazzImplementationInstance.getClass().isAnnotationPresent(Component.class)) {
+            return clazzImplementationInstance;
+        } else {
+            throw new RuntimeException("Can't create a new instance of" + interfaceClazz.getName());
+        }
     }
+
+    private Object createNewInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object newInstance = constructor.newInstance();
+            instances.put(clazz, newInstance);
+            return newInstance;
+        } catch (NoSuchMethodException | InvocationTargetException
+                 | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException("Can't create a new instance of" + clazz.getName(), e);
+        }
+    }
+
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementations.get(interfaceClazz);
+        }
+        return interfaceClazz;
+    }
+
 }
