@@ -1,5 +1,7 @@
 package mate.academy.lib;
 
-public @interface Inject {
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-}
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Inject {}
