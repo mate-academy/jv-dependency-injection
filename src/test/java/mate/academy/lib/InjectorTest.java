@@ -81,7 +81,6 @@ class InjectorTest {
     @Test
     public void getInstance_fileReaderInstance() {
         Object actual = injector.getInstance(FileReaderService.class);
-
         Assertions.assertTrue(actual instanceof FileReaderService,
                 "Injector should be able to generate instance of FileReader");
     }
