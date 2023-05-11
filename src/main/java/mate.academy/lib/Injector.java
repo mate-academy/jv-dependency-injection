@@ -15,6 +15,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementaionMap = new HashMap<>();
+
+    {
+        interfaceImplementaionMap.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementaionMap.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementaionMap.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -33,8 +40,8 @@ public class Injector {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(String.format(
-                            "Can`t initialize field value. Class - %s. Field - %s.",
-                                    clazz.getName(), field.getName()));
+                        "Can`t initialize field value. Class - %s. Field - %s.",
+                        clazz.getName(), field.getName()));
                 }
             }
         }
@@ -47,8 +54,8 @@ public class Injector {
     private Object createNewInstance(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(String.format(
-                    "Can`t create instance of class. Class - %s is not marked as Component",
-                        clazz));
+                "Can`t create instance of class. Class - %s is not marked as Component",
+                clazz));
         }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
@@ -59,17 +66,17 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
-                        | InstantiationException | IllegalAccessException e) {
+                 | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(String.format(
-                    "Can`t create instance of class - %s", clazz.getName()));
+                "Can`t create instance of class - %s", clazz.getName()));
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementaionMap = new HashMap<>();
-        interfaceImplementaionMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementaionMap.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementaionMap.put(ProductService.class, ProductServiceImpl.class);
+        if (!interfaceImplementaionMap.containsKey(interfaceClazz)) {
+            throw new RuntimeException(String.format(
+                "There is no implementation for class - %s", interfaceClazz));
+        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementaionMap.get(interfaceClazz);
         }
