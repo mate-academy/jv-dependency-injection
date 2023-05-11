@@ -14,13 +14,24 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-
+    private static final Map<Class, Class> interfaceImplementation = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class
+    );
+    
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+        
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, "
+                    + "missing @Component annotation on the class " + interfaceClazz);
+        }
+        
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplInstance = null;
         
@@ -61,18 +72,9 @@ public class Injector {
     }
     
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        
-        if (interfaceClazz.isInterface()
-                && interfaceImplementation.get(interfaceClazz)
-                .isAnnotationPresent(Component.class)) {
+        if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
-        } else {
-            throw new RuntimeException("Injection failed, "
-                    + "missing @Component annotation on the class " + interfaceClazz);
         }
+        return interfaceClazz;
     }
 }
