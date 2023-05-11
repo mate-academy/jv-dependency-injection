@@ -12,13 +12,13 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
     private static final Map<Class, Class> interfaceImplementation = Map.of(
             ProductService.class, ProductServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             FileReaderService.class, FileReaderServiceImpl.class
     );
+    private static final Injector injector = new Injector();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
     
     public static Injector getInjector() {
         return injector;
