@@ -14,12 +14,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
-
-    private Map<Class<?>, Object> instanсes = new HashMap<>();
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
@@ -56,7 +55,7 @@ public class Injector {
                         + "this class haven' annotation Component. Class: " + clazz.getName());
             }
             Object newInstance = constructor.newInstance();
-            instanсes.put(clazz, newInstance);
+            instances.put(clazz, newInstance);
             return newInstance;
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException
                  | NoSuchMethodException e) {
