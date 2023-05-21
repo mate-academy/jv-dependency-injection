@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -15,6 +14,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMENTATIONS = new HashMap<>();
+
+    static {
+        INTERFACE_IMPLEMENTATIONS.put(FileReaderService.class, FileReaderServiceImpl.class);
+        INTERFACE_IMPLEMENTATIONS.put(ProductParser.class, ProductParserImpl.class);
+        INTERFACE_IMPLEMENTATIONS.put(ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -57,17 +63,15 @@ public class Injector {
             Object newInstance = constructor.newInstance();
             instances.put(clazz, newInstance);
             return newInstance;
-        } catch (InstantiationException | InvocationTargetException | IllegalAccessException
-                 | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of" + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplemetations = new HashMap<>();
-        interfaceImplemetations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplemetations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplemetations.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceImplemetations.get(interfaceClazz);
+        if (interfaceClazz.isInterface()) {
+            return INTERFACE_IMPLEMENTATIONS.get(interfaceClazz);
+        }
+        return interfaceClazz;
     }
 }
