@@ -12,6 +12,10 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
 
@@ -26,7 +30,7 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -37,12 +41,12 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+            clazzImplementationInstance = getOrCreateNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -65,20 +69,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-                ProductService.class, ProductServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                FileReaderService.class, FileReaderServiceImpl.class
-        );
         if (interfaceClazz.isInterface()) {
             Class<?> implementation = interfaceImplementations.get(interfaceClazz);
-            if (implementation.isAnnotationPresent(Component.class)) {
-                return implementation;
-            } else {
-                throw new RuntimeException("Class " + interfaceClazz.getName()
-                        + " doesn't have " + Component.class + " annotation");
-            }
+            checkComponentAnnotation(interfaceClazz);
+            return implementation;
+        } else {
+            throw new RuntimeException("Can't find implementation for:" + interfaceClazz.getName());
         }
-        return interfaceClazz;
     }
 }
