@@ -12,9 +12,18 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+    private static final Injector injector;
+    private static final Map<Class<?>, Object> instances;
+    private static final Map<Class<?>, Class<?>> interfaceImplementations;
+
+    static {
+        injector = new Injector();
+        instances = new HashMap<>();
+        interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -62,13 +71,13 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        throw new RuntimeException("The implementation for the interface"
-                + interfaceClazz.getName() + " was not found.");
+        if (interfaceImplementations.get(interfaceClazz) == null) {
+            throw new RuntimeException("The implementation for the interface"
+                    + interfaceClazz.getName() + " was not found.");
+        }
+        return interfaceClazz;
     }
 }
