@@ -26,6 +26,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        checkComponentAnnotation(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -71,10 +72,12 @@ public class Injector {
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             Class<?> implementation = interfaceImplementations.get(interfaceClazz);
-            checkComponentAnnotation(interfaceClazz);
+            if (implementation == null) {
+                throw new RuntimeException("Can't find implementation for:"
+                        + interfaceClazz.getName());
+            }
             return implementation;
-        } else {
-            throw new RuntimeException("Can't find implementation for:" + interfaceClazz.getName());
         }
+        return interfaceClazz;
     }
 }
