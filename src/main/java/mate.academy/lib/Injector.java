@@ -71,7 +71,13 @@ public class Injector {
                 ProductService.class, ProductServiceImpl.class
         );
         if (interfaceClazz.isInterface()) {
-            return implementations.get(interfaceClazz);
+            Class<?> implementClazz = implementations.get(interfaceClazz);
+            if (implementClazz == null) {
+                throw new RuntimeException(
+                        "Can't find interface implementation to: "
+                                + interfaceClazz.getSimpleName());
+            }
+            return implementClazz;
         }
         return interfaceClazz;
     }
