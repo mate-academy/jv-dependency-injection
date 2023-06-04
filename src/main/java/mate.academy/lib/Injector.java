@@ -13,13 +13,12 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
-
-    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMENTATIONS = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class
     );
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -32,12 +31,10 @@ public class Injector {
             throw new RuntimeException("Unsupported class is passed " + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
-
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -48,7 +45,6 @@ public class Injector {
                 }
             }
         }
-
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
@@ -59,7 +55,6 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
@@ -72,7 +67,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            return INTERFACE_IMPLEMENTATIONS.get(interfaceClazz);
         }
         return interfaceClazz;
     }
