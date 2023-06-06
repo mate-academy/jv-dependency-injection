@@ -31,12 +31,10 @@ public class Injector {
                     + "annotation on the class: " + clazz.getName());
         }
         Field[] fields = clazz.getDeclaredFields();
-
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = getOrCreateInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -50,7 +48,6 @@ public class Injector {
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = getOrCreateInstance(clazz);
         }
-
         return clazzImplementationInstance;
     }
 
