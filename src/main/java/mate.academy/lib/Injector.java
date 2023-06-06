@@ -35,7 +35,7 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = gerOrreateNewInstance(clazz);
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -46,12 +46,12 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = gerOrreateNewInstance(clazz);
+            clazzImplementationInstance = getOrCreateNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object gerOrreateNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
