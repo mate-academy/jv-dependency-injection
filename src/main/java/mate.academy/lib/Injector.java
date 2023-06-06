@@ -65,7 +65,8 @@ public class Injector {
     private void checkComponentAnnotationPresent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
-                    "Can't create an instance of class that haven't @Component annotation");
+                    "Can't create an instance of class that haven't @Component annotation "
+                            + clazz.getSimpleName());
         }
     }
 
@@ -73,10 +74,9 @@ public class Injector {
         if (interfaceClazz.isInterface()) {
             if (interfaceImplementations.containsKey(interfaceClazz)) {
                 return interfaceImplementations.get(interfaceClazz);
-            } else {
-                throw new RuntimeException("There is no implementation for "
-                        + interfaceClazz.getName() + " interface");
             }
+            throw new RuntimeException("There is no implementation for "
+                    + interfaceClazz.getName() + " interface");
         }
         return interfaceClazz;
     }
