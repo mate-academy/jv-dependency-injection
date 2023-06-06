@@ -12,51 +12,49 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector;
-    private static final Map<Class<?>, Object> instances;
-    private static final Map<Class<?>, Class<?>> interfacesImpl;
-
-    static {
-        injector = new Injector();
-        instances = new HashMap<>();
-        interfacesImpl = new HashMap<>();
-        interfacesImpl.put(ProductService.class, ProductServiceImpl.class);
-        interfacesImpl.put(ProductParser.class, ProductParserImpl.class);
-        interfacesImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-    }
+    private static final Injector injector = new Injector();
+    private Map<Class<?>,Object> instances = new HashMap<>();
+    private Map<Class<?>,Class<?>> interfaceImplementations = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz.isAnnotationPresent(Inject.class)) {
-            throw new RuntimeException("Injection failed, missing @Component annotation "
-                    + interfaceClazz.getName() + " was not found.");
+        Object clazzImplementationInstance = null;
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, missing @Component "
+                    + "annotation on the class: " + clazz.getName());
         }
         Field[] fields = clazz.getDeclaredFields();
+
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createInstance(clazz);
+                clazzImplementationInstance = getOrCreateInstance(clazz);
+
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't set Class value of "
-                            + clazz.getName() + ". Field:" + field.getName() + e);
+                    throw new RuntimeException("Can't set field value of "
+                            + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
         }
+
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createInstance(clazz);
+            clazzImplementationInstance = getOrCreateInstance(clazz);
         }
+
         return clazzImplementationInstance;
     }
 
-    private Object createInstance(Class<?> clazz) {
+    private Object getOrCreateInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -72,11 +70,12 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            return interfacesImpl.get(interfaceClazz);
-        }
-        if (interfacesImpl.get(interfaceClazz) == null) {
-            throw new RuntimeException("The implementation for the interface"
-                    + interfaceClazz.getName() + " was not found.");
+            Class<?> interfaceClazzImpl = interfaceImplementations.get(interfaceClazz);
+            if (interfaceClazzImpl == null) {
+                throw new RuntimeException("The implementation for the interface"
+                        + interfaceClazz.getName() + " was not found.");
+            }
+            return interfaceClazzImpl;
         }
         return interfaceClazz;
     }
