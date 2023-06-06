@@ -69,14 +69,14 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Class<?> implementationClazz = interfaceImplementations.get(interfaceClazz);
-        if (implementationClazz == null) {
-            throw new RuntimeException("The implementation for the interface "
-                    + interfaceClazz.getName() + " wasn`t found.");
+        if (interfaceClazz.isInterface()) {
+            Class<?> implementationClazz = interfaceImplementations.get(interfaceClazz);
+            if (implementationClazz == null) {
+                throw new RuntimeException("The implementation for the interface"
+                        + interfaceClazz.getName() + " was not found.");
+            }
+            return implementationClazz;
         }
-        if (implementationClazz.isInterface()) {
-            return findImplementation(implementationClazz);
-        }
-        return implementationClazz;
+        return interfaceClazz;
     }
 }
