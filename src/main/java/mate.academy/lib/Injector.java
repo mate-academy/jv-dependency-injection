@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -39,7 +38,7 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -50,12 +49,12 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+            clazzImplementationInstance = getOrCreateNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -64,9 +63,8 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+        } catch (Exception e) {
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
