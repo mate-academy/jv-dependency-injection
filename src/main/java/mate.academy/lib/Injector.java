@@ -25,31 +25,31 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz.isAnnotationPresent(Component.class)) {
-            Object clazzImplementationInstance = null;
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field: fields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = getOrCreateNewInstance(clazz);
-                    field.setAccessible(true);
-                    try {
-                        field.set(clazzImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Cant initialize field value. "
-                                                   + "Class " + clazz.getName()
-                                                   + ". Field" + field.getName());
-                    }
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injection failed, "
+                                       + "missing @Component annotation on the class"
+                                       + interfaceClazz.getTypeName());
+        }
+        Object clazzImplementationInstance = null;
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
+                field.setAccessible(true);
+                try {
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Cant initialize field value. "
+                                               + "Class " + clazz.getName()
+                                               + ". Field" + field.getName());
                 }
             }
-            if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = getOrCreateNewInstance(clazz);
-            }
-            return clazzImplementationInstance;
         }
-        throw new RuntimeException("Injection failed, "
-                                   + "missing @Component annotation on the class"
-                                   + interfaceClazz.getTypeName());
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = getOrCreateNewInstance(clazz);
+        }
+        return clazzImplementationInstance;
     }
 
     private Object getOrCreateNewInstance(Class<?> clazz) {
