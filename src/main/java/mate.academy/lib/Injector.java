@@ -26,6 +26,7 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
+        checkComponentAnnotation(clazz);
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -50,7 +51,6 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        checkComponentAnnotation(clazz);
         try {
             Object newInstance = clazz.getConstructor().newInstance();
             instances.put(clazz, newInstance);
