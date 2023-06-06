@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -14,6 +13,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -28,7 +31,7 @@ public class Injector {
             for (Field field: fields) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
+                    clazzImplementationInstance = getOrCreateNewInstance(clazz);
                     field.setAccessible(true);
                     try {
                         field.set(clazzImplementationInstance, fieldInstance);
@@ -40,7 +43,7 @@ public class Injector {
                 }
             }
             if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
             }
             return clazzImplementationInstance;
         }
@@ -49,7 +52,7 @@ public class Injector {
                                    + interfaceClazz.getTypeName());
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -58,17 +61,12 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                 | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Cant create instance of given class" + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             if (interfaceImplementations.get(interfaceClazz) == null) {
                 throw new RuntimeException("The implementation for the interface"
