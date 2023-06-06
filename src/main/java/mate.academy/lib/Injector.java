@@ -13,8 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>,Class<?>> interfaceImplementation;
     private Map<Class<?>,Object> instances = new HashMap<>();
+    private Map<Class<?>,Class<?>> interfaceImplementations = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -31,7 +34,7 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -42,12 +45,12 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+            clazzImplementationInstance = getOrCreateNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -62,12 +65,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        interfaceImplementation = Map.of(
-                ProductService.class, ProductServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                FileReaderService.class, FileReaderServiceImpl.class);
+        if (interfaceImplementations.get(interfaceClazz) == null) {
+            throw new RuntimeException("The implementation for the interface"
+                    + interfaceClazz.getName() + " was not found.");
+        }
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
