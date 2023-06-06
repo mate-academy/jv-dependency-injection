@@ -41,24 +41,29 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementation = createNewInstance(clazz);
+                clazzImplementation = getOrCreateNewInstance(clazz);
                 setFieldValue(clazzImplementation, field, fieldInstance);
             }
         }
         if (clazzImplementation == null) {
-            clazzImplementation = createNewInstance(clazz);
+            clazzImplementation = getOrCreateNewInstance(clazz);
         }
         return clazzImplementation;
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            Class<?> implementation = interfaceImplementations.get(interfaceClazz);
+            if (implementation == null) {
+                throw new RuntimeException("The implementation for the interface"
+                        + interfaceClazz.getName() + " was not found.");
+            }
+            return implementation;
         }
         return interfaceClazz;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
