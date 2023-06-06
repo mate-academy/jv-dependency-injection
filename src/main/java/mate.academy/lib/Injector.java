@@ -25,7 +25,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        checkAnnotationIsPresent(clazz);
+        checkComponentAnnotationIsPresent(clazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -47,7 +47,7 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
-    private void checkAnnotationIsPresent(Class<?> clazz) {
+    private void checkComponentAnnotationIsPresent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, missing "
                     + "@Component annotation on the class "
@@ -69,9 +69,12 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            if (interfaceImplementation.containsKey(interfaceClazz)) {
+                return interfaceImplementation.get(interfaceClazz);
+            }
+            throw new RuntimeException("There is no implementation for "
+                    + interfaceClazz.getName() + " interface");
         }
-        throw new RuntimeException("Can`t find implementation for "
-                + interfaceClazz.getName());
+        return interfaceClazz;
     }
 }
