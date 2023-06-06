@@ -26,11 +26,15 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " is not annotated with @Component");
+        }
         Field[] fields = clazz.getDeclaredFields();
         for (Field field :fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -42,16 +46,15 @@ public class Injector {
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+            clazzImplementationInstance = getOrCreateNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        checkAnnotationComponent(clazz);
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
@@ -62,16 +65,13 @@ public class Injector {
         }
     }
 
-    private void checkAnnotationComponent(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + clazz.getName()
-                    + " is not annotated with @Component");
-        }
-    }
-
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
+        }
+        if (interfaceImplementations.get(interfaceClazz) == null) {
+            throw new RuntimeException("The implementation for the interface"
+                    + interfaceClazz.getName() + " was not found.");
         }
         return interfaceClazz;
     }
