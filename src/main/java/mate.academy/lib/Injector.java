@@ -25,7 +25,7 @@ public class Injector {
             throw new RuntimeException("Injection failed, "
                     + "missing @Component annotation on the class " + clazz.getName());
         }
-        Field[] fields = clazz.getFields();
+        Field[] fields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
