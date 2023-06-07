@@ -13,7 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
             ProductService.class, ProductServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             FileReaderService.class, FileReaderServiceImpl.class
@@ -26,9 +26,9 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);        
-        Field[] declaredFields = clazz.getDeclaredFields();
+        Class<?> clazz = findImplementation(interfaceClazz);
         checkComponentAnnotationPresent(clazz);
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -51,7 +51,7 @@ public class Injector {
     private static void checkComponentAnnotationPresent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("The class does not contain"
-                    + " the @Component annotation" + clazz.getName());
+                    + " the @Component annotation " + clazz.getName());
         }
     }
 
@@ -71,8 +71,8 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            if (interfaceImplementation.containsKey(interfaceClazz)) {
-                return interfaceImplementation.get(interfaceClazz);
+            if (interfaceImplementations.containsKey(interfaceClazz)) {
+                return interfaceImplementations.get(interfaceClazz);
             } else {
                 throw new RuntimeException("There is no implementation for "
                         + interfaceClazz.getName() + " interface");
