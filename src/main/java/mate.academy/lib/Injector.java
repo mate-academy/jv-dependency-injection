@@ -62,14 +62,11 @@ public class Injector {
 
     private Class<?> findImplementationClass(Class<?> interfaceClazz) {
         Class<?> clazzImpl = interfaceClazz;
-        if (interfaceClazz.isInterface()) {
+        if (interfaceClazz.isInterface() && interfaceImplementations.containsKey(interfaceClazz)) {
             clazzImpl = interfaceImplementations.get(interfaceClazz);
-            if (clazzImpl.isAnnotationPresent(Component.class)) {
-                return clazzImpl;
-            }
         }
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            return interfaceClazz;
+        if (clazzImpl.isAnnotationPresent(Component.class)) {
+            return clazzImpl;
         }
         throw new RuntimeException("Can't create instance of Class: " + clazzImpl.getName()
                 + " - is not annotated with @Component");
