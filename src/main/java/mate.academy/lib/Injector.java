@@ -1,5 +1,6 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,50 +26,54 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementationClass(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " doesn't have a component annotation.");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
+                clazzImplementationInstance = getOrCreateInstance(clazz);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't inject field " + field.getName()
-                            + " of class " + clazz.getName() + "\n", e);
+                    throw new RuntimeException("Can not initialize field value. Class: "
+                            + clazz.getName() + ". Field: " + field.getName());
                 }
             }
         }
         if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+            clazzImplementationInstance = getOrCreateInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
         try {
-            Object newInstance = clazz.getConstructor().newInstance();
-            instances.put(clazz, newInstance);
-            return newInstance;
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create new instance of class"
-                    + clazz.getName() + "\n", e);
+            throw new RuntimeException("Can not create a new instance of " + clazz.getName());
         }
     }
 
-    private Class<?> findImplementationClass(Class<?> interfaceClazz) {
-        Class<?> clazzImpl = interfaceClazz;
-        if (interfaceClazz.isInterface() && interfaceImplementations.containsKey(interfaceClazz)) {
-            clazzImpl = interfaceImplementations.get(interfaceClazz);
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (interfaceClazz.isInterface()) {
+            Class<?> implementationClazz = interfaceImplementations.get(interfaceClazz);
+            if (implementationClazz == null) {
+                throw new RuntimeException("The implementation for the interface"
+                        + interfaceClazz.getName() + " was not found.");
+            }
+            return implementationClazz;
         }
-        if (clazzImpl.isAnnotationPresent(Component.class)) {
-            return clazzImpl;
-        }
-        throw new RuntimeException("Can't create instance of Class: " + clazzImpl.getName()
-                + " - is not annotated with @Component");
+        return interfaceClazz;
     }
 }
