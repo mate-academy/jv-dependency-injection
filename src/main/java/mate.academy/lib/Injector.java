@@ -29,13 +29,8 @@ public class Injector {
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                // creating instance of field type
                 Object fieldInstance = getInstance(field.getType());
-
-                //creating instance of interface/class type
                 clazzImplementationInstance = createNewInstance(clazz);
-
-                //setting field instance to interface/class instance
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
