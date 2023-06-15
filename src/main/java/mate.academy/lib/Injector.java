@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -20,11 +19,13 @@ public class Injector {
             ", The Component annotation is currently missing";
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> classImplementations = new HashMap<>() {{
-        put(FileReaderService.class, FileReaderServiceImpl.class);
-        put(ProductParser.class, ProductParserImpl.class);
-        put(ProductService.class, ProductServiceImpl.class);
-    }};
+    private final Map<Class<?>, Class<?>> classImplementations = new HashMap<>() {
+        {
+            put(FileReaderService.class, FileReaderServiceImpl.class);
+            put(ProductParser.class, ProductParserImpl.class);
+            put(ProductService.class, ProductServiceImpl.class);
+        }
+    };
 
     public static Injector getInjector() {
         return injector;
