@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -12,11 +13,6 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final String INSTANCE_EXCEPTION_MESSAGE = "Can't create new instance: ";
-    private static final String INITIALIZE_EXCEPTION_MESSAGE = "Can't initialize field: ";
-    private static final String EXCEPTION_MESSAGE = " in the class: ";
-    private static final String ANNOTATION_EXCEPTION_MESSAGE =
-            ", The Component annotation is currently missing";
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private final Map<Class<?>, Class<?>> classImplementations = new HashMap<>() {
@@ -35,7 +31,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(clazz.getCanonicalName()
-                    + ANNOTATION_EXCEPTION_MESSAGE);
+                    + ", The Component annotation is currently missing");
         }
         Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -47,8 +43,8 @@ public class Injector {
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(INITIALIZE_EXCEPTION_MESSAGE + field.getName()
-                            + EXCEPTION_MESSAGE + clazz.getName(), e);
+                    throw new RuntimeException("Can't initialize field: " + field.getName()
+                            + " in the class: " + clazz.getName(), e);
                 }
             }
         }
@@ -62,21 +58,12 @@ public class Injector {
                 constructor.setAccessible(true);
                 return constructor.newInstance();
             } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(INSTANCE_EXCEPTION_MESSAGE + clazz.getName(), e);
+                throw new RuntimeException("Can't create new instance: " + clazz.getName(), e);
             }
         });
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (classImplementations.isEmpty()) {
-            initializeClassImplementations();
-        }
         return classImplementations.get(interfaceClazz);
-    }
-
-    private void initializeClassImplementations() {
-        classImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        classImplementations.put(ProductParser.class, ProductParserImpl.class);
-        classImplementations.put(ProductService.class, ProductServiceImpl.class);
     }
 }
