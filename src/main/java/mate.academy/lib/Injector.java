@@ -56,10 +56,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementation = new HashMap<>();
-        implementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementation.put(ProductParser.class, ProductParserImpl.class);
-        implementation.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> implementation = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         Class<?> implClass = interfaceClazz.isInterface()
                 ? implementation.get(interfaceClazz) : interfaceClazz;
         if (implClass.isAnnotationPresent(Component.class)) {
