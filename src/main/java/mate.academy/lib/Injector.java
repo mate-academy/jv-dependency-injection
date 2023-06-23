@@ -1,5 +1,10 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -7,26 +12,20 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Injector {
     private static final Injector injector = new Injector();
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
-    public Map<Class<?>, Object> instances = new HashMap<>();
-
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Cant create object of " + interfaceClazz.getName() + " because is not noted with annotation");
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Cant create object of " + interfaceClazz.getName()
+                    + " because is not noted with annotation");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -44,7 +43,7 @@ public class Injector {
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
-        return null;
+        return clazzImplementationInstance;
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
@@ -56,10 +55,7 @@ public class Injector {
             return interfaceToClass.get(interfaceClazz);
         }
         return interfaceClazz;
-
-
     }
-
 
     private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
@@ -70,7 +66,8 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | InstantiationException
+                | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Cant create new instance" + clazz.getName());
         }
     }
