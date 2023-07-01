@@ -23,14 +23,24 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Object currentInstance = null;
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object filedObject = getInstance(field.getClass());
+                Object fieldObject = getInstance(field.getType());
+                currentInstance = createNewInstance(clazz);
+                field.setAccessible(true);
+                try {
+                    field.set(currentInstance, fieldObject);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't set value to next field: " + currentInstance);
+                }
             }
         }
-        return null;
+        if (currentInstance == null) {
+            currentInstance = createNewInstance(clazz);
+        }
+        return currentInstance;
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
@@ -48,15 +58,15 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        Object newInstance;
         if (existingInstances.containsKey(clazz)) {
             return existingInstances.get(clazz);
         }
         try {
-            newInstance = clazz.getConstructor().newInstance();
+            Object newInstance = clazz.getConstructor().newInstance();
+            existingInstances.put(clazz, newInstance);
+            return newInstance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(String.format("Can't create new instance of %s class", clazz));
+            throw new RuntimeException(String.format("Can't create new instance of %s class", clazz.getName()));
         }
-        existingInstances.put(clazz, newInstance);
     }
 }
