@@ -23,7 +23,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("FileReaderService implementation "
+            throw new RuntimeException(interfaceClazz.getSimpleName() + " implementation "
                     + "should be marked with Component annotation");
         }
         Object clazzImplementationInstance = null;
