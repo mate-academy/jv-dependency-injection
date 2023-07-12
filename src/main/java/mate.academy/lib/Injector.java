@@ -13,9 +13,15 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private final Map<Class<?>, Class<?>> implementationMap;
     private final Map<Class<?>, Object> instances;
 
     private Injector() {
+        implementationMap = new HashMap<>();
+        implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
+        implementationMap.put(ProductParser.class, ProductParserImpl.class);
+        implementationMap.put(ProductService.class, ProductServiceImpl.class);
+
         instances = new HashMap<>();
     }
 
@@ -32,7 +38,12 @@ public class Injector {
             return instances.get(interfaceClazz);
         }
 
-        Class<?> clazz = findImplementation(interfaceClazz);
+        Class<?> clazz = implementationMap.get(interfaceClazz);
+        if (clazz == null) {
+            throw new RuntimeException("No implementation found for interface: "
+                    + interfaceClazz.getName());
+        }
+
         Object clazzImplementationInstance = createNewInstance(clazz);
         initializeFields(clazz, clazzImplementationInstance);
 
@@ -65,19 +76,6 @@ public class Injector {
                             + "Class: " + clazz.getName() + ", Field: " + field.getName());
                 }
             }
-        }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz == FileReaderService.class) {
-            return FileReaderServiceImpl.class;
-        } else if (interfaceClazz == ProductParser.class) {
-            return ProductParserImpl.class;
-        } else if (interfaceClazz == ProductService.class) {
-            return ProductServiceImpl.class;
-        } else {
-            throw new RuntimeException("No implementation found for interface: "
-                    + interfaceClazz.getName());
         }
     }
 }
