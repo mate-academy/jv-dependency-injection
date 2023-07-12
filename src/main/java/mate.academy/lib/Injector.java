@@ -25,7 +25,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isInterface()) {
-            throw new RuntimeException("Неподдерживаемый класс: " + interfaceClazz.getName());
+            throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
         }
 
         if (instances.containsKey(interfaceClazz)) {
@@ -47,7 +47,7 @@ public class Injector {
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Невозможно создать новый экземпляр класса "
+            throw new RuntimeException("Unable to create a new class instance "
                     + clazz.getName());
         }
     }
@@ -61,8 +61,8 @@ public class Injector {
                 try {
                     field.set(instance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Невозможно инициализировать значение поля. "
-                            + "Класс: " + clazz.getName() + ", Поле: " + field.getName());
+                    throw new RuntimeException("Cannot initialize field value. "
+                            + "Class: " + clazz.getName() + ", Field: " + field.getName());
                 }
             }
         }
@@ -76,7 +76,7 @@ public class Injector {
         } else if (interfaceClazz == ProductService.class) {
             return ProductServiceImpl.class;
         } else {
-            throw new RuntimeException("Не найдено реализации для интерфейса: "
+            throw new RuntimeException("No implementation found for interface: "
                     + interfaceClazz.getName());
         }
     }
