@@ -14,11 +14,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
-    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
@@ -72,8 +72,8 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
-                 IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException
+                 | IllegalAccessException e) {
             throw new RuntimeException("Can't create a new instance of class " + clazz.getName());
         }
     }
