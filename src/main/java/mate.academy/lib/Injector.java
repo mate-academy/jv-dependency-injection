@@ -1,15 +1,15 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -47,8 +47,8 @@ public class Injector {
                 }
             }
         }
-        return clazzImplementationInstance == null ?
-                createNewInstance(clazz) : clazzImplementationInstance;
+        return clazzImplementationInstance == null
+                ? createNewInstance(clazz) : clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -68,6 +68,7 @@ public class Injector {
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         return interfaceClazz.isInterface() ? implementations.get(interfaceClazz) : interfaceClazz;
     }
+
     private void checkComponentAnnotation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't create instance of class: "
