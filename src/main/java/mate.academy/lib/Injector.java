@@ -17,7 +17,7 @@ public class Injector {
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class);
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
