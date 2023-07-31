@@ -12,8 +12,18 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementation;
+    private static final Injector injector;
     private Map<Class<?>, Object> instances = new HashMap<>();
+
+    static {
+        interfaceImplementation = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class
+        );
+        injector = new Injector();
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -31,9 +41,7 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-
                 clazzImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -70,10 +78,7 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceImplementation.get(interfaceClazz);
+        return interfaceClazz.isInterface() ? interfaceImplementation.get(interfaceClazz)
+                : interfaceClazz;
     }
 }
