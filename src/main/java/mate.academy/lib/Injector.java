@@ -12,15 +12,12 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final String INITIALIZE_FIELD_EXCEPTION = "Cannot initialize field value. ";
-    private static final String CLASS = "Class: ";
-    private static final String FIELD = ", Field: ";
-    private static final String CREATE_NEW_INSTANCE_EXCEPTION
-            = "Cannot create a new instance of ";
-    private static final String MISSING_COMPONENT_EXCEPTION
-            = "Injection failed, missing @Component annotation on the class ";
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    private final Map<Class<?>, Class<?>> interfaceImplementations
+            = Map.of(FileReaderService.class, FileReaderServiceImpl.class, ProductParser.class,
+            ProductParserImpl.class, ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -38,8 +35,9 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(INITIALIZE_FIELD_EXCEPTION
-                            + CLASS + instanceClass.getName() + FIELD + field.getName(), e);
+                    throw new RuntimeException("Cannot initialize field value. "
+                            + "Class: " + instanceClass.getName() + ", Field: "
+                            + field.getName(), e);
                 }
             }
         }
@@ -59,21 +57,19 @@ public class Injector {
             instances.put(instanceClass, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(CREATE_NEW_INSTANCE_EXCEPTION + instanceClass.getName(), e);
+            throw new RuntimeException("Cannot create a new instance of "
+                    + instanceClass.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClass) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        Map.of(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClass.isInterface()) {
             return interfaceImplementations.get(interfaceClass);
         }
         if (!interfaceClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(MISSING_COMPONENT_EXCEPTION + interfaceClass.getName());
+            throw new RuntimeException("Injection failed, "
+                    + "missing @Component annotation on the class "
+                    + interfaceClass.getName());
         }
         return interfaceClass;
     }
