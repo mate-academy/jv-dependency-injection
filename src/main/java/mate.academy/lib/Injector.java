@@ -26,7 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> implementedClazz = findImplementation(interfaceClazz);
-        ifConsistComponentAnnotation(implementedClazz);
+        isComponentAnnotationPresent(implementedClazz);
         Object implementedClazzInstance = null;
 
         Field[] declaredFields = implementedClazz.getDeclaredFields();
@@ -77,7 +77,7 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private void ifConsistComponentAnnotation(Class<?> clazz) {
+    private void isComponentAnnotationPresent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection was failed, because of "
                     + "missing @Component annotation for class: " + clazz.getName());
