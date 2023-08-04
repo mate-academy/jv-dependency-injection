@@ -56,9 +56,8 @@ public class Injector {
         if (instances.containsKey(classType)) {
             return instances.get(classType);
         }
-        Constructor<?> constructor = null;
         try {
-            constructor = classType.getConstructor();
+            Constructor<?> constructor = classType.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(classType, instance);
             return instance;
