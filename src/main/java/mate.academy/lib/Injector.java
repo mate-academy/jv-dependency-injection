@@ -27,6 +27,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        checkComponentAnnotationPresent(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -55,12 +56,15 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private void checkComponentAnnotationPresent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, "
                     + "missing @Component annotation on the class "
                     + clazz.getName());
         }
+    }
+
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
