@@ -23,6 +23,7 @@ public class Injector {
                         ProductService.class, ProductServiceImpl.class);
         instances = new HashMap<>();
     }
+
     public static Injector getInjector() {
         return injector;
     }
