@@ -13,7 +13,7 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    public static final Map<Class, Class> interfaceImpl = Map.of(
+    public static final Map<Class<?>, Class<?>> interfaceImpl = Map.of(
             ProductService.class, ProductServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             FileReaderService.class, FileReaderServiceImpl.class
