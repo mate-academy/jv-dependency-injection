@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
 import mate.academy.exception.ComponentException;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
