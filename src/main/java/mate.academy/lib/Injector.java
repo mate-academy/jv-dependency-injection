@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+
+import mate.academy.exception.ComponentException;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -29,7 +31,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
 
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed, "
+            throw new ComponentException("Injection failed, "
                     + "missing @Component annotation on the class: " + interfaceClazz);
         }
 
@@ -57,7 +59,7 @@ public class Injector {
         return clazzImplInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) throws RuntimeException {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
