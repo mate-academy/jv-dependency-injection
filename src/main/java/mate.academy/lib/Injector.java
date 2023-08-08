@@ -13,7 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Object> INSTANCES = new HashMap<>();
     private static final Map<Class<?>, Class<?>> INTERFACE_IMPL = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductService.class, ProductServiceImpl.class,
@@ -55,13 +55,13 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> implClass) {
-        if (instances.containsKey(implClass)) {
-            return instances.get(implClass);
+        if (INSTANCES.containsKey(implClass)) {
+            return INSTANCES.get(implClass);
         }
         try {
             Constructor<?> constructor = implClass.getConstructor();
             Object instance = constructor.newInstance();
-            instances.put(implClass, instance);
+            INSTANCES.put(implClass, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + implClass.getName(), e);
