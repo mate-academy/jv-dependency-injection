@@ -42,7 +42,6 @@ public class Injector {
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
-        System.out.println(clazzImplementationInstance.toString());
         return clazzImplementationInstance;
     }
 
@@ -63,7 +62,7 @@ public class Injector {
             return instances.get(clazz);
         }
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Cannot create instance for class without @Component "
+            throw new RuntimeException("Cant create instance for class without @Component "
                     + "Annotation. Class is " + clazz.getName());
         }
         try {
