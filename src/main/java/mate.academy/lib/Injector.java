@@ -1,10 +1,7 @@
 package mate.academy.lib;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -45,8 +42,8 @@ public class Injector {
                 }
             }
         }
-        return clazzImplementationInstance == null ?
-                clazzImplementationInstance = createNewInstance(clazz)
+        return clazzImplementationInstance == null
+                ? clazzImplementationInstance = createNewInstance(clazz)
                 : clazzImplementationInstance;
     }
 
