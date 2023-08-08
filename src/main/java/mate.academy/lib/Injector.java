@@ -12,21 +12,14 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static Injector injector;
-    private final Map<Class<?>, Class<?>> implementations;
-    private final Map<Class<?>, Object> instances;
-
-    private Injector() {
-        instances = new HashMap<>();
-        implementations = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
-    }
+    private static final Injector injector = new Injector();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> implementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
-        if (injector == null) {
-            injector = new Injector();
-        }
         return injector;
     }
 
@@ -38,11 +31,15 @@ public class Injector {
     private Class<?> getComponentClass(Class<?> interfaceClazz) {
         Class<?> componentClass = interfaceClazz.isInterface()
                 ? implementations.get(interfaceClazz) : interfaceClazz;
+        validateComponentClass(interfaceClazz, componentClass);
+        return implementations.get(interfaceClazz);
+    }
+
+    private void validateComponentClass(Class<?> interfaceClazz, Class<?> componentClass) {
         if (!componentClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't get instance of non-component class "
                     + interfaceClazz.getName());
         }
-        return implementations.get(interfaceClazz);
     }
 
     private Object createNewInstance(Class<?> clazz) {
