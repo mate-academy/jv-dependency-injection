@@ -22,10 +22,10 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClass) {
-        Class<?> implementationClass = findImplementation(interfaceClass);
-        checkComponentAnnotation(implementationClass);
-        Field[] declaredFields = implementationClass.getDeclaredFields();
-        Object classImplInstance = createNewInstance(implementationClass);
+        Class<?> implClass = findImplementation(interfaceClass);
+        checkComponentAnnotation(implClass);
+        Field[] declaredFields = implClass.getDeclaredFields();
+        Object classImplInstance = createNewInstance(implClass);
 
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -35,7 +35,7 @@ public class Injector {
                     field.set(classImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value "
-                            + "Class: " + implementationClass.getName()
+                            + "Class: " + implClass.getName()
                             + ". Field: " + field.getName(), e);
                 }
             }
@@ -44,20 +44,20 @@ public class Injector {
         return classImplInstance;
     }
 
-    private void checkComponentAnnotation(Class<?> implementationClass) {
-        if (!implementationClass.isAnnotationPresent(Component.class)) {
+    private void checkComponentAnnotation(Class<?> implClass) {
+        if (!implClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't get instance of class "
-                    + implementationClass.getName()
+                    + implClass.getName()
                     + ". Class must have '@Component' annotation!!!");
         }
     }
 
-    private Object createNewInstance(Class<?> implementationClass) {
+    private Object createNewInstance(Class<?> implClass) {
         try {
-            Constructor<?> constructor = implementationClass.getDeclaredConstructor();
+            Constructor<?> constructor = implClass.getDeclaredConstructor();
             return constructor.newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of " + implementationClass.getName(), e);
+            throw new RuntimeException("Can't create a new instance of " + implClass.getName(), e);
         }
     }
 
