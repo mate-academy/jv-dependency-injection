@@ -12,13 +12,13 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Map<Class<?>, Class<?>> interfacesImplementation = Map.of(
+    private static final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class
     );
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -64,12 +64,16 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Class<?> clazz = interfaceClazz.isInterface()
-                ? interfacesImplementation.get(interfaceClazz) : interfaceClazz;
+                ? interfaceImplementation.get(interfaceClazz) : interfaceClazz;
+        validateClazzComponent(clazz);
+        return clazz;
+    }
+
+    private void validateClazzComponent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class"
-                    + interfaceClazz.getName()
+                    + clazz.getName()
                     + " must be annotated with @Component");
         }
-        return clazz;
     }
 }
