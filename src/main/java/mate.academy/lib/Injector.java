@@ -22,7 +22,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClass) {
-        Class<?> implementationClass = findImpl(interfaceClass);
+        Class<?> implementationClass = findImplementation(interfaceClass);
         checkComponentAnnotation(implementationClass);
         Field[] declaredFields = implementationClass.getDeclaredFields();
         Object classImplInstance = createNewInstance(implementationClass);
@@ -52,16 +52,16 @@ public class Injector {
         }
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstance(Class<?> implementationClass) {
         try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            Constructor<?> constructor = implementationClass.getDeclaredConstructor();
             return constructor.newInstance();
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
+            throw new RuntimeException("Can't create a new instance of " + implementationClass.getName(), e);
         }
     }
 
-    private Class<?> findImpl(Class<?> interfaceClass) {
+    private Class<?> findImplementation(Class<?> interfaceClass) {
         return interfaceClass.isInterface() ? INTERFACE_IMPL.get(interfaceClass) : interfaceClass;
     }
 }
