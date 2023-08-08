@@ -26,29 +26,33 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz.isAnnotationPresent(Component.class)) {
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
-                    try {
-                        field.setAccessible(true);
-                        field.set(clazzImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value. "
-                                + "Class; " + clazz.getName() + ". Field " + field.getName());
-                    }
+        checkIfAnnotationPresent(interfaceClazz, clazz);
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
+                try {
+                    field.setAccessible(true);
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class; " + clazz.getName() + ". Field " + field.getName());
                 }
             }
-            if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstance(clazz);
-            }
-            return clazzImplementationInstance;
         }
-        throw new RuntimeException("Provided class "
-                + interfaceClazz.getName()
-                + " is not marked with Component annotation");
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
+        }
+        return clazzImplementationInstance;
+    }
+
+    private void checkIfAnnotationPresent(Class<?> interfaceClazz, Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Provided class "
+                    + interfaceClazz.getName()
+                    + " is not marked with Component annotation");
+        }
     }
 
     private Object createNewInstance(Class<?> clazz) {
