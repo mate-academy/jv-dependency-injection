@@ -13,7 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Object> INSTANCES = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -21,7 +21,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        isClassValid(clazz);
+        isComponent(clazz);
         Object clazzImplementationInstance = null;
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -43,7 +43,7 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
-    private void isClassValid(Class<?> clazz) {
+    private void isComponent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class: " + clazz.getName()
                     + " isn't valid, because isn't declared as @Component");
@@ -51,13 +51,13 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
+        if (INSTANCES.containsKey(clazz)) {
+            return INSTANCES.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
+            INSTANCES.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName());
@@ -66,10 +66,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
         }
