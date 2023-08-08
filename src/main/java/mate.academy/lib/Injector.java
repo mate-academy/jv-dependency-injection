@@ -17,7 +17,7 @@ public class Injector {
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class);
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -27,6 +27,9 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationIns = createNewInstance(clazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Unsupported class " + clazz.getName());
+        }
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -38,9 +41,6 @@ public class Injector {
                             + " Class " + clazz.getName() + "field " + field.getName());
                 }
             }
-        }
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class " + clazz.getName());
         }
         return clazzImplementationIns;
     }
