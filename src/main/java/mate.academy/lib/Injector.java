@@ -44,7 +44,7 @@ public class Injector {
                 : clazzImplementationInstance;
     }
 
-    private static Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstance(Class<?> clazz) {
         if (INSTANCES.containsKey(clazz)) {
             return INSTANCES.get(clazz);
         }
@@ -58,7 +58,7 @@ public class Injector {
         }
     }
 
-    private static Class<?> findImplementation(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             interfaceCheck(interfaceClazz);
             interfaceClazz = INTERFACES_IMPLEMENTATIONS.get(interfaceClazz);
@@ -67,14 +67,14 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private static void componentCheck(Class<?> clazz) {
+    private void componentCheck(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Unsupported class - " + clazz
                     + ", should be annotated by @Component");
         }
     }
 
-    private static void interfaceCheck(Class<?> clazz) {
+    private void interfaceCheck(Class<?> clazz) {
         if (!INTERFACES_IMPLEMENTATIONS.containsKey(clazz)) {
             throw new RuntimeException("Unsupported interface - " + clazz.getName());
         }
