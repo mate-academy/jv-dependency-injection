@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -24,7 +23,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClass) {
         Class<?> implementationClass = findImpl(interfaceClass);
-        checkIfIsComponent(implementationClass);
+        checkComponentAnnotation(implementationClass);
         Field[] declaredFields = implementationClass.getDeclaredFields();
         Object classImplInstance = createNewInstance(implementationClass);
 
@@ -45,7 +44,7 @@ public class Injector {
         return classImplInstance;
     }
 
-    private void checkIfIsComponent(Class<?> implementationClass) {
+    private void checkComponentAnnotation(Class<?> implementationClass) {
         if (!implementationClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't get instance of class "
                     + implementationClass.getName()
@@ -55,15 +54,14 @@ public class Injector {
 
     private Object createNewInstance(Class<?> clazz) {
         try {
-            Constructor<?> constructor = clazz.getConstructor();
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
             return constructor.newInstance();
-        } catch (NoSuchMethodException | IllegalAccessException
-                 | InstantiationException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImpl(Class<?> interfaceClass) {
-        return INTERFACE_IMPL.get(interfaceClass);
+        return interfaceClass.isInterface() ? INTERFACE_IMPL.get(interfaceClass) : interfaceClass;
     }
 }
