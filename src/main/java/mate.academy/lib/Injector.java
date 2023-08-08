@@ -29,9 +29,9 @@ public class Injector {
     }
 
     private Class<?> getComponentClass(Class<?> interfaceClazz) {
-        Class<?> componentClass = interfaceClazz.isInterface()
+        Class<?> clazz = interfaceClazz.isInterface()
                 ? implementations.get(interfaceClazz) : interfaceClazz;
-        validateComponentClass(interfaceClazz, componentClass);
+        validateComponentClass(interfaceClazz, clazz);
         return implementations.get(interfaceClazz);
     }
 
