@@ -27,7 +27,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        checkClazz(clazz);
+        checkClassAnnotation(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -42,17 +42,12 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
-        return clazzImplementationInstance;
+        return clazzImplementationInstance == null ? createNewInstance(clazz)
+                : clazzImplementationInstance;
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isInterface()) {
-            return IMPLEMENTATIONS.get(interfaceClazz);
-        }
-        return interfaceClazz;
+        return interfaceClazz.isInterface() ? IMPLEMENTATIONS.get(interfaceClazz) : interfaceClazz;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -69,9 +64,9 @@ public class Injector {
         }
     }
 
-    private void checkClazz(Class<?> clazz) {
+    private void checkClassAnnotation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(clazz.getName() + " - is not a component");
+            throw new RuntimeException(clazz.getName() + " - is not annotated by @Component");
         }
     }
 }
