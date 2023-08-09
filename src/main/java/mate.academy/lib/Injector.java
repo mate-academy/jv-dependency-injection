@@ -13,6 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMENTATIONS = Map.of(
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -22,6 +27,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(clazz.getName()
+                    + " - does not have an annotation @Component");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -36,10 +45,9 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
-        return clazzImplementationInstance;
+        return clazzImplementationInstance == null
+                ? createNewInstance(clazz)
+                : clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -57,17 +65,11 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-                ProductParser.class, ProductParserImpl.class,
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductService.class, ProductServiceImpl.class
-        );
-        if (!interfaceImplementations.containsKey(interfaceClazz)) {
+        if (!INTERFACE_IMPLEMENTATIONS.containsKey(interfaceClazz)) {
             throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
         }
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
-        }
-        return interfaceClazz;
+        return interfaceClazz.isInterface()
+                ? INTERFACE_IMPLEMENTATIONS.get(interfaceClazz)
+                : interfaceClazz;
     }
 }
