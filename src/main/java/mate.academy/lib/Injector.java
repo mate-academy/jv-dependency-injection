@@ -12,9 +12,8 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 /**
- * If the class is annotated with the @Component annotation, then we can create an implementation
- * If not, throw an error
- * Check if an instance has been created before creating a new instance
+ * The Injector class facilitates dependency injection by creating and managing instances of classes.
+ * It checks for the presence of the @Component annotation, creates instances, and resolves dependencies.
  */
 public class Injector {
     private static final Injector injector = new Injector();
@@ -57,7 +56,7 @@ public class Injector {
 
     private void checkComponentAnnotation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("missing @Component annotation on the class");
+            throw new RuntimeException("missing @Component annotation on the class" + clazz.getName());
         }
     }
 
