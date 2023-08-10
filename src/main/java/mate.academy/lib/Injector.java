@@ -50,6 +50,7 @@ public class Injector {
         if (!componentClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't get instance of non-component class "
                     + interfaceClazz.getName());
+        }
     }
 
     private Object createNewInstance(Class<?> classImpl) {
