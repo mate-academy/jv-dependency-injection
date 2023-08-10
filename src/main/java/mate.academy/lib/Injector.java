@@ -27,9 +27,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object classImplementationInstance = null;
         Class<?> classImpl = findImplementationClass(interfaceClazz);
-        if (!classImpl.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't initialize object without Component annotation");
-        }
+        validateComponentClass(interfaceClazz, classImpl);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -46,6 +44,12 @@ public class Injector {
         }
         return classImplementationInstance == null
                 ? createNewInstance(classImpl) : classImplementationInstance;
+    }
+
+    private void validateComponentClass(Class<?> interfaceClazz, Class<?> componentClass) {
+        if (!componentClass.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't get instance of non-component class "
+                    + interfaceClazz.getName());
     }
 
     private Object createNewInstance(Class<?> classImpl) {
