@@ -40,7 +40,7 @@ public class Injector {
                     field.set(classImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
-                            + "Class: " + classImpl.getName() + "Field: " + field.getName());
+                            + "Class: " + classImpl.getName() + "Field: " + field.getName(), e);
                 }
             }
         }
