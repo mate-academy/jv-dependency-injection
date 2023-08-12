@@ -12,8 +12,10 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 /**
- * The Injector class facilitates dependency injection by creating and managing instances of classes.
- * It checks for the presence of the @Component annotation, creates instances, and resolves dependencies.
+ * The Injector class facilitates dependency injection
+ * by creating and managing instances of classes.
+ * It checks for the presence of the @Component annotation,
+ * creates instances, and resolves dependencies.
  */
 public class Injector {
     private static final Injector injector = new Injector();
@@ -56,7 +58,8 @@ public class Injector {
 
     private void checkComponentAnnotation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("missing @Component annotation on the class" + clazz.getName());
+            throw new RuntimeException("missing @Component annotation on the class"
+                    + clazz.getName());
         }
     }
 
@@ -70,7 +73,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can`t create new instance of " + clazz.getName());
+            throw new RuntimeException("Can`t create new instance of "
+                    + clazz.getName());
         }
     }
 
