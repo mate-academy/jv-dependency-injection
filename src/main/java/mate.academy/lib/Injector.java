@@ -63,7 +63,11 @@ public class Injector {
             Object instance = constructor.newInstance();
             instanses.put(clazz, instance);
             return instance;
-            // see common mistakes
+            // calling a class method that doesn't exist
+            // or when an application cannot instantiate a class
+            // or no access to the definition of the specified
+            // class, field, method, or constructor
+            // or exception that may occur during reflection operations
         } catch (NoSuchMethodException | InstantiationException
                 | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Can't create a new instance of "
