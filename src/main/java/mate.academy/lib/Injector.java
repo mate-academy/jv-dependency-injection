@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -15,6 +14,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations =
+            Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -28,8 +31,8 @@ public class Injector {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementatinInstance = createNewInstance(clazz);
-                field.setAccessible(true);
                 try {
+                    field.setAccessible(true);
                     field.set(clazzImplementatinInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can`t initialize field value.Class: "
@@ -42,7 +45,6 @@ public class Injector {
             clazzImplementatinInstance = createNewInstance(clazz);
 
         }
-
         return clazzImplementatinInstance;
     }
 
@@ -56,17 +58,12 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can`t create new instance of" + clazz.getName());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create new instance of " + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
