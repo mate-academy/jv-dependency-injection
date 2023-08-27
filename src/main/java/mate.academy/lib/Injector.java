@@ -74,6 +74,6 @@ public class Injector {
             return clazz;
         }
         throw new RuntimeException("'Component' annotation is missing above the class: "
-                                   + interfaceClazz.getName());
+                                   + clazz.getName());
     }
 }
