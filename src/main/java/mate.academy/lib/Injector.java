@@ -66,7 +66,9 @@ public class Injector {
             throw new RuntimeException("Cannot find a constructor at " + clazz.getName(), e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException("Cannot call a constructor at " + clazz.getName(), e);
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Cannot instantiate " + clazz.getName(), e);
+        } catch (IllegalAccessException e) {
             throw new RuntimeException("Cannot create a new instance of " + clazz.getName(), e);
         }
     }
