@@ -61,8 +61,6 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Cannot find a constructor at " + clazz.getName(), e);
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Cannot create a new instance of " + clazz.getName(), e);
         }
