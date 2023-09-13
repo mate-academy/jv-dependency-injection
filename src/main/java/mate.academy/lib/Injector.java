@@ -9,7 +9,6 @@ import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
-import org.jetbrains.annotations.NotNull;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -23,30 +22,35 @@ public class Injector {
         return injector;
     }
 
-    public Object getInstance(@NotNull Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+    public Object getInstance(Class<?> interfaceClazz) {
+        Object clazzImplementationInstance = null;
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, missing @Component"
                     + " annotation on the class " + interfaceClazz.getSimpleName());
         }
-        Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (var field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
-                field.setAccessible(true);
-                try {
-                    field.set(clazzImplementationInstance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Cant set field", e);
-                }
+                clazzImplementationInstance = initializeInjectedField(field, clazz);
             }
         }
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
+    }
+
+    private Object initializeInjectedField(Field field, Class<?> clazz) {
+        Object fieldInstance = getInstance(field.getType());
+        Object instance = createNewInstance(clazz);
+        field.setAccessible(true);
+        try {
+            field.set(instance, fieldInstance);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Cant set field", e);
+        }
+        return instance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -64,7 +68,7 @@ public class Injector {
         return instance;
     }
 
-    private Class<?> findImplementation(@NotNull Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
