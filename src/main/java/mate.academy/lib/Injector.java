@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -36,9 +35,7 @@ public class Injector {
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-
                 implInstance = createNewInstance(implClass);
-
                 try {
                     field.setAccessible(true);
                     field.set(implInstance, fieldInstance);
@@ -65,8 +62,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(implClass, instance);
             return instance;
-        } catch (NoSuchMethodException | IllegalAccessException
-                 | InstantiationException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
