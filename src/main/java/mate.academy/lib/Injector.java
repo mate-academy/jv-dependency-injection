@@ -61,10 +61,10 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Object instance;
+
         try {
             Constructor<?> constructor = clazz.getConstructor();
-            instance = constructor.newInstance();
+            Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
