@@ -17,10 +17,10 @@ public class Injector {
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     static {
-        interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations = Map.of(
+        FileReaderService.class, FileReaderServiceImpl.class,
+        ProductParser.class, ProductParserImpl.class,
+        ProductService.class, ProductServiceImpl.class);
     }
 
     public static Injector getInjector() {
@@ -30,7 +30,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object implInstance = null;
         Class<?> implClass = findImplementation(interfaceClazz);
-        componentCheck(implClass);
+        checkComponent(implClass);
         Field[] fields = implClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -53,7 +53,7 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> implClass) {
-        componentCheck(implClass);
+        checkComponent(implClass);
         if (instances.containsKey(implClass)) {
             return instances.get(implClass);
         }
@@ -63,11 +63,11 @@ public class Injector {
             instances.put(implClass, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't create instance of class: " + implClass.getName(), e);
         }
     }
 
-    private void componentCheck(Class<?> implClass) {
+    private void checkComponent(Class<?> implClass) {
         if (!implClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(implClass.getName() + "don't mark as Component!");
         }
