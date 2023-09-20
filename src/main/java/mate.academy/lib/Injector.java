@@ -13,8 +13,15 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-
+    private static final Map<Class<?>, Class<?>> interfaceImplementations;
     private Map<Class<?>, Object> instances = new HashMap<>();
+
+    static {
+        interfaceImplementations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -23,6 +30,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = getImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(Component.class + " annotation missing. "
+                    + "Can't create instance of a class " + clazz.getName());
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -44,10 +55,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(Component.class + " annotation missing. "
-                    + "Can't create instance of a class " + clazz.getName());
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -62,10 +69,6 @@ public class Injector {
     }
 
     private static Class<?> getImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
