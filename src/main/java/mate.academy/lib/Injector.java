@@ -32,7 +32,8 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class: " + clazz.getName());
+            throw new RuntimeException("Annotation Component is missing on class "
+                    + clazz.getName());
         }
         for (Field declaredField : declaredFields) {
             if (declaredField.isAnnotationPresent(Inject.class)) {
@@ -63,7 +64,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't create new instance from this class: "
+                    + clazz.getName(), e);
         }
     }
 
