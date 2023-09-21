@@ -12,19 +12,22 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector INJECTOR = new Injector();
+    private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-            FileReaderService.class, FileReaderServiceImpl.class,
-            ProductService.class, ProductServiceImpl.class,
-            ProductParser.class, ProductParserImpl.class
-    );
+
+    static {
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+    }
 
     private Injector() {
+
     }
 
     public static Injector getInjector() {
-        return INJECTOR;
+        return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
@@ -35,19 +38,14 @@ public class Injector {
         if (instances.containsKey(interfaceClazz)) {
             return instances.get(interfaceClazz);
         }
-
         Class<?> implementationClass = interfaceImplementations
                 .getOrDefault(interfaceClazz, interfaceClazz);
-
         if (!implementationClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(Component.class + " annotation missing. "
                     + "Can't create an instance of class " + implementationClass.getName());
         }
-
         Object instance = createNewInstance(implementationClass);
-
         injectDependencies(instance);
-
         instances.put(interfaceClazz, instance);
         return instance;
     }
