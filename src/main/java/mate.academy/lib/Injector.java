@@ -14,7 +14,6 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     static {
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
@@ -35,19 +34,15 @@ public class Injector {
     }
 
     private Object createOrGetInstance(Class<?> interfaceClazz) {
-        if (instances.containsKey(interfaceClazz)) {
-            return instances.get(interfaceClazz);
+        Class<?> implementationClass = interfaceImplementations.getOrDefault(interfaceClazz,
+                                                                            interfaceClazz);
+        if (implementationClass.isAnnotationPresent(Component.class)) {
+            Object instance = createNewInstance(implementationClass);
+            injectDependencies(instance);
+            return instance;
         }
-        Class<?> implementationClass = interfaceImplementations
-                .getOrDefault(interfaceClazz, interfaceClazz);
-        if (!implementationClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(Component.class + " annotation missing. "
-                    + "Can't create an instance of class " + implementationClass.getName());
-        }
-        Object instance = createNewInstance(implementationClass);
-        injectDependencies(instance);
-        instances.put(interfaceClazz, instance);
-        return instance;
+        throw new RuntimeException(Component.class + " annotation missing. "
+                + "Can't create an instance of class " + implementationClass.getName());
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -64,17 +59,21 @@ public class Injector {
         Field[] declaredFields = instance.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Class<?> fieldType = field.getType();
-                Object fieldInstance = createOrGetInstance(fieldType);
-                field.setAccessible(true);
-                try {
-                    field.set(instance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. "
-                            + "Class: " + instance.getClass().getName()
-                            + ". Field: " + field.getName(), e);
-                }
+                setFieldValue(instance, field);
             }
+        }
+    }
+
+    private void setFieldValue(Object instance, Field field) {
+        Class<?> fieldType = field.getType();
+        Object fieldInstance = createOrGetInstance(fieldType);
+        field.setAccessible(true);
+        try {
+            field.set(instance, fieldInstance);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Can't initialize field value. "
+                    + "Class: " + instance.getClass().getName()
+                    + ". Field: " + field.getName(), e);
         }
     }
 }
