@@ -13,6 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
+
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public Injector(Map<Class<?>, Object> instances) {
@@ -30,7 +35,7 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (! clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Сan't create an instance of " + clazz);
+            throw new RuntimeException("Can't create an instance of " + clazz);
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -68,14 +73,13 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        //Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        //interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        //interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        //interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
 }
-
