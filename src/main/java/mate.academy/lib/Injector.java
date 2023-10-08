@@ -25,23 +25,27 @@ public class Injector {
         }
 
         if (!interfaceClazz.isInterface()) {
-            throw new RuntimeException("Only interfaces can be used with Injector");
+            throw new IllegalArgumentException("Only interfaces can be used with Injector");
         }
 
         Class<?> implementationClazz = findImplementation(interfaceClazz);
 
         if (implementationClazz == null) {
-            throw new RuntimeException("No implementation found for interface "
+            throw new IllegalArgumentException("No implementation found for interface "
                     + interfaceClazz.getName());
         }
 
         try {
+            if (instances.containsKey(interfaceClazz)) {
+                return instances.get(interfaceClazz);
+            }
+
             Object instance = implementationClazz.getDeclaredConstructor().newInstance();
             injectDependencies(instance);
             instances.put(interfaceClazz, instance);
             return instance;
-        } catch (Exception e) {
-            throw new RuntimeException("Injection failed", e);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Injection failed: " + e.getMessage(), e);
         }
     }
 
@@ -86,7 +90,7 @@ public class Injector {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while scanning classes: " + e.getMessage(), e);
         }
         return classes;
     }
