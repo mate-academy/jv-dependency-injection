@@ -12,7 +12,12 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+    private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    public static Injector getInjector() {
+        return injector;
+    }
 
     private Injector() {
         registerImplementations();
@@ -48,9 +53,5 @@ public class Injector {
         } else {
             throw new RuntimeException("No implementation found for type: " + type.getName());
         }
-    }
-
-    public static Injector getInjector() {
-        return new Injector();
     }
 }
