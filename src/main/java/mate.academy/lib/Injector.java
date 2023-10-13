@@ -1,15 +1,15 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 public class Injector {
     private final Map<Class<?>, Object> instances = new HashMap<>();
@@ -33,7 +33,8 @@ public class Injector {
                     try {
                         field.set(instance, instances.get(field.getType()));
                     } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Failed to inject dependency for field " + field.getName(), e);
+                        throw new RuntimeException("Failed to inject dependency for field "
+                                + field.getName(), e);
                     }
                 }
             }
