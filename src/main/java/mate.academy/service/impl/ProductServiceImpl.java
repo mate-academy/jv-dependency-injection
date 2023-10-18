@@ -17,6 +17,7 @@ public class ProductServiceImpl implements ProductService {
     @Inject
     private FileReaderService fileReaderService;
 
+    @Inject
     public ProductServiceImpl() {
         this.productParser = new ProductParserImpl();
         this.fileReaderService = new FileReaderServiceImpl();
