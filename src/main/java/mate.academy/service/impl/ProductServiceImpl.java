@@ -4,23 +4,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 import mate.academy.lib.Component;
 import mate.academy.lib.Inject;
+import mate.academy.lib.Injector;
 import mate.academy.model.Product;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 
 @Component
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl extends Injector implements ProductService {
     @Inject
-    private ProductParser productParser;
+    private final FileReaderService fileReaderService;
+    @Inject
+    private final ProductParser productParser;
 
-    @Inject
-    private FileReaderService fileReaderService;
-
-    @Inject
     public ProductServiceImpl() {
-        this.productParser = new ProductParserImpl();
         this.fileReaderService = new FileReaderServiceImpl();
+        this.productParser = new ProductParserImpl();
+    }
+
+    @Override
+    public Object getInstance(Class<?> interfaceClazz) {
+        return super.getInstance(interfaceClazz);
     }
 
     @Override
