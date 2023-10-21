@@ -17,9 +17,4 @@ public class FileReaderServiceImpl implements FileReaderService {
             throw new RuntimeException("Can't read file: " + fileName, e);
         }
     }
-
-    @Override
-    public Object getInstance(Class<?> interfaceClazz) {
-        return new FileReaderServiceImpl();
-    }
 }
