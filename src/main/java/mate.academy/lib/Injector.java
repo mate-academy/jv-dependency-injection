@@ -28,11 +28,11 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> clazz = implementations.get(interfaceClazz);
+        Class<?> clazzImplementation = implementations.get(interfaceClazz);
 
-        if (clazz != null) {
-            Object clazzImplementationInstance = createInstance(clazz);
-            Field[] clazzFields = clazz.getDeclaredFields();
+        if (clazzImplementation != null) {
+            Object clazzImplementationInstance = createInstance(clazzImplementation);
+            Field[] clazzFields = clazzImplementation.getDeclaredFields();
 
             for (Field field : clazzFields) {
                 if (field.isAnnotationPresent(Inject.class)) {
@@ -45,7 +45,7 @@ public class Injector {
                         field.set(clazzImplementationInstance, fieldInstance);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException("Can't inject component to "
-                                + clazz.getName() + "." + field.getName(), e);
+                                + clazzImplementation.getName() + "." + field.getName(), e);
                     }
 
                     field.setAccessible(isAccessible);
