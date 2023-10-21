@@ -24,4 +24,9 @@ public class ProductParserImpl implements ProductParser {
         product.setPrice(new BigDecimal(data[PRICE_POSITION]));
         return product;
     }
+
+    @Override
+    public Object getInstance(Class<?> interfaceClazz) {
+        return new ProductParserImpl();
+    }
 }
