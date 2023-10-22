@@ -6,12 +6,18 @@ import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>,Object> instances = new HashMap<>();
+    private final Map<Class<?>,Object> instances = new HashMap<>();
+    private final Map<Class<?>,Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class,FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -26,7 +32,7 @@ public class Injector {
                 //create a new object of field type
                 Object fieldInstance = getInstance(field.getType());
                 //create an object of interfaceClazz object
-                    clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = createNewInstance(clazz);
                 //set field type object to interfaceClazz object
                 try {
                     field.setAccessible(true);
@@ -37,7 +43,6 @@ public class Injector {
                 }
             }
         }
-        //if (clazz.isAnnotationPresent(Component.class)) {
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
@@ -61,11 +66,12 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>,Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
+        }
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class: " + interfaceClazz.getName()
+                    + " has not valid Annotation");
         }
         return interfaceClazz;
     }
