@@ -13,18 +13,28 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> implementations = initImplementations();
 
-    private final Map<Class<?>, Class<?>> implementations = Map.of(
-            FileReaderService.class, FileReaderServiceImpl.class,
-            ProductService.class, ProductServiceImpl.class,
-            ProductParser.class, ProductParserImpl.class
-    );
+    private Map<Class<?>, Class<?>> initImplementations() {
+        return Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class
+        );
+    }
 
     public static Injector getInjector() {
         return injector;
     }
 
+    private boolean isComponentAnnotated(Class<?> clazz) {
+        return clazz.isAnnotationPresent(Component.class);
+    }
+
     public Object getInstance(Class<?> interfaceClazz) {
+        if (!isComponentAnnotated(interfaceClazz)) {
+            throw new RuntimeException("Missing Component annotation");
+        }
         if (instances.containsKey(interfaceClazz)) {
             return instances.get(interfaceClazz);
         }

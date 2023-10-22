@@ -4,11 +4,11 @@ import mate.academy.lib.Injector;
 import mate.academy.service.ProductService;
 
 public class Main {
+    private static final String FILE_PATH = "products.txt";
 
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
         ProductService productService = (ProductService) injector.getInstance(ProductService.class);
-        String filePath = "products.txt";
-        productService.getAllFromFile(filePath).forEach(System.out::println);
+        productService.getAllFromFile(FILE_PATH).forEach(System.out::println);
     }
 }
