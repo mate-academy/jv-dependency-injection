@@ -13,26 +13,25 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Class<?>> implementaionMap = new HashMap<>();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> implementaionMap = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementatiomInstance = null;
         Class<?> implementationClazz = findImplementation(interfaceClazz);
         if (!implementationClazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed,"
                     + " missing @Component annotation on the class "
                     + implementationClazz.getName());
         }
+        Object clazzImplementatiomInstance = createNewInstance(implementationClazz);
         Field [] declaredField = implementationClazz.getDeclaredFields();
         for (Field field : declaredField) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementatiomInstance = createNewInstance(implementationClazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementatiomInstance, fieldInstance);
@@ -42,23 +41,20 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementatiomInstance == null) {
-            clazzImplementatiomInstance = createNewInstance(implementationClazz);
-        }
         return clazzImplementatiomInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
-            return implementaionMap.get(clazz);
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object clazzInstance = constructor.newInstance();
-            instances.put(clazz.getClass(), clazzInstance);
+            instances.put(clazz, clazzInstance);
             return clazzInstance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getClass());
+            throw new RuntimeException("Can't create a new instance of " + clazz);
         }
     }
 
