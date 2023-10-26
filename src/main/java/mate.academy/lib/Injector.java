@@ -66,7 +66,7 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private static void initializationMap (Map<Class<?>, Class<?>> map) {
+    private static void initializationMap(Map<Class<?>, Class<?>> map) {
         map.put(FileReaderService.class, FileReaderServiceImpl.class);
         map.put(ProductParser.class, ProductParserImpl.class);
         map.put(ProductService.class, ProductServiceImpl.class);
