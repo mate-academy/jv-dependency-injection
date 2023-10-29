@@ -3,9 +3,9 @@ package mate.academy.lib;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
-import mate.academy.service.impl.FileReaderServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
+import mate.academy.impl.FileReaderServiceImpl;
+import mate.academy.impl.ProductParserImpl;
+import mate.academy.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
