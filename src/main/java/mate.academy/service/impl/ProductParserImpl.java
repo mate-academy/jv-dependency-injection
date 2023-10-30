@@ -3,7 +3,9 @@ package mate.academy.service.impl;
 import java.math.BigDecimal;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
+import mate.academy.lib.Component;
 
+@Component
 public class ProductParserImpl implements ProductParser {
     public static final int ID_POSITION = 0;
     public static final int NAME_POSITION = 1;
