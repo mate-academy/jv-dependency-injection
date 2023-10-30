@@ -25,8 +25,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create an instance of class: " +
-                    clazz.getName(), e);
+            throw new RuntimeException("Failed to create an instance of class: "
+                    + clazz.getName(), e);
         }
     }
 
