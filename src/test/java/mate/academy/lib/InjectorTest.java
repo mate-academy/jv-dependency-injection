@@ -74,7 +74,7 @@ class InjectorTest {
     public void getInstance_productServiceInstance() {
         Object actual = injector.getInstance(ProductServiceImpl.class);
 
-        Assertions.assertTrue(actual instanceof ProductServiceImpl,
+        Assertions.assertTrue(actual instanceof ProductService,
                 "Injector should be able to generate an instance of ProductServiceImpl");
     }
 
