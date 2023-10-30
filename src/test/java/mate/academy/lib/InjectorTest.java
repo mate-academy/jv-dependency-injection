@@ -64,26 +64,26 @@ class InjectorTest {
 
     @Test
     public void getInstance_productParserInstance() {
-        Object actual = injector.getInstance(ProductParser.class);
+        Object actual = injector.getInstance(ProductParserImpl.class);
 
-        Assertions.assertTrue(actual instanceof ProductParser,
-                "Injector should be able to generate instance of ProductParser");
+        Assertions.assertTrue(actual instanceof ProductParserImpl,
+                "Injector should be able to generate an instance of ProductParserImpl");
     }
 
     @Test
     public void getInstance_productServiceInstance() {
-        Object actual = injector.getInstance(ProductService.class);
+        Object actual = injector.getInstance(ProductServiceImpl.class);
 
-        Assertions.assertTrue(actual instanceof ProductService,
-                "Injector should be able to generate instance of ProductService");
+        Assertions.assertTrue(actual instanceof ProductServiceImpl,
+                "Injector should be able to generate an instance of ProductServiceImpl");
     }
 
     @Test
     public void getInstance_fileReaderInstance() {
-        Object actual = injector.getInstance(FileReaderService.class);
+        Object actual = injector.getInstance(FileReaderServiceImpl.class);
 
-        Assertions.assertTrue(actual instanceof FileReaderService,
-                "Injector should be able to generate instance of FileReader");
+        Assertions.assertTrue(actual instanceof FileReaderServiceImpl,
+                "Injector should be able to generate an instance of FileReaderServiceImpl");
     }
 
     @Test
