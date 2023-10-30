@@ -6,9 +6,15 @@ import mate.academy.model.Product;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
+import mate.academy.lib.Component;
+import mate.academy.lib.Inject;
 
+@Component
 public class ProductServiceImpl implements ProductService {
+    @Inject
     private ProductParser productParser;
+
+    @Inject
     private FileReaderService fileReaderService;
 
     @Override
