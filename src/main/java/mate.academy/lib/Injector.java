@@ -3,14 +3,13 @@ package mate.academy.lib;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
-import mate.academy.service.impl.FileReaderServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -40,13 +39,14 @@ public class Injector {
                 return instance;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create an instance of class: " + clazz.getName(), e);
+            throw new RuntimeException("Failed to create an instance of class: "
+                    + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementationClass(Class<?> interfaceClass) {
         // Implement your logic to find the implementation class for the interface
-        // This is just a placeholder; you should customize it based on your application's requirements.
+        // This is just a placeholder; you should customize it based on your application's
         if (interfaceClass.equals(FileReaderService.class)) {
             return FileReaderServiceImpl.class;
         } else if (interfaceClass.equals(ProductParser.class)) {
@@ -54,7 +54,8 @@ public class Injector {
         } else if (interfaceClass.equals(ProductService.class)) {
             return ProductServiceImpl.class;
         }
-        throw new RuntimeException("No implementation class found for: " + interfaceClass.getName());
+        throw new RuntimeException("No implementation class found for: "
+                + interfaceClass.getName());
     }
 
     private Object createInstance(Class<?> clazz) throws Exception {
@@ -66,7 +67,8 @@ public class Injector {
             }
         }
         if (constructor == null) {
-            throw new RuntimeException("No suitable constructor found for class: " + clazz.getName());
+            throw new RuntimeException("No suitable constructor found for class: "
+                    + clazz.getName());
         }
 
         // Create an instance using the constructor
