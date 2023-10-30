@@ -1,5 +1,13 @@
 package mate.academy.lib;
 
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,33 +24,67 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new ComponentNotFoundException(clazz.getName());
-        }
+
         try {
-            Object instance = clazz.getDeclaredConstructor().newInstance();
-            injectFields(instance);
-            instances.put(clazz, instance);
-            return instance;
+            // Check if the class is an interface
+            if (clazz.isInterface()) {
+                Class<?> implementationClass = findImplementationClass(clazz);
+                Object instance = createInstance(implementationClass);
+                injectFields(instance);
+                instances.put(clazz, instance);
+                return instance;
+            } else {
+                Object instance = createInstance(clazz);
+                injectFields(instance);
+                instances.put(clazz, instance);
+                return instance;
+            }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create an instance of class: "
-                    + clazz.getName(), e);
+            throw new RuntimeException("Failed to create an instance of class: " + clazz.getName(), e);
         }
     }
 
-    private void injectFields(Object instance) {
+    private Class<?> findImplementationClass(Class<?> interfaceClass) {
+        // Implement your logic to find the implementation class for the interface
+        // This is just a placeholder; you should customize it based on your application's requirements.
+        if (interfaceClass.equals(FileReaderService.class)) {
+            return FileReaderServiceImpl.class;
+        } else if (interfaceClass.equals(ProductParser.class)) {
+            return ProductParserImpl.class;
+        } else if (interfaceClass.equals(ProductService.class)) {
+            return ProductServiceImpl.class;
+        }
+        throw new RuntimeException("No implementation class found for: " + interfaceClass.getName());
+    }
+
+    private Object createInstance(Class<?> clazz) throws Exception {
+        // Find the constructor with the most parameters
+        Constructor<?> constructor = null;
+        for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+            if (constructor == null || c.getParameterCount() > constructor.getParameterCount()) {
+                constructor = c;
+            }
+        }
+        if (constructor == null) {
+            throw new RuntimeException("No suitable constructor found for class: " + clazz.getName());
+        }
+
+        // Create an instance using the constructor
+        Object[] params = new Object[constructor.getParameterCount()];
+        for (int i = 0; i < constructor.getParameterCount(); i++) {
+            params[i] = getInstance(constructor.getParameterTypes()[i]);
+        }
+        return constructor.newInstance(params);
+    }
+
+    private void injectFields(Object instance) throws IllegalAccessException {
         Class<?> clazz = instance.getClass();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 field.setAccessible(true);
-                Class<?> fieldType = field.getType();
-                Object fieldInstance = getInstance(fieldType);
-                try {
-                    field.set(instance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Failed to inject field: " + field.getName(), e);
-                }
+                Object fieldInstance = getInstance(field.getType());
+                field.set(instance, fieldInstance);
             }
         }
     }
