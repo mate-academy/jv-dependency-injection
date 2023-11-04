@@ -3,20 +3,18 @@ package mate.academy.lib;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
-import mate.academy.service.impl.FileReaderServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-
 
     public Injector() {
         // Initialize interface-to-implementation class mappings
@@ -41,7 +39,8 @@ public class Injector {
         try {
             Class<?> implementationClass = findImplementationClass(clazz);
             if (implementationClass == null) {
-                throw new ComponentNotFoundException("No implementation class found for: " + clazz.getName());
+                throw new ComponentNotFoundException("No implementation class found for: "
+                        + clazz.getName());
             }
 
             Object instance = createInstance(implementationClass);
@@ -49,7 +48,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (Exception e) {
-            throw new ComponentNotFoundException("Failed to create an instance of class: " + clazz.getName());
+            throw new ComponentNotFoundException("Failed to create an instance of class: "
+                    + clazz.getName());
         }
     }
 
