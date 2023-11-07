@@ -94,7 +94,6 @@ class InjectorTest {
                     return Arrays.stream(field.getDeclaredAnnotations())
                             .anyMatch(annotation -> annotation.annotationType().equals(Inject.class));
                 });
-
         Assertions.assertTrue(areAllPresent, "ProductServiceImpl fields "
                 + "should be marked with Inject annotation to be initialized");
     }
