@@ -2,10 +2,8 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -34,10 +32,36 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(String
-                    .format(ANNOTATION_CHECK_FAILED_MESSAGE, clazz.getName()));
+        checkAnnotationPresent(clazz);
+        return getClazzImplInstance(clazz);
+    }
+
+    private Object createNewInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException ex) {
+            throw new RuntimeException(String
+                    .format(INSTANCE_CREATE_FAILED_MESSAGE, clazz.getName()), ex);
+        }
+    }
+
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (interfaceClazz.isAnnotationPresent(Component.class)) {
+            return interfaceClazz;
+        }
+        if (interfaceClazz.isInterface()) {
+            return interfaceImplementations.get(interfaceClazz);
+        }
+        return interfaceClazz;
+    }
+
+    private Object getClazzImplInstance(Class<?> clazz) {
         Object clazzImplInstance = null;
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -59,29 +83,10 @@ public class Injector {
                 : clazzImplInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
-        try {
-            Constructor<?> constructor = clazz.getConstructor();
-            Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
-            return instance;
-        } catch (NoSuchElementException | InvocationTargetException | NoSuchMethodException
-                 | InstantiationException | IllegalAccessException ex) {
+    private void checkAnnotationPresent(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(String
-                    .format(INSTANCE_CREATE_FAILED_MESSAGE, clazz.getName()), ex);
+                    .format(ANNOTATION_CHECK_FAILED_MESSAGE, clazz.getName()));
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            return interfaceClazz;
-        }
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
-        }
-        return interfaceClazz;
     }
 }
