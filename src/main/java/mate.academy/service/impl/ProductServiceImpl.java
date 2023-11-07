@@ -9,7 +9,6 @@ import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 
-
 @Component
 public class ProductServiceImpl implements ProductService {
     @Inject
