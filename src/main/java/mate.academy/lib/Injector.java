@@ -28,34 +28,35 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz.isAnnotationPresent(Component.class)) {
-            Field[] declaredFields = clazz.getDeclaredFields();
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
-                    try {
-                        field.setAccessible(true);
-                        field.set(clazzImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value. "
-                            + "Class " + clazz.getName()
-                            + ", field " + field.getName()
-                        );
-                    }
-                }
-            }
-            if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstance(clazz);
-            }
-        } else {
+        checkIfClassIsComponent(clazz);
+        Object clazzImplementationInstance = createNewInstance(clazz);
+        injectFields(clazzImplementationInstance);
+        return clazzImplementationInstance;
+    }
+
+    private void checkIfClassIsComponent(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + clazz.getName()
                                                 + " is missing @Component annotation.");
         }
+    }
 
-        return clazzImplementationInstance;
+    private void injectFields(Object instance) {
+        Field[] declaredFields = instance.getClass().getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                try {
+                    field.setAccessible(true);
+                    field.set(instance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. "
+                        + "Class " + instance.getClass().getName()
+                        + ", field " + field.getName());
+                }
+            }
+        }
     }
 
     private Object createNewInstance(Class<?> clazz) {
