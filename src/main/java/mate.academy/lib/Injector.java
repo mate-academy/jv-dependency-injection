@@ -18,6 +18,12 @@ public class Injector {
             ProductParser.class, ProductParserImpl.class,
             FileReaderService.class, FileReaderServiceImpl.class
     );
+    private static final String COMPONENT_ANNOTATION_ERROR
+            = "Class: %s isn't declared as @Component";
+    private static final String FIELD_INITIALIZE_ERROR
+            = "Can not initialize field value. Class: %s. Field: %s";
+    private static final String INSTANCE_CREATE_ERROR
+            = "Can't create instance from class: %s";
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -28,30 +34,30 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         checkClassAnnotation(clazz);
+        clazzImplementationInstance = getOrCreateNewInstance(clazz);
+        injectFields(clazz, clazzImplementationInstance);
+        return clazzImplementationInstance;
+    }
+
+    private void injectFields(Class<?> clazz, Object clazzImplementationInstance) {
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can not initial field value. "
-                            + "Class: " + clazz.getName() + ". Field: " + field.getName());
+                    throw new RuntimeException(String
+                            .format(FIELD_INITIALIZE_ERROR, clazz.getName(), field.getName()), e);
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = getOrCreateNewInstance(clazz);
-        }
-        return clazzImplementationInstance;
     }
 
     private static void checkClassAnnotation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class: " + clazz.getName()
-                    + " isn't declared as @Component");
+            throw new RuntimeException(String.format(COMPONENT_ANNOTATION_ERROR, clazz.getName()));
         }
     }
 
@@ -65,7 +71,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create instance from class: " + clazz.getName(), e);
+            throw new RuntimeException(String.format(INSTANCE_CREATE_ERROR, clazz.getName()), e);
         }
     }
 
