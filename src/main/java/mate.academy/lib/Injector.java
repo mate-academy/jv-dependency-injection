@@ -12,13 +12,10 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final HashMap<Class<?>, Class<?>> implementationMap = new HashMap<>();
-
-    static {
-        implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementationMap.put(ProductParser.class, ProductParserImpl.class);
-        implementationMap.put(ProductService.class, ProductServiceImpl.class);
-    }
+    private static final Map<Class<?>, Class<?>> implementationMap =
+            Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
 
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
@@ -53,7 +50,7 @@ public class Injector {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
                         + "Class " + instance.getClass().getName()
-                        + ", field " + field.getName());
+                        + ", field " + field.getName(), e);
                 }
             }
         }
@@ -69,7 +66,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
