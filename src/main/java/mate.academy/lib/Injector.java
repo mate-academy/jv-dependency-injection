@@ -12,6 +12,10 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+    private static final String COMPONENT_ERROR_MSG = "Component annotation is missing in class: ";
+    private static final String FIELD_INIT_ERROR_MSG = "Can't initialize field value. Class: ";
+    private static final String CLASS_INSTANCE_ERROR_MSG = "Can't create instance of: ";
+    private static final String FIELD = ".Field: ";
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
 
@@ -25,7 +29,7 @@ public class Injector {
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field declaredField : declaredFields) {
             if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Component annotation is missing in class: "
+                throw new RuntimeException(COMPONENT_ERROR_MSG
                         + clazz.getName());
             }
             if (declaredField.isAnnotationPresent(Inject.class)) {
@@ -35,9 +39,9 @@ public class Injector {
                 try {
                     declaredField.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. Class: "
+                    throw new RuntimeException(FIELD_INIT_ERROR_MSG
                             + clazz.getName()
-                            + ".Field: " + declaredField.getName(), e);
+                            + FIELD + declaredField.getName(), e);
                 }
             }
         }
@@ -57,7 +61,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create instance of: " + clazz.getName());
+            throw new RuntimeException(CLASS_INSTANCE_ERROR_MSG + clazz.getName());
         }
     }
 
