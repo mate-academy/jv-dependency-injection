@@ -33,11 +33,11 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(CLASS_NOT_SUPPORTED_MESSAGE);
         }
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] fields = interfaceClazz.getFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
