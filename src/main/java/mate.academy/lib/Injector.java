@@ -33,12 +33,12 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
-
         if (!isSupportedClass(clazz)) {
             throw new RuntimeException(NOT_SUPPORTED + clazz.getName());
+        }
+
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
 
         try {
