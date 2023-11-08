@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final String NOT_SUPPORTED = "Class that is not supported: ";
     private static final String NOT_FOUND_CLASS = "Implementation class not found: ";
+    private static final String FIELDS = "Exception with fields: ";
     private static final String NOT_CREATED_CLASS =
             "An instance of the class could not be created: ";
     private static final String NOT_CREATED_INSTANCE = "Cannot create a new instance of ";
@@ -63,6 +64,22 @@ public class Injector {
         return clazz.isAnnotationPresent(Component.class);
     }
 
+    private void injectFields(Object instance) {
+        Class<?> clazz = instance.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                try {
+                    field.setAccessible(true);
+                    Object fieldInstance = getInstance(field.getType());
+                    field.set(instance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalArgumentException("Exception with fields: " + e);
+                }
+            }
+        }
+    }
+
     private Class<?> findImplementationClass(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             Class<?> implementationClass = interfaceImplementations.get(interfaceClazz);
@@ -73,29 +90,13 @@ public class Injector {
         return interfaceClazz;
     }
 
-    private Object createInstance(Class<?> clazz) throws Exception {
+    private Object createInstance(Class<?> clazz) {
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(NOT_CREATED_INSTANCE + clazz.getName(), e);
-        }
-    }
-
-    private void injectFields(Object instance) throws IllegalAccessException {
-        Class<?> clazz = instance.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(Inject.class)) {
-                try {
-                    field.setAccessible(true);
-                    Object fieldInstance = getInstance(field.getType());
-                    field.set(instance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
+            throw new RuntimeException(FIELDS + clazz.getName(), e);
         }
     }
 }
