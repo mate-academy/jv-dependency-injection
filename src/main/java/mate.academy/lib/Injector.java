@@ -13,10 +13,6 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final String CLASS_NOT_SUPPORTED_MESSAGE = "The provided class"
-            + " is not marked with the corresponding annotation.";
-    private static final String CANNOT_INITIALIZE_FIELD_MESSAGE = "Can't"
-            + " initialize field value";
     private static final String CANNOT_CREATE_INSTANCE_MESSAGE = "Cannot"
             + " create the instance of ";
     private static final Injector injector = new Injector();
