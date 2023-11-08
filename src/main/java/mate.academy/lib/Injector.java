@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -32,11 +31,11 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
         Field[] declaredFields = clazz.getDeclaredFields();
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Component annotation is missing in class: "
+                    + clazz.getName());
+        }
         for (Field declaredField : declaredFields) {
-            if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Component annotation is missing in class: "
-                        + clazz.getName());
-            }
             if (declaredField.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(declaredField.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
@@ -46,7 +45,7 @@ public class Injector {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class: "
                             + clazz.getName()
-                            + ".Field: " + declaredField.getName(), e);
+                            + ". Field: " + declaredField.getName(), e);
                 }
             }
         }
@@ -65,8 +64,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (InstantiationException | IllegalAccessException
-                 | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(CANNOT_CREATE_INSTANCE_MESSAGE, e);
         }
     }
