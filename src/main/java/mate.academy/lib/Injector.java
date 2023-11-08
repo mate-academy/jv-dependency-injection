@@ -17,6 +17,11 @@ public class Injector {
     private static final String CLASS_INSTANCE_ERROR_MSG = "Can't create instance of: ";
     private static final String FIELD = ".Field: ";
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -27,11 +32,11 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = null;
         Field[] declaredFields = clazz.getDeclaredFields();
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(COMPONENT_ERROR_MSG
+                    + clazz.getName());
+        }
         for (Field declaredField : declaredFields) {
-            if (!clazz.isAnnotationPresent(Component.class)) {
-                throw new RuntimeException(COMPONENT_ERROR_MSG
-                        + clazz.getName());
-            }
             if (declaredField.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(declaredField.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
@@ -66,14 +71,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
-        return interfaceClazz;
+        return (Class<?>) instances.get(interfaceClazz);
 
     }
 }
