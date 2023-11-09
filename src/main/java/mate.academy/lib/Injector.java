@@ -20,12 +20,17 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(
+                    "Instantiation is not supported for this class: "
+                            + interfaceClazz.getCanonicalName());
+        }
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
-            if (field.isAnnotationPresent(Inject.class)
-                    && interfaceClazz.isAnnotationPresent(Component.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
