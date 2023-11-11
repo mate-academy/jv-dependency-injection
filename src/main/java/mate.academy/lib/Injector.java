@@ -32,7 +32,6 @@ public class Injector {
                             + interfaceClazz.getCanonicalName());
         }
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
