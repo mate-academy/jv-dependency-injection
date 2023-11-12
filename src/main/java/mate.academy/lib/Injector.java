@@ -13,44 +13,40 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Object> instances = new HashMap<>();
-
-    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-            FileReaderService.class, FileReaderServiceImpl.class,
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
             ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class,
             ProductService.class, ProductServiceImpl.class
     );
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClass) {
-        Object classImplementationInstance = null;
-        Class<?> classImplementation = findImplementation(interfaceClass);
-        if (!classImplementation.isAnnotationPresent(Component.class)) {
+        Class<?> classImpl = findImplementation(interfaceClass);
+        if (!classImpl.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, missing @Component "
-                    + " annotation on the class " + classImplementation);
+                    + " annotation on the class " + classImpl);
         }
-        Field[] declaredFields = classImplementation.getDeclaredFields();
-        for (Field field: declaredFields) {
+        Object clazzImplementationInstance = createNewInstance(classImpl);
+        Field[] declaredFields = classImpl.getDeclaredFields();
+        for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                classImplementationInstance = createNewInstance(classImplementation);
                 try {
                     field.setAccessible(true);
-                    field.set(classImplementationInstance, fieldInstance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. "
-                            + "Class; " + classImplementation.getName()
-                            + ". Field: " + field.getName());
+                    throw new RuntimeException("Cannot initialize field:" + field.getName());
                 }
             }
         }
-        if (classImplementationInstance == null) {
-            classImplementationInstance = createNewInstance(classImplementation);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(classImpl);
         }
-        return classImplementationInstance;
+        return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> classObject) {
@@ -68,10 +64,9 @@ public class Injector {
         }
     }
 
-    private Class<?> findImplementation(Class<?> interfaceClass) {
-        if (interfaceClass.isInterface()) {
-            return interfaceImplementations.get(interfaceClass);
-        }
-        return interfaceClass;
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        return interfaceClazz.isInterface()
+                ? interfaceImplementations.get(interfaceClazz)
+                : interfaceClazz;
     }
 }
