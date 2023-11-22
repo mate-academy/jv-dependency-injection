@@ -69,8 +69,8 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create anew instance of " +
-                    clazz.getName());
+            throw new RuntimeException("Injection failed, missing @Component annotaion on the class " +
+                    clazz.getName(), e);
         }
     }
 
