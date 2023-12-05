@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -58,17 +57,19 @@ public class Injector {
         Set<Class<?>> interfaces = findClasses(PACKAGE_INTERFACE);
         Set<Class<?>> classes = findClasses(PACKAGE_IMPL);
         for (Class<?> currentInterface : interfaces) {
-            Class<?> currentClass = classes.stream()
-                    .filter(i -> i.getName()
-                            .contains(currentInterface
-                                    .getName()
-                                    .substring(currentInterface
-                                            .getName()
-                                            .lastIndexOf(DOT))))
-                    .findFirst()
-                    .orElseThrow();
-            if (currentClass.isAnnotationPresent(Component.class)) {
-                implementationsMap.put(currentInterface, currentClass);
+            if (!implementationsMap.containsKey(currentInterface)) {
+                Class<?> currentClass = classes.stream()
+                        .filter(i -> i.getName()
+                                .contains(currentInterface
+                                        .getName()
+                                        .substring(currentInterface
+                                                .getName()
+                                                .lastIndexOf(DOT))))
+                        .findFirst()
+                        .orElseThrow();
+                if (currentClass.isAnnotationPresent(Component.class)) {
+                    implementationsMap.put(currentInterface, currentClass);
+                }
             }
         }
     }
@@ -98,10 +99,7 @@ public class Injector {
         Object object;
         try {
             object = objectClass.getConstructor().newInstance();
-        } catch (InstantiationException
-                 | IllegalAccessException
-                 | InvocationTargetException
-                 | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Something went wrong "
                     + "with creating an object of class "
                     + objectClass.getName(), e);
