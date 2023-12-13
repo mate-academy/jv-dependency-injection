@@ -58,7 +58,7 @@ public class Injector {
         Constructor<?> constructor;
 
         try {
-            constructor = clazz.getConstructor();
+            constructor = clazz.getDeclaredConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
@@ -70,10 +70,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementationsMap = new HashMap<>();
-        interfaceImplementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementationsMap.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementationsMap.put(ProductParser.class, ProductParserImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementationsMap = Map.of(
+        FileReaderService.class, FileReaderServiceImpl.class,
+        ProductService.class, ProductServiceImpl.class,
+        ProductParser.class, ProductParserImpl.class);
 
         return interfaceImplementationsMap.get(interfaceClazz);
     }
