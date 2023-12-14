@@ -1,18 +1,12 @@
 package mate.academy.model;
 
 import java.math.BigDecimal;
-import mate.academy.lib.Component;
 
 public class Product {
-    @Component
     private Long id;
-    @Component
     private String name;
-    @Component
     private String category;
-    @Component
     private String description;
-    @Component
     private BigDecimal price;
 
     public Long getId() {

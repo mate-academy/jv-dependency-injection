@@ -26,7 +26,7 @@ public class Injector {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't create an instance of this class!");
         }
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
 
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -58,7 +58,7 @@ public class Injector {
         Constructor<?> constructor;
 
         try {
-            constructor = clazz.getDeclaredConstructor();
+            constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
@@ -71,9 +71,9 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementationsMap = Map.of(
-        FileReaderService.class, FileReaderServiceImpl.class,
-        ProductService.class, ProductServiceImpl.class,
-        ProductParser.class, ProductParserImpl.class);
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class);
 
         return interfaceImplementationsMap.get(interfaceClazz);
     }
