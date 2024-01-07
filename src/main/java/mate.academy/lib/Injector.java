@@ -16,7 +16,10 @@ public class Injector {
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
-    private Map<Class<?>,Class<?>> mapOfInterfaceImplementation;
+    private final Map<Class<?>,Class<?>> mapOfInterfaceImplementation =
+            Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -25,23 +28,22 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplInstance = null;
         Class<?> clazz = findObjectInTheMap(interfaceClazz);
-        if (clazz.isAnnotationPresent(Component.class)) {
-            Field[] declaredFields = clazz.getDeclaredFields();
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    clazzImplInstance = createNewInstance(clazz);
-                    field.setAccessible(true);
-                    try {
-                        field.set(clazzImplInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Error " + e);
-                    }
-                }
-            }
-        } else {
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, "
                     + "missing @Component annotaion on the class " + clazz.getName());
+        }
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplInstance = createNewInstance(clazz);
+                field.setAccessible(true);
+                try {
+                    field.set(clazzImplInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Error " + e);
+                }
+            }
         }
 
         if (clazzImplInstance == null) {
@@ -65,9 +67,6 @@ public class Injector {
     }
 
     public Class<?> findObjectInTheMap(Class<?> clazz) {
-        mapOfInterfaceImplementation = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
         if (mapOfInterfaceImplementation.containsKey(clazz)) {
             return mapOfInterfaceImplementation.get(clazz);
         }
