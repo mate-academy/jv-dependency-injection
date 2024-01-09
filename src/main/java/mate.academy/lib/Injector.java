@@ -17,7 +17,6 @@ public class Injector {
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private Map<Class<?>, Class<?>> interfaceImplementations;
 
-
     public static Injector getInjector() {
         return injector;
     }
