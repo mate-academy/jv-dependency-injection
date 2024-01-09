@@ -1,16 +1,16 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -24,7 +24,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException(clazz.getName() + " class doesn't have annotation @Component");
+            throw new RuntimeException(clazz.getName()
+                    + " class doesn't have annotation @Component");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -35,8 +36,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. Class; " + clazz.getName()
-                                                + ". Field: " + field.getName());
+                    throw new RuntimeException("Can't initialize field value. Class; "
+                            + clazz.getName() + ". Field: " + field.getName());
                 }
             }
         }
