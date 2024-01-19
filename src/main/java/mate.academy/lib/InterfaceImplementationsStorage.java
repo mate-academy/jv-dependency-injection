@@ -9,7 +9,7 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
-public class Configuration {
+public class InterfaceImplementationsStorage {
     private static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
 
     static {

@@ -58,7 +58,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            return Configuration.getImplementationClass(interfaceClazz);
+            return InterfaceImplementationsStorage.getImplementationClass(interfaceClazz);
         }
         return interfaceClazz;
     }
