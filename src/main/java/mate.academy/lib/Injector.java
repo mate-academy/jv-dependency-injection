@@ -15,7 +15,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
 
     static {
         injector.interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
