@@ -13,10 +13,11 @@ import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    Map<Class<?>, Class<?>> interfaceImplementations;
-    HashMap<Object, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementations;
+    private final HashMap<Object, Object> instances;
 
     private Injector() {
+        instances = new HashMap<>();
         interfaceImplementations = new HashMap<>();
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
@@ -28,7 +29,7 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
+        Object clazzInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
@@ -36,21 +37,21 @@ public class Injector {
                 // create a new object of field type
                 Object fieldInstance = getInstance(field.getType());
                 // create an object of interface Clazz (or implementation class)
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzInstance = createNewInstance(clazz);
                 // set `field type object` to `interface Clazz object'
                 try {
                     field.setAccessible(true);
-                    field.set(clazzImplementationInstance, fieldInstance);
+                    field.set(clazzInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. " +
                             "Class: + clazz.getName() " + "Field: " + field.getName());
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
+        if (clazzInstance == null) {
+            clazzInstance = createNewInstance(clazz);
         }
-        return clazzImplementationInstance;
+        return clazzInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
