@@ -22,7 +22,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
             throw new InjectionException("Injection failed,"
-                    + " missing @Component annotaion on the class " + interfaceClazz.getName());
+                    + " missing @Component annotation on the class " + interfaceClazz.getName());
         }
 
         Object clazzImplementationInstance = null;
