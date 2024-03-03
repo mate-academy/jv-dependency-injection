@@ -20,7 +20,8 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+        if (!interfaceClazz.isInterface()
+                && !interfaceClazz.isAnnotationPresent(Component.class)) {
             throw new InjectionException("Injection failed,"
                     + " missing @Component annotation on the class " + interfaceClazz.getName());
         }
