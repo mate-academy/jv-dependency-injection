@@ -14,7 +14,8 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Class<?>> implementationsMap = new HashMap<>();
+    private Map<Class<?>, Class<?>> implementationsMap;
+    private final Map<Class<?>, Object> createdInstances = new HashMap<>();
 
     private Injector() {
         initImplementationsMap();
@@ -39,7 +40,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Can't access field: " + field.getName()
+                            + " of class: " + clazz.getName());
                 }
             }
         }
@@ -47,9 +49,14 @@ public class Injector {
     }
 
     private Object createNewClassInstance(Class<?> clazz) {
+        if (createdInstances.containsKey(clazz)) {
+            return createdInstances.get(clazz);
+        }
         try {
             Constructor<?> constructor = clazz.getConstructor();
-            return constructor.newInstance();
+            Object clazzInstance = constructor.newInstance();
+            createdInstances.put(clazz, clazzInstance);
+            return clazzInstance;
         } catch (NoSuchMethodException
                  | InstantiationException
                  | IllegalAccessException
@@ -66,8 +73,8 @@ public class Injector {
     }
 
     private void initImplementationsMap() {
-        implementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementationsMap.put(ProductService.class, ProductServiceImpl.class);
-        implementationsMap.put(ProductParser.class, ProductParserImpl.class);
+        implementationsMap = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class);
     }
 }
