@@ -64,14 +64,17 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        Class<?> resultClazz;
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            Class<?> result = interfaceImplementations.get(interfaceClazz);
-            if (result.isAnnotationPresent(Component.class)) {
-                return result;
-            }
+            resultClazz = interfaceImplementations.get(interfaceClazz);
+        } else {
+            resultClazz = interfaceClazz;
+        }
+        if (resultClazz.isAnnotationPresent(Component.class)) {
+            return resultClazz;
         }
         throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
     }
