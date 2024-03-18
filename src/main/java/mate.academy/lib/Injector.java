@@ -72,6 +72,7 @@ public class Injector {
         } else if (interfaceImpl.containsValue(interfaceClazz)) {
             return interfaceClazz;
         }
-        throw new RuntimeException();
+        throw new RuntimeException("Didn't find any implementation for: "
+                + interfaceClazz.getName());
     }
 }
