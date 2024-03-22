@@ -14,31 +14,35 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = clazz.getDeclaredFields();
+        Class<?> implementationClazz = findImplementation(interfaceClazz);
+        if (!implementationClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Impossible create an instance, class "
+                    + implementationClazz.getName() + " don't have the @Components annotation");
+        }
+        Object clazzImplementationInstance = createNewInstance(implementationClazz);
+        Field[] declaredFields = implementationClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
-                            + "Clazz: " + clazz.getName()
+                            + "Clazz: " + implementationClazz.getName()
                             + "Field: " + field.getName());
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
@@ -58,13 +62,9 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
         }
-        return interfaceImplementation.get(interfaceClazz);
+        return interfaceClazz;
     }
 }
