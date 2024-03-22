@@ -12,20 +12,25 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector = new Injector();
+    private static final Injector INJECTOR = new Injector();
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMENTATIONS = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
+
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
-        return injector;
+        return INJECTOR;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findImplementation(interfaceClazz);
+        Class<?> clazz = INTERFACE_IMPLEMENTATIONS.get(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
-                    "Injection failed, missing @Component annotaion on the class "
+                    "Injection failed, missing @Component annotation on the class "
                     + clazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -62,14 +67,5 @@ public class Injector {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of " + clazz.getName(), e);
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class
-        );
-        return interfaceImplementations.get(interfaceClazz);
     }
 }
