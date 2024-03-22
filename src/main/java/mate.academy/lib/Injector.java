@@ -13,27 +13,26 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances;
-    private final Map<Class<?>, Class<?>> interfaceImplementations;
-
-    public Injector() {
-        instances = new HashMap<>();
-        interfaceImplementations = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class
-        );
-    }
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
+        Object clazzImplementationInstance = createNewInstance(interfaceClazz);
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = clazz.getDeclaredFields();
 
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("@Component missing before class declaration!");
+        }
+
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -47,17 +46,10 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
         return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("@Component missing before class declaration!");
-        }
-
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
