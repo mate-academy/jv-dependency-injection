@@ -1,6 +1,5 @@
 package mate.academy.lib;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,30 +12,28 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+    private static final Map<Class<?>, Class<?>> implementstionMap = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class
     );
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = createNewInstance(interfaceClazz);
         Class<?> clazz = findImplementation(interfaceClazz);
-
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("@Component missing before class declaration!");
         }
 
+        Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -49,25 +46,24 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
+    private Object createNewInstance(Class<?> interfaceClazz) {
+        if (instances.containsKey(interfaceClazz)) {
+            return instances.get(interfaceClazz);
         }
-
         try {
-            Constructor<?> constructor = clazz.getConstructor();
-            Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
+            Object instance = interfaceClazz.getConstructor().newInstance();
+            instances.put(interfaceClazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of "
+                                       + interfaceClazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+        if (!interfaceClazz.isInterface()) {
+            return interfaceClazz;
         }
-        return interfaceClazz;
+        return implementstionMap.get(interfaceClazz);
     }
 }
