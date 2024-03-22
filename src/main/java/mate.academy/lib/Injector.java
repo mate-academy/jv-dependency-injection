@@ -14,15 +14,14 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances;
-    private Map<Class<?>, Class<?>> interfaceImpl;
+    private Map<Class<?>, Class<?>> implementaionMap = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public Injector() {
         instances = new HashMap<>();
-        interfaceImpl = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class
-        );
     }
 
     public static Injector getInjector() {
@@ -30,8 +29,9 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        Object clazzImplementationInstance = createNewInstance(clazz);
+
         Field[] declaredAnnotations = clazz.getDeclaredFields();
         for (Field field : declaredAnnotations) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -69,12 +69,7 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            Class<?> implementationClass = interfaceImpl.get(interfaceClazz);
-            if (implementationClass != null) {
-                return implementationClass;
-            }
-        } else if (interfaceImpl.containsValue(interfaceClazz)) {
-            return interfaceClazz;
+            return implementaionMap.get(interfaceClazz);
         }
         throw new RuntimeException("Didn't find any implementation for: "
                 + interfaceClazz.getName());
