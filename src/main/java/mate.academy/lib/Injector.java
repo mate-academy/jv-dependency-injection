@@ -26,28 +26,35 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new InjectionException(String.format(
-                    "Class %s is not marked with '@Component' annotation",
-                    clazz.getName()));
-        }
-
+        classIsComponentCheck(clazz);
         Object clazzInstance = createNewInstance(clazz);
-        Field[] declaredFields = clazz.getDeclaredFields();
+        injectAnnotatedFields(clazzInstance);
+        return clazzInstance;
+    }
+
+    private void injectAnnotatedFields(Object instance) {
+        Field[] declaredFields = instance.getClass().getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 try {
                     field.setAccessible(true);
-                    field.set(clazzInstance, fieldInstance);
+                    field.set(instance, fieldInstance);
                 } catch (IllegalAccessException ex) {
                     throw new InjectionException(String.format(
                             "Can`t initialize a field %s from class %s",
-                            field.getName(), clazz.getName()), ex);
+                            field.getName(), instance.getClass().getName()), ex);
                 }
             }
         }
-        return clazzInstance;
+    }
+
+    private void classIsComponentCheck(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new InjectionException(String.format(
+                    "Class %s is not marked with '@Component' annotation",
+                    clazz.getName()));
+        }
     }
 
     public Object createNewInstance(Class<?> interfaceClazz) {
