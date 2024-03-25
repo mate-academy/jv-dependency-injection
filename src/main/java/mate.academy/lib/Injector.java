@@ -3,7 +3,6 @@ package mate.academy.lib;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -23,39 +22,35 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> clazz = findImplementation(interfaceClazz);
-        if (isComponent(clazz)) {
-            throw new RuntimeException(
-                    "Injection failed, missing @Component annotation on the class "
-                    + clazz.getName());
-        }
-        Object clazzImplementationInstance = null;
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
-        for (Field field : declaredFields) {
-            if (field.isAnnotationPresent(Inject.class)) {
-                // create a new obj
-                Object fieldInstance = getInstance(field.getType());
-                //create an obj of interfaceClazz (or implementation class )
-                clazzImplementationInstance = createNewInstance(clazz);
-                //set `field type object` to `interfaceClazz obj`
-                field.setAccessible(true);
-                try {
-                    field.set(clazzImplementationInstance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialise field value. Class "
-                            + clazz.getName() + " Field " + field.getName());
+        if (interfaceClazz.isAnnotationPresent(Component.class)) {
+            Class<?> clazz = findImplementation(interfaceClazz);
+            Object clazzImplementationInstance = null;
+            Field[] declaredFields = interfaceClazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                if (field.isAnnotationPresent(Inject.class)) {
+                    // create a new obj
+                    Object fieldInstance = getInstance(field.getType());
+                    //create an obj of interfaceClazz (or implementation class )
+                    clazzImplementationInstance = createNewInstance(clazz);
+                    //set `field type object` to `interfaceClazz obj`
+                    field.setAccessible(true);
+                    try {
+                        field.set(clazzImplementationInstance, fieldInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Can't initialise field value. Class "
+                                + clazz.getName() + " Field " + field.getName());
+                    }
                 }
             }
+            if (clazzImplementationInstance == null) {
+                clazzImplementationInstance = createNewInstance(clazz);
+            }
+            return clazzImplementationInstance;
+        } else {
+            throw new RuntimeException(
+                    "Injection failed, missing @Component annotation on the class "
+                            + interfaceClazz.getName());
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
-        return clazzImplementationInstance;
-    }
-
-    private static boolean isComponent(Class<?> clazz) {
-        return Arrays.stream(clazz.getAnnotations())
-                .noneMatch(annotation -> annotation.annotationType().equals(Component.class));
     }
 
     private Object createNewInstance(Class<?> clazz) {
