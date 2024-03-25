@@ -15,7 +15,6 @@ import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
-
     private static final Map<Class<?>,Class<?>> interfaceImplementation =
             Map.of(FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
@@ -30,19 +29,15 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        checkClassComponentAnnotationIsPresent(clazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                //createobject of field
-                Object fieldInstance = getInstance(field.getType());
-                //create an object of iterfaceClazz or object of impl clas
-                if (clazz.isAnnotationPresent(Component.class)){
-                    clazzImplementationInstance = createNewInstance(clazz);
-                } else {
-                    throw new RuntimeException("No annotation is present for Class: " + clazz.getName());
-                }
 
-                // set field type object to interfaceClazz object
+                Object fieldInstance = getInstance(field.getType());
+
+                clazzImplementationInstance = createNewInstance(clazz);
+
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -74,15 +69,24 @@ public class Injector {
                  | InvocationTargetException
                  | InstantiationException
                  | IllegalAccessException e) {
-            throw new RuntimeException("Can`t create a new instance" + clazz.getName());
+            throw new RuntimeException("Can`t create a new instance"
+                    + clazz.getName()
+                    + " Error "
+                    + e.getMessage());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
         }
         return interfaceClazz;
+    }
+
+    private void checkClassComponentAnnotationIsPresent(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " is missing @Component annotation.");
+        }
     }
 }
