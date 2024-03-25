@@ -26,7 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        classIsComponentCheck(clazz);
+        checkIfClassHasComponentAnnotation(clazz);
         Object clazzInstance = createNewInstance(clazz);
         injectAnnotatedFields(clazzInstance);
         return clazzInstance;
@@ -49,7 +49,7 @@ public class Injector {
         }
     }
 
-    private void classIsComponentCheck(Class<?> clazz) {
+    private void checkIfClassHasComponentAnnotation(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new InjectionException(String.format(
                     "Class %s is not marked with '@Component' annotation",
