@@ -1,6 +1,11 @@
 package mate.academy.lib;
 
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -8,27 +13,22 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 public class Injector {
     private static final Injector injector = new Injector();
+
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
-    private Map<Class<?>, Object> instaces = new HashMap<>();
-
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (isComponent(clazz)) {
+            throw new RuntimeException(":msg");
+        }
         Object clazzImplementationInstance = null;
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
-
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 // create a new obj
@@ -51,16 +51,21 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
+    private static boolean isComponent(Class<?> clazz) {
+        return Arrays.stream(clazz.getAnnotations())
+                .noneMatch(annotation -> annotation.annotationType().equals(Component.class));
+    }
+
     private Object createNewInstance(Class<?> clazz) {
         // if we created obj let use it
-        if (instaces.containsKey(clazz)) {
-            return instaces.get(clazz);
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
         // create a new obj
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            instaces.put(clazz, instance);
+            instances.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException
                  | InvocationTargetException
