@@ -15,43 +15,47 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
-    private Map<Class<?>, Class<?>> interfaceImplementations;
+    private Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            Object classImplInstance = null;
-            Class<?> clazz = findImplementation(interfaceClazz);
-            Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new MissedRequiredAnnotationException("To create instance we need "
+                    + "to have Component annotation");
+        }
+        Object classImplInstance = null;
+        Class<?> clazz = findImplementationFor(interfaceClazz);
+        Field[] declaredFields = interfaceClazz.getDeclaredFields();
 
-            for (var field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    classImplInstance = createNewInstance(clazz);
+        for (var field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+                classImplInstance = getOrCreateNewInstance(clazz);
 
-                    try {
-                        field.setAccessible(true);
-                        field.set(classImplInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't init field value. Class: "
-                                + clazz.getName() + ". Field: " + field.getName());
-                    }
+                try {
+                    field.setAccessible(true);
+                    field.set(classImplInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't init field value. Class: "
+                            + clazz.getName() + ". Field: " + field.getName());
                 }
             }
-
-            if (classImplInstance == null) {
-                classImplInstance = createNewInstance(clazz);
-            }
-            return classImplInstance;
         }
-        throw new MissedRequiredAnnotationException("To create instance we need "
-                + "to have Component annotation");
+
+        if (classImplInstance == null) {
+            classImplInstance = getOrCreateNewInstance(clazz);
+        }
+        return classImplInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -65,11 +69,7 @@ public class Injector {
         }
     }
 
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        interfaceImplementations = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
-
+    private Class<?> findImplementationFor(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
