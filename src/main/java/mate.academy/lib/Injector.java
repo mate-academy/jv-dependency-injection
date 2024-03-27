@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -14,8 +13,8 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>,Class<?>> interfaceImplementation =
-            Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+    private static final Map<Class<?>,Class<?>> interfaceImplementation = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class);
 
@@ -27,7 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        Object clazzImplementationInstance = null;
+        Object clazzImplementationInstance = createNewInstance(clazz);
         checkClassComponentAnnotationIsPresent(clazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field: declaredFields) {
@@ -45,9 +44,6 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
         return clazzImplementationInstance;
     }
 
@@ -61,10 +57,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz,instance);
             return instance;
-        } catch (NoSuchMethodException
-                 | InvocationTargetException
-                 | InstantiationException
-                 | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can`t create a new instance"
                     + clazz.getName()
                     + " Error "
