@@ -13,13 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-
-    static {
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-    }
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.ofEntries(
+            Map.entry(FileReaderService.class, FileReaderServiceImpl.class),
+            Map.entry(ProductParser.class, ProductParserImpl.class),
+            Map.entry(ProductService.class, ProductServiceImpl.class)
+    );
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
@@ -31,11 +29,10 @@ public class Injector {
 
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-        Object clazzImplementationInstance = null;
+        Object clazzImplementationInstance = createNewInstance(clazz);
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -43,9 +40,6 @@ public class Injector {
                     throw new RuntimeException("Can't initialize field value");
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
