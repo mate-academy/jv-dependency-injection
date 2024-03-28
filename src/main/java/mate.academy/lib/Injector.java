@@ -12,15 +12,13 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    public static final Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
+    public static final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class
+    );
     private static final Map<Class<?>, Object> instances = new HashMap<>();
     private static final Injector injector = new Injector();
-
-    static {
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-    }
 
     public static Injector getInjector() {
         return injector;
@@ -28,7 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        Object clazzImplInstance = createNewInstance(clazz);
+        Object clazzImplInstance = getOrCreateNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed, missing @Component annotation on the "
@@ -42,14 +40,14 @@ public class Injector {
                     field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Cant initialize field value. "
-                            + "Class: " + clazz.getName() + ". Field: " + field.getName());
+                            + "Class: " + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
         }
         return clazzImplInstance;
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object getOrCreateNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             instances.get(clazz);
         }
@@ -59,7 +57,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Cant create a new instance of " + clazz.getName());
+            throw new RuntimeException("Cant create a new instance of " + clazz.getName(), e);
         }
     }
 
