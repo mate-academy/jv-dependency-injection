@@ -13,10 +13,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.ofEntries(
-            Map.entry(FileReaderService.class, FileReaderServiceImpl.class),
-            Map.entry(ProductParser.class, ProductParserImpl.class),
-            Map.entry(ProductService.class, ProductServiceImpl.class)
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
     );
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
@@ -26,7 +26,6 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = createNewInstance(clazz);
@@ -37,7 +36,7 @@ public class Injector {
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value");
+                    throw new RuntimeException("Can't initialize field value " + e);
                 }
             }
         }
@@ -45,9 +44,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!interfaceImplementations.containsValue(clazz)) {
-            throw new RuntimeException("Unsupported");
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -57,15 +53,19 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create new instance of " + clazz.getName());
+            throw new RuntimeException("Can't create instance of " + clazz.getName() + " " + e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Not supported class " + interfaceClazz.getSimpleName());
+        }
         if (interfaceClazz.isInterface()) {
             Class<?> someClass = interfaceImplementations.get(interfaceClazz);
             if (someClass == null) {
-                throw new RuntimeException("Not supported class");
+                throw new RuntimeException("Could not find class "
+                        + interfaceClazz.getSimpleName());
             }
             return someClass;
         }
