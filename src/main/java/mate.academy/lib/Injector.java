@@ -15,7 +15,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
-    private Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -24,6 +27,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new InvalidAnnotationException("Class " + clazz.getName()
+                    + " should have @Component annotation");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -61,17 +68,8 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Class<?> result;
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            result = interfaceImplementations.get(interfaceClazz);
-        } else {
-            result = interfaceClazz;
-        }
-        if (result.isAnnotationPresent(Component.class)) {
-            return result;
+            return interfaceImplementations.get(interfaceClazz);
         }
         throw new InvalidAnnotationException("Key doesn't exist " + interfaceClazz);
     }
