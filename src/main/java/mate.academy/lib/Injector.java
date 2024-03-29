@@ -14,31 +14,33 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instaces = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-
-    static {
-        injector.interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        injector.interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        injector.interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-    }
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
     }
 
-    public Object getInstance(Class<?> interfaceClazz) {
+    public Object getOrCreateNewInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = createNewInstance(clazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " should have @Component annotation");
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
+                Object fieldInstance = getOrCreateNewInstance(field.getType());
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
-                            + "Class: " + clazz.getName() + "Field: " + field.getName());
+                            + "Class: " + clazz.getName() + "Field: " + field.getName(), e);
                 }
             }
         }
