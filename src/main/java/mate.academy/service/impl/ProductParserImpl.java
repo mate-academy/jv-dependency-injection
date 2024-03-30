@@ -13,10 +13,9 @@ public class ProductParserImpl implements ProductParser {
     public static final int DESCRIPTION_POSITION = 3;
     public static final int PRICE_POSITION = 4;
 
-    private final Product product = new Product();
-
     @Override
     public Product parse(String productInfo) {
+        Product product = new Product();
         String[] data = productInfo.split(",");
         product.setId(Long.valueOf(data[ID_POSITION]));
         product.setName(data[NAME_POSITION]);
