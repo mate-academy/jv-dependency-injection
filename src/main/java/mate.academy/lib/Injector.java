@@ -25,24 +25,20 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        Object clazzImplementationInstance = getOrCreateNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = getOrCreateNewInstance(clazz);
                 try {
                     field.setAccessible(true);
-                    field.set(clazzImplementationInstance,fieldInstance);
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new InjectException("Can't initialize field value. " + "Class: "
-                            + clazz.getName() + ". Field: " + field.getName());
+                            + clazz.getName() + ". Field: " + field.getName(),e);
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = getOrCreateNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
@@ -57,7 +53,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new InjectException("Can't create a new instance of " + clazz.getName());
+            throw new InjectException("Can't create a new instance of " + clazz.getName(),e);
         }
     }
 
@@ -69,8 +65,7 @@ public class Injector {
             resultClazz = interfaceClazz;
         }
         if (!resultClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
-
+            throw new InjectException("Unsupported class: " + interfaceClazz.getName(),null);
         }
         return resultClazz;
     }
