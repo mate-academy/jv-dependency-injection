@@ -27,13 +27,12 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -42,9 +41,6 @@ public class Injector {
                                                 + clazz.getName() + ". Field: " + field.getName());
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
@@ -69,11 +65,12 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            Class<?> someClass = interfacesImplementations.get(interfaceClazz);
-            if (someClass == null) {
-                throw new RuntimeException("Unsupported class! - " + interfaceClazz);
-            }
-            return someClass;
+            interfaceClazz = interfacesImplementations.get(interfaceClazz);
+        }
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException(
+                    "Injection fail, missing @Component annotation on class: "
+                            + interfaceClazz.getSimpleName());
         }
         return interfaceClazz;
     }
