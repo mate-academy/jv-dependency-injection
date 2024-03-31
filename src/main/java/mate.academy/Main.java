@@ -1,8 +1,8 @@
 package mate.academy;
 
 import java.util.List;
-import mate.academy.lib.Injector;
 import mate.academy.model.Product;
+import mate.academy.model.lib.Injector;
 import mate.academy.service.ProductService;
 
 public class Main {
