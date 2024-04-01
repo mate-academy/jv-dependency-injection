@@ -41,35 +41,33 @@ public class Injector {
 
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstance(Class<?> clazz) throws RuntimeException {
         if (instances.containsKey(clazz)) {
             instances.get(clazz);
         }
         Constructor<?> constructor = null;
+        Object instance = null;
+
         try {
             constructor = clazz.getConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        }
-        Object instance = null;
-        try {
             instance = constructor.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of" + clazz.getName());
+        } catch (NoSuchMethodException | InstantiationException
+                 | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
         instances.put(clazz, instance);
         return instance;
     }
 
     private static Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> intarfaceImplementations = new HashMap<>();
-        intarfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        intarfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        intarfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return intarfaceImplementations.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
-        if (!intarfaceImplementations.containsValue(interfaceClazz)) {
+        if (!interfaceImplementations.containsValue(interfaceClazz)) {
             return null;
         }
         return interfaceClazz;
