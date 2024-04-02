@@ -34,13 +34,23 @@ public class Injector {
             throw new RuntimeException("Unsupported class:" + interfaceClazz.getName());
         }
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Object fieldInstance = null;
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
+                fieldInstance = getInstance(field.getType());
             }
 
             clazzImplementationInstance = createNewInstance(clazz);
+
+            try {
+                field.setAccessible(true);
+                field.set(clazzImplementationInstance, fieldInstance);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                throw new RuntimeException("can't initializefield value."
+                        + "Class: " + clazz.getName() + ". Field: " + field.getName());
+            }
         }
+
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
