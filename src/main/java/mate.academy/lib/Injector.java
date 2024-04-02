@@ -48,22 +48,19 @@ public class Injector {
 
     }
 
-    private Object createNewInstance(Class<?> clazz) throws RuntimeException {
+    private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
-            instances.get(clazz);
+            return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
-        Object instance = null;
-
         try {
-            constructor = clazz.getConstructor();
-            instance = constructor.newInstance();
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
         } catch (NoSuchMethodException | InstantiationException
                  | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
-        instances.put(clazz, instance);
-        return instance;
     }
 
     private static Class<?> findImplementation(Class<?> interfaceClazz) {
