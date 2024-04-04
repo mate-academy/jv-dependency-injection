@@ -14,6 +14,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> intefraceImplementations = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class);
     private Map<Class<?>, Object> instances = new HashMap();
 
     public static Injector getInjector() {
@@ -64,10 +68,6 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> intefraceImplementations = new HashMap<>();
-        intefraceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        intefraceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        intefraceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return intefraceImplementations.get(interfaceClazz);
         }
