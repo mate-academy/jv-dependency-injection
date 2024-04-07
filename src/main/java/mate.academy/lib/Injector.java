@@ -27,6 +27,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object classImplementationInstanse = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class doesn't annoted Component!");
+        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -53,20 +56,10 @@ public class Injector {
     }
 
     public Class<?> findImplementation(Class<?> interfaceClazz) {
-        Class<?> implementationClass = MAP_IPLEMENTATYON.get(interfaceClazz);
         if (interfaceClazz.isInterface()) {
-            if (implementationClass != null
-                    && implementationClass.isAnnotationPresent(Component.class)) {
-                return implementationClass;
-            } else {
-                throw new RuntimeException("Class doesn't annoted Component!");
-            }
+            return MAP_IPLEMENTATYON.get(interfaceClazz);
         } else {
-            if (interfaceClazz.isAnnotationPresent(Component.class)) {
-                return interfaceClazz;
-            } else {
-                throw new RuntimeException("Class doesn't annoted Component!");
-            }
+            return interfaceClazz;
         }
     }
 }
