@@ -13,9 +13,12 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> MAP_IPLEMENTATYON = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -24,15 +27,13 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object classImplementationInstanse = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class doesn't annoted Component!");
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
 
         try {
-            Constructor<?> constructor = clazz.getConstructor();
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
             classImplementationInstanse = constructor.newInstance();
             instances.put(clazz, classImplementationInstanse);
             Field[] declaredFields = clazz.getDeclaredFields();
@@ -43,25 +44,29 @@ public class Injector {
                     field.set(classImplementationInstanse, fieldInstans);
                 }
             }
-
         } catch (NoSuchMethodException | InstantiationException
                  | IllegalAccessException
                  | InvocationTargetException e) {
             throw new RuntimeException("Can not create new instance :" + e);
         }
         return classImplementationInstanse;
-
     }
 
     public Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> mapImpl = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
+        Class<?> implementationClass = MAP_IPLEMENTATYON.get(interfaceClazz);
         if (interfaceClazz.isInterface()) {
-            return mapImpl.get(interfaceClazz);
+            if (implementationClass != null
+                    && implementationClass.isAnnotationPresent(Component.class)) {
+                return implementationClass;
+            } else {
+                throw new RuntimeException("Class doesn't annoted Component!");
+            }
         } else {
-            return interfaceClazz;
+            if (interfaceClazz.isAnnotationPresent(Component.class)) {
+                return interfaceClazz;
+            } else {
+                throw new RuntimeException("Class doesn't annoted Component!");
+            }
         }
     }
 }
