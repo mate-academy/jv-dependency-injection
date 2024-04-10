@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,14 +23,13 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " doesn't have Component annotation");
+        }
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
-            if (!field.getClass().isAnnotationPresent(Component.class)) {
-                throw new RuntimeException("Injection failed, missing"
-                        + " @Component annotaion on the"
-                        + "class " + field.getClass());
-            }
-            if (!field.isAnnotationPresent(Inject.class)) {
+            if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
@@ -62,7 +62,7 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>(
+        interfaceImplementations.putAll(
                 Map.of(
                         FileReaderService.class, FileReaderServiceImpl.class,
                         ProductParser.class,ProductParserImpl.class,

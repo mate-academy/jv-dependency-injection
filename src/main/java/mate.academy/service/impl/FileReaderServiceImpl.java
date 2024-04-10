@@ -12,7 +12,6 @@ public class FileReaderServiceImpl implements FileReaderService {
     @Override
     public List<String> readFile(String fileName) {
         try {
-            System.out.println(new File(fileName).toPath());
             return Files.readAllLines(new File(fileName).toPath());
         } catch (IOException e) {
             throw new RuntimeException("Can't read file: " + fileName, e);
