@@ -13,6 +13,10 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMENTATIONS_MAP = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -23,6 +27,9 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create an instance " + clazz.getName() + " class");
+        }
         for (Field field : declaredFields) {
             Object fieldInstance = getInstance(field.getType());
             clazzImplementationInstance = createNewInstance(clazz);
@@ -41,9 +48,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create an instance " + clazz.getName() + " class");
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -58,12 +62,8 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            return INTERFACE_IMPLEMENTATIONS_MAP.get(interfaceClazz);
         }
         return interfaceClazz;
     }
