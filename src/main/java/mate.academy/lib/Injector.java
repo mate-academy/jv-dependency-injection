@@ -26,10 +26,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Can't create an instance " + clazz.getName() + " class");
         }
+        Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             Object fieldInstance = getInstance(field.getType());
             clazzImplementationInstance = createNewInstance(clazz);
