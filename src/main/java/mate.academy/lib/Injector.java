@@ -15,13 +15,9 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> searchInterfaceImplMap = new HashMap<>();
-
-    private Injector() {
-        searchInterfaceImplMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        searchInterfaceImplMap.put(ProductParser.class, ProductParserImpl.class);
-        searchInterfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
-    }
+    private final Map<Class<?>, Class<?>> searchInterfaceImplMap = Map.of(FileReaderService.class,
+            FileReaderServiceImpl.class, ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
 
     public static Injector getInjector() {
         return injector;
@@ -75,8 +71,12 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("No such method." + e);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Can`t invoke constructor of " + clazz.getName(), e);
+        } catch (InstantiationException e) {
             throw new RuntimeException("Can`t create new instance of " + clazz.getName(), e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Can`t reflective new instance of" + clazz.getName(), e);
         }
     }
 
