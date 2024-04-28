@@ -69,7 +69,10 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+        } catch (NoSuchMethodException
+                 | InvocationTargetException
+                 | InstantiationException
+                 | IllegalAccessException e) {
             throw new RuntimeException("Can't create a new instance of" + clazz.getName(), e);
         }
     }
@@ -79,7 +82,7 @@ public class Injector {
             return interfaceClazz;
         }
 
-        if(interfaceImplementation.get(interfaceClazz) == null){
+        if (interfaceImplementation.get(interfaceClazz) == null) {
             throw new RuntimeException("There are no interface implementation");
         }
 
