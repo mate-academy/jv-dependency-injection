@@ -46,9 +46,9 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. Class;"
+                    throw new RuntimeException("Can't initialize field value. Class:"
                             + clazz.getName()
-                            + ". Field: " + field.getName(), e);
+                            + " Field: " + field.getName(), e);
                 }
 
             }
@@ -69,13 +69,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Can't create a new instance of" + clazz.getName(), e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of" + clazz.getName(), e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException("Can't create a new instance of" + clazz.getName(), e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Can't create a new instance of" + clazz.getName(), e);
         }
     }
@@ -84,6 +78,11 @@ public class Injector {
         if (!interfaceClazz.isInterface()) {
             return interfaceClazz;
         }
+
+        if(interfaceImplementation.get(interfaceClazz) == null){
+            throw new RuntimeException("There are no interface implementation");
+        }
+
         return interfaceImplementation.get(interfaceClazz);
     }
 }
