@@ -14,20 +14,27 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-
-    private final Map<Class<?>, Object> instances = new HashMap<>();
-
-    private final Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+    private static final Map<Class<?>, Class<?>> INTERFACE_IMPLEMANTATIONS = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             ProductService.class, ProductServiceImpl.class);
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+
+        if (interfaceClazz == null) {
+            throw new RuntimeException("There are no instances for null");
+        }
+
         Class<?> clazz = findImplementation(interfaceClazz);
+
+        if (clazz == null) {
+            throw new RuntimeException("There are no interface implementation");
+        }
 
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class have to have annotation:"
@@ -42,8 +49,8 @@ public class Injector {
 
                 clazzImplementationInstance = createNewInstance(clazz);
 
+                field.setAccessible(true);
                 try {
-                    field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class:"
@@ -82,10 +89,10 @@ public class Injector {
             return interfaceClazz;
         }
 
-        if (interfaceImplementation.get(interfaceClazz) == null) {
+        if (INTERFACE_IMPLEMANTATIONS.get(interfaceClazz) == null) {
             throw new RuntimeException("There are no interface implementation");
         }
 
-        return interfaceImplementation.get(interfaceClazz);
+        return INTERFACE_IMPLEMANTATIONS.get(interfaceClazz);
     }
 }
