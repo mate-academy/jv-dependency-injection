@@ -27,6 +27,9 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance at " + clazz.getName());
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -43,10 +46,6 @@ public class Injector {
             }
         }
 
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance at " + clazz.getName());
-        }
-
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
@@ -57,9 +56,8 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
         try {
-            constructor = clazz.getConstructor();
+            Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
