@@ -24,7 +24,8 @@ public class Injector {
         Object clazzImplementationInstance;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("An unsupported class was provided");
+            throw new RuntimeException("An unsupported class was provided. Class: "
+            + clazz.getName());
         }
         clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
