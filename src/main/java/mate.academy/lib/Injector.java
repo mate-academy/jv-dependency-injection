@@ -23,7 +23,8 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class.");
+            throw new RuntimeException("Unsupported class. Class: " + clazz
+                    + " doesn't have the 'Component' annotation.");
         }
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
