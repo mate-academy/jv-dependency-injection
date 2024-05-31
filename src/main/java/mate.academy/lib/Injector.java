@@ -61,7 +61,7 @@ public class Injector {
         }
     }
 
-    private Class<?> findImpl(Class<?> interfaceClazz) {
+    private static Class<?> findImpl(Class<?> interfaceClazz) {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
