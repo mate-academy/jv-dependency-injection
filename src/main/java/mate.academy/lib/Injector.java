@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -46,7 +47,7 @@ public class Injector {
 
     private static void checkIfClassIsComponent(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException();
+            throw new RuntimeException("class does not have a @component annotation.");
         }
     }
 
@@ -59,17 +60,13 @@ public class Injector {
             Object o = constructor.newInstance();
             instances.put(clazz, o);
             return o;
-        } catch (InstantiationException
-                 | IllegalAccessException
-                 | InvocationTargetException
-                 | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of "
                     + clazz.getName(),e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
         implementationMap.put(ProductService.class, ProductServiceImpl.class);
         implementationMap.put(ProductParser.class, ProductParserImpl.class);
         implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
