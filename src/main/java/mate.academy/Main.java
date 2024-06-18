@@ -23,6 +23,7 @@ public class Main {
         ProductParser productParser = (ProductParser)
                 injector.getInstance(ProductParserImpl.class);
 
-        FileReaderService fileReaderService = (FileReaderService) injector.getInstance(FileReaderServiceImpl.class);
+        FileReaderService fileReaderService = (FileReaderService)
+                injector.getInstance(FileReaderServiceImpl.class);
     }
 }
