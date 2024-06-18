@@ -29,19 +29,17 @@ public class Injector {
     private Class<?> findImplementation(Class<?> interfaceOrComponentClass) {
         if (interfaceOrComponentClass.isInterface()) {
             return findComponentImplementation(interfaceOrComponentClass);
-        } else if (isComponent(interfaceOrComponentClass)) {
-            return interfaceOrComponentClass;
         } else {
-            throw new RuntimeException("Class " + interfaceOrComponentClass.getName()
-                    + " is not annotated with @Component");
+            throw new RuntimeException("Only interfaces can be provided to getInstance");
         }
     }
 
     private Class<?> findComponentImplementation(Class<?> interfaceClass) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class
+        );
 
         Class<?> implementationClass = interfaceImplementations.get(interfaceClass);
         if (implementationClass == null) {

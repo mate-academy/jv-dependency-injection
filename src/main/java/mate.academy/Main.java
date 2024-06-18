@@ -15,22 +15,14 @@ public class Main {
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
 
-        ProductService productService = (ProductServiceImpl)
+        ProductService productService = (ProductService)
                 injector.getInstance(ProductServiceImpl.class);
         List<Product> products = productService.getAllFromFile("products.txt");
         products.forEach(System.out::println);
 
-        ProductParser productParser = (ProductParserImpl)
+        ProductParser productParser = (ProductParser)
                 injector.getInstance(ProductParserImpl.class);
-        if (productParser == null) {
-            throw new RuntimeException("Incorrect implementation for ProductParser");
-        }
 
-        FileReaderService fileReaderService = (FileReaderServiceImpl)
-                injector.getInstance(FileReaderServiceImpl.class);
-        if (fileReaderService == null) {
-            throw new
-                    RuntimeException("Incorrect implementation for FileReaderService");
-        }
+        FileReaderService fileReaderService = (FileReaderService) injector.getInstance(FileReaderServiceImpl.class);
     }
 }
