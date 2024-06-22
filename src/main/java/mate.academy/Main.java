@@ -7,11 +7,15 @@ import mate.academy.service.ProductService;
 
 public class Main {
 
+    private static final String FILE_NAME = "products.txt";
+
     public static void main(String[] args) {
-        // Please test your Injector here. Feel free to push this class as a part of your solution
         Injector injector = Injector.getInjector();
+        if (injector == null) {
+            throw new RuntimeException("Unable inject instance because injector = null");
+        }
         ProductService productService = (ProductService) injector.getInstance(ProductService.class);
-        List<Product> products = productService.getAllFromFile("products.txt");
+        List<Product> products = productService.getAllFromFile(FILE_NAME);
         products.forEach(System.out::println);
     }
 }
