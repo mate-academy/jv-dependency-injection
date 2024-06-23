@@ -11,9 +11,6 @@ public class Main {
 
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
-        if (injector == null) {
-            throw new RuntimeException("Unable inject instance because injector = null");
-        }
         ProductService productService = (ProductService) injector.getInstance(ProductService.class);
         List<Product> products = productService.getAllFromFile(FILE_NAME);
         products.forEach(System.out::println);
