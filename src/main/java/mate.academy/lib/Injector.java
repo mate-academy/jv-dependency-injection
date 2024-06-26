@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -13,6 +15,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Logger LOGGER = Logger.getLogger(Injector.class.getName());
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
             ProductService.class, ProductServiceImpl.class,
@@ -26,11 +29,14 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClass) {
         try {
+            // Check if an instance already exists
             if (instances.containsKey(interfaceClass)) {
                 return instances.get(interfaceClass);
             }
 
+            // Get the implementation class for the given interface
             Class<?> implementationClass = interfaceImplementations.get(interfaceClass);
+            // Ensure the implementation class is annotated with @Component
             if (implementationClass == null
                     || !implementationClass.isAnnotationPresent(Component.class)) {
                 throw new IllegalArgumentException(
@@ -40,11 +46,16 @@ public class Injector {
                 );
             }
 
+            // Create an instance of the implementation class
             Object instance = createInstance(implementationClass);
+            // Store the instance in the map
             instances.put(interfaceClass, instance);
+            // Inject dependencies into the instance
             injectDependencies(instance);
             return instance;
         } catch (ReflectiveOperationException e) {
+            LOGGER.log(Level.SEVERE, "Injection failed for " + interfaceClass.getName()
+                    + " due to " + e.getClass().getSimpleName(), e);
             throw new RuntimeException(
                     "Injection failed for " + interfaceClass.getName()
                             + " due to " + e.getClass().getSimpleName(), e
