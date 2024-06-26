@@ -29,14 +29,11 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClass) {
         try {
-            // Check if an instance already exists
             if (instances.containsKey(interfaceClass)) {
                 return instances.get(interfaceClass);
             }
 
-            // Get the implementation class for the given interface
             Class<?> implementationClass = interfaceImplementations.get(interfaceClass);
-            // Ensure the implementation class is annotated with @Component
             if (implementationClass == null
                     || !implementationClass.isAnnotationPresent(Component.class)) {
                 throw new IllegalArgumentException(
@@ -46,11 +43,8 @@ public class Injector {
                 );
             }
 
-            // Create an instance of the implementation class
             Object instance = createInstance(implementationClass);
-            // Store the instance in the map
             instances.put(interfaceClass, instance);
-            // Inject dependencies into the instance
             injectDependencies(instance);
             return instance;
         } catch (ReflectiveOperationException e) {
