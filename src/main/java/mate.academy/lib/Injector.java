@@ -70,7 +70,7 @@ public class Injector {
         Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                boolean accessible = field.isAccessible();
+                boolean accessible = field.canAccess(instance);
                 field.setAccessible(true);
                 Object fieldInstance = getInstance(field.getType());
                 field.set(instance, fieldInstance);
