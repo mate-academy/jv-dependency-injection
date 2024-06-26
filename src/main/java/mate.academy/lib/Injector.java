@@ -29,11 +29,14 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClass) {
         try {
+            // Check if an instance already exists
             if (instances.containsKey(interfaceClass)) {
                 return instances.get(interfaceClass);
             }
 
+            // Get the implementation class for the given interface
             Class<?> implementationClass = interfaceImplementations.get(interfaceClass);
+            // Ensure the implementation class is annotated with @Component
             if (implementationClass == null
                     || !implementationClass.isAnnotationPresent(Component.class)) {
                 throw new IllegalArgumentException(
@@ -43,8 +46,11 @@ public class Injector {
                 );
             }
 
+            // Create an instance of the implementation class
             Object instance = createInstance(implementationClass);
+            // Store the instance in the map
             instances.put(interfaceClass, instance);
+            // Inject dependencies into the instance
             injectDependencies(instance);
             return instance;
         } catch (ReflectiveOperationException e) {
@@ -72,14 +78,22 @@ public class Injector {
         return clazz.getDeclaredConstructor().newInstance();
     }
 
+    // Method to inject dependencies into the fields of the instance
     private void injectDependencies(Object instance) throws ReflectiveOperationException {
+        // Get all declared fields of the instance's class
         Field[] fields = instance.getClass().getDeclaredFields();
         for (Field field : fields) {
+            // Check if the field is annotated with @Inject
             if (field.isAnnotationPresent(Inject.class)) {
+                // Save the current accessibility state of the field
                 boolean accessible = field.canAccess(instance);
+                // Make the field accessible to inject the dependency
                 field.setAccessible(true);
+                // Recursively get the instance for the field's type
                 Object fieldInstance = getInstance(field.getType());
+                // Inject the resolved dependency into the field
                 field.set(instance, fieldInstance);
+                // Restore the original accessibility state of the field
                 field.setAccessible(accessible);
             }
         }

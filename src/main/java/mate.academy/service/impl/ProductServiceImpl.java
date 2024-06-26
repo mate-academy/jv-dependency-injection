@@ -12,15 +12,15 @@ import mate.academy.service.ProductService;
 @Component
 public class ProductServiceImpl implements ProductService {
     @Inject
-    private ProductParser productParser;
+    private ProductParser productParserService;
     @Inject
-    private FileReaderService fileReaderService;
+    private FileReaderService productFileReaderService;
 
     @Override
     public List<Product> getAllFromFile(String filePath) {
-        return fileReaderService.readFile(filePath)
+        return productFileReaderService.readFile(filePath)
                 .stream()
-                .map(productParser::parse)
+                .map(productParserService::parse)
                 .collect(Collectors.toList());
     }
 }
