@@ -46,7 +46,8 @@ public class Injector {
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
-                    "Injection failed for " + interfaceClass.getName(), e
+                    "Injection failed for " + interfaceClass.getName()
+                            + " due to " + e.getClass().getSimpleName(), e
             );
         }
     }
