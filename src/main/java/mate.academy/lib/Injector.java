@@ -29,6 +29,10 @@ public class Injector {
             throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
         }
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("The class " + clazz.getName()
+                    + " does not have the @Component annotation");
+        }
         Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         initializeFields(clazzImplementationInstance, declaredFields);
@@ -44,7 +48,9 @@ public class Injector {
                     field.set(instance, fieldObject);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. Class: "
-                            + instance.getClass().getName() + ". Field: " + field.getName(), e);
+                            + instance.getClass().getName()
+                            + ". Field: " + field.getName()
+                            + ". Field type: " + field.getType().getName(), e);
                 }
             }
         }
@@ -64,13 +70,15 @@ public class Injector {
             classInstance.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create new instance of class: " + clazz.getName(), e);
+            throw new RuntimeException("Can't create new instance of class: "
+                    + clazz.getName() + ". Exception details: " + e.getMessage(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz == null) {
-            throw new RuntimeException("The class interface can't be null.");
+            throw new RuntimeException("findImplementation' method expects a non-null interface "
+                    + "class. Please ensure to provide an interface class as input.");
         }
         if (interfaceClazz.isInterface()) {
             return CLASS_IMPLEMENTATIONS.get(interfaceClazz);
