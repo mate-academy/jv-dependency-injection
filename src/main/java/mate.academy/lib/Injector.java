@@ -14,7 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -28,7 +28,7 @@ public class Injector {
 
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Cannot inject " + clazz.getName()
-                    + " Missing @Component annotation in the class");
+                    + " Missing @Component annotation.");
         }
 
         for (Field field : declaredFields) {
@@ -54,7 +54,7 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor();
             Object object = constructor.newInstance();
@@ -72,7 +72,9 @@ public class Injector {
         implementationsMap.put(ProductService.class, ProductServiceImpl.class);
         implementationsMap.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
-            return implementationsMap.get(interfaceClazz);
+            if (implementationsMap.get(interfaceClazz) != null) {
+                return implementationsMap.get(interfaceClazz);
+            }
         }
         return interfaceClazz;
     }
