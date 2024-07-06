@@ -2,6 +2,7 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -16,6 +17,7 @@ public class Injector {
             ProductService.class, ProductServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
             FileReaderService.class, FileReaderServiceImpl.class);
+    private static Map<Class<?>, Object> inctances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -23,9 +25,9 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!interfaceClazz.isAssignableFrom(clazz)) {
-            throw new RuntimeException("Implementation class " + clazz.getName()
-                    + " does not implement " + interfaceClazz.getName());
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can`t create an instance of the class: " + clazz.getName()
+                    + "There is no @Component annotation");
         }
         Object clazzImplementationInstance = createNewInstance(clazz);
         for (Field field : clazz.getDeclaredFields()) {
@@ -43,16 +45,16 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (clazz.isAnnotationPresent(Component.class)) {
-            try {
-                Constructor<?> constructor = clazz.getConstructor();
-                return constructor.newInstance();
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Can`t create new instance of " + clazz.getName(), e);
-            }
-        } else {
-            throw new RuntimeException("Can`t create an instance of the class: " + clazz.getName()
-                    + "There is no @Component annotation");
+        if (inctances.containsKey(clazz)) {
+            return inctances.get(clazz);
+        }
+        try {
+            Constructor<?> constructor = clazz.getConstructor();
+            Object instance = constructor.newInstance();
+            inctances.put(clazz, instance);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can`t create new instance of " + clazz.getName(), e);
         }
     }
 
