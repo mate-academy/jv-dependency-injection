@@ -13,8 +13,14 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
-    private Map<Class<?>, Class<?>> implementations;
+    private static final Map<Class<?>, Class<?>> implementations;
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    static {
+        implementations = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -23,6 +29,10 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementations(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create an instance for "
+                    + clazz.getName() + " class");
+        }
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -44,10 +54,6 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create an instance for "
-                    + clazz.getName() + " class");
-        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -63,9 +69,6 @@ public class Injector {
     }
 
     private Class<?> findImplementations(Class<?> interfaceClazz) {
-        implementations = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return implementations.get(interfaceClazz);
         }
