@@ -30,7 +30,7 @@ public class Injector {
                     instances.put(interfaceClass, instance);
                     return instance;
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Can't create object of the class", e);
                 }
             }
         }
@@ -48,7 +48,7 @@ public class Injector {
             instance = clazz.getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException
                  | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't create object of the class", e);
         }
 
         for (Field field : clazz.getDeclaredFields()) {
@@ -67,7 +67,7 @@ public class Injector {
         return instance;
     }
 
-    private Iterable<Class<?>> getAllClasses() {
+    private List<Class<?>> getAllClasses() {
         return List.of(
                 FileReaderServiceImpl.class,
                 ProductParserImpl.class,
