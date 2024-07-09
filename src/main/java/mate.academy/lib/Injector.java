@@ -1,7 +1,6 @@
 package mate.academy.lib;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +9,17 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector = new Injector();
+    private static final Injector INJECTOR = new Injector();
+    private static final FileReaderServiceImpl FILE_READER_SERVICE =
+            new FileReaderServiceImpl();
+    private static final ProductParserImpl PRODUCT_PARSER =
+            new ProductParserImpl();
+    private static final ProductServiceImpl PRODUCT_SERVICE =
+            new ProductServiceImpl();
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
-        return injector;
+        return INJECTOR;
     }
 
     public <T> T getInstance(Class<T> interfaceClass) {
@@ -29,7 +34,7 @@ public class Injector {
                     T instance = (T) createInstance(clazz);
                     instances.put(interfaceClass, instance);
                     return instance;
-                } catch (Exception e) {
+                } catch (ExceptionInInitializerError e) {
                     throw new RuntimeException("Can't create object of the class", e);
                 }
             }
@@ -46,8 +51,7 @@ public class Injector {
         T instance;
         try {
             instance = clazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException
-                 | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create object of the class", e);
         }
 
@@ -69,9 +73,9 @@ public class Injector {
 
     private List<Class<?>> getAllClasses() {
         return List.of(
-                FileReaderServiceImpl.class,
-                ProductParserImpl.class,
-                ProductServiceImpl.class
+                FILE_READER_SERVICE.getClass(),
+                PRODUCT_PARSER.getClass(),
+                PRODUCT_SERVICE.getClass()
         );
     }
 }
