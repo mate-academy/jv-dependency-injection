@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
@@ -10,13 +9,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector INJECTOR = new Injector();
-    private static final FileReaderServiceImpl FILE_READER_SERVICE =
-            new FileReaderServiceImpl();
-    private static final ProductParserImpl PRODUCT_PARSER =
-            new ProductParserImpl();
-    private static final ProductServiceImpl PRODUCT_SERVICE =
-            new ProductServiceImpl();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>(
+            Map.of(
+                    FileReaderServiceImpl.class, new FileReaderServiceImpl(),
+                    ProductParserImpl.class, new ProductParserImpl(),
+                    ProductServiceImpl.class, new ProductServiceImpl()
+            )
+    );
 
     public static Injector getInjector() {
         return INJECTOR;
@@ -27,7 +26,7 @@ public class Injector {
             return interfaceClass.cast(instances.get(interfaceClass));
         }
 
-        for (Class<?> clazz : getAllClasses()) {
+        for (Class<?> clazz : instances.keySet()) {
             if (interfaceClass.isAssignableFrom(clazz)
                     && clazz.isAnnotationPresent(Component.class)) {
                 try {
@@ -63,19 +62,11 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(instance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Cannot get access to the field ", e);
                 }
             }
         }
 
         return instance;
-    }
-
-    private List<Class<?>> getAllClasses() {
-        return List.of(
-                FILE_READER_SERVICE.getClass(),
-                PRODUCT_PARSER.getClass(),
-                PRODUCT_SERVICE.getClass()
-        );
     }
 }
