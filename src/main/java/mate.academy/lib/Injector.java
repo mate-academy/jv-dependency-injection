@@ -3,6 +3,9 @@ package mate.academy.lib;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
@@ -11,9 +14,9 @@ public class Injector {
     private static final Injector INJECTOR = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>(
             Map.of(
-                    FileReaderServiceImpl.class, new FileReaderServiceImpl(),
-                    ProductParserImpl.class, new ProductParserImpl(),
-                    ProductServiceImpl.class, new ProductServiceImpl()
+                    FileReaderService.class, new FileReaderServiceImpl(),
+                    ProductParser.class, new ProductParserImpl(),
+                    ProductService.class, new ProductServiceImpl()
             )
     );
 
@@ -23,7 +26,7 @@ public class Injector {
 
     public <T> T getInstance(Class<T> interfaceClass) {
         if (instances.containsKey(interfaceClass)) {
-            return interfaceClass.cast(instances.get(interfaceClass));
+            return (T) instances.get(interfaceClass);
         }
 
         for (Class<?> clazz : instances.keySet()) {
@@ -42,11 +45,6 @@ public class Injector {
     }
 
     private <T> T createInstance(Class<T> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + clazz.getName()
-                    + " is not annotated with @Component");
-        }
-
         T instance;
         try {
             instance = clazz.getDeclaredConstructor().newInstance();
