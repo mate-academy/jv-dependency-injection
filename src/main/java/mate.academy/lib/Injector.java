@@ -57,10 +57,11 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
-        Map<Class<?>, Class<?>> implementations = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                                                         ProductParser.class, ProductParserImpl.class,
-                                                         ProductService.class, ProductServiceImpl.class
-        );
+        Map<Class<?>, Class<?>> implementations =
+                Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                       ProductParser.class, ProductParserImpl.class,
+                       ProductService.class, ProductServiceImpl.class
+                );
         if (clazz.isInterface()) {
             return implementations.get(clazz);
         }
