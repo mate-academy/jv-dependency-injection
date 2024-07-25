@@ -12,7 +12,17 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+
+    static {
+        interfaceImplementations =
+                Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                       ProductParser.class, ProductParserImpl.class,
+                       ProductService.class, ProductServiceImpl.class
+                );
+    }
+
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations;
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -20,8 +30,14 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+
         Object clazzImplementationInstance = null;
         Class<?> clazzImplementation = findImplementation(interfaceClazz);
+        if (!clazzImplementation.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class implementation: "
+                                               + clazzImplementation.getName()
+                                               + "doesn't have 'Component' annotation ");
+        }
         Field[] fields = clazzImplementation.getFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -57,13 +73,8 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
-        Map<Class<?>, Class<?>> implementations =
-                Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                       ProductParser.class, ProductParserImpl.class,
-                       ProductService.class, ProductServiceImpl.class
-                );
         if (clazz.isInterface()) {
-            return implementations.get(clazz);
+            return interfaceImplementations.get(clazz);
         }
         throw new RuntimeException("Unsupported type class: " + clazz.getName());
     }
