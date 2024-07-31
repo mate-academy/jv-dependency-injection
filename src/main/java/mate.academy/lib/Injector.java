@@ -13,8 +13,8 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
     private static final Map<Class<?>, Class<?>> implementations;
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     static {
         implementations = Map.of(
