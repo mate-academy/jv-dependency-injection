@@ -16,7 +16,6 @@ public class Injector {
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
-
         return injector;
     }
 
@@ -37,9 +36,8 @@ public class Injector {
                     field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can`t initialize field value. Class: "
-                            + clazz.getName() + ". Field: " + field.getName());
+                            + clazz.getName() + ". Field: " + field.getName(), e);
                 }
-
             }
         }
         if (clazzImplInstance == null) {
@@ -58,15 +56,15 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can`t create a new instance of: " + clazz.getName());
+            throw new RuntimeException("Can`t create a new instance of: " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImpl(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImpl = new HashMap<>();
-        interfaceImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImpl.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImpl.put(ProductService.class, ProductServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImpl = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImpl.get(interfaceClazz);
         }
