@@ -9,6 +9,9 @@ public class Product {
     private String description;
     private BigDecimal price;
 
+    public Product(String name, double price) {
+    }
+
     public Long getId() {
         return id;
     }
