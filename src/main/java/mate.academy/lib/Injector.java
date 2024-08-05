@@ -21,6 +21,9 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+        if (interfaceClazz == null) {
+            throw new RuntimeException("Class or interface is null");
+        }
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
@@ -47,10 +50,13 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
+        if (clazz == null) {
+            throw new RuntimeException("Class or interface is null");
+        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor();
             Object object = constructor.newInstance();
@@ -65,6 +71,9 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (interfaceClazz == null) {
+            throw new RuntimeException("Class or interface is null");
+        }
         Map<Class<?>, Class<?>> implementationsMap = new HashMap<>();
         implementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
         implementationsMap.put(ProductParser.class, ProductParserImpl.class);

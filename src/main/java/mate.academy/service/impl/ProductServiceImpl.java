@@ -18,6 +18,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllFromFile(String filePath) {
+        if (filePath == null) {
+            throw new RuntimeException("File path is null");
+        }
         return fileReaderService.readFile(filePath)
                 .stream()
                 .map(productParser::parse)

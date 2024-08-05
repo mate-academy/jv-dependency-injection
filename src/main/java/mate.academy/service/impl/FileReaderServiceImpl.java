@@ -11,6 +11,9 @@ import mate.academy.service.FileReaderService;
 public class FileReaderServiceImpl implements FileReaderService {
     @Override
     public List<String> readFile(String fileName) {
+        if (fileName == null) {
+            throw new RuntimeException("File is null");
+        }
         try {
             return Files.readAllLines(new File(fileName).toPath());
         } catch (IOException e) {

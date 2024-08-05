@@ -12,10 +12,26 @@ public class ProductParserImpl implements ProductParser {
     public static final int CATEGORY_POSITION = 2;
     public static final int DESCRIPTION_POSITION = 3;
     public static final int PRICE_POSITION = 4;
+    private static final int PRODUCT_ARRAY_SIZE = 5;
 
     @Override
     public Product parse(String productInfo) {
+        if (productInfo == null) {
+            throw new RuntimeException("Product info is null");
+        }
         String[] data = productInfo.split(",");
+        if (data.length > PRODUCT_ARRAY_SIZE) {
+            throw new RuntimeException("Product info is incorrect, array size is "
+                    + data.length
+                    + " but it should be "
+                    + PRODUCT_ARRAY_SIZE);
+        }
+        if (Long.parseLong(data[ID_POSITION]) < 0) {
+            throw new RuntimeException("Id cannot be negative");
+        }
+        if (Integer.parseInt(data[PRICE_POSITION]) < 0) {
+            throw new RuntimeException("Price cannot be negative");
+        }
         Product product = new Product();
         product.setId(Long.valueOf(data[ID_POSITION]));
         product.setName(data[NAME_POSITION]);
