@@ -1,12 +1,11 @@
 package mate.academy.service.impl;
 
 import mate.academy.lib.Component;
-import mate.academy.service.FileReaderService;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import mate.academy.service.FileReaderService;
 
 @Component
 public class FileReaderServiceImpl implements FileReaderService {
