@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -15,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private static final Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> implementationsMap;
 
     public static Injector getInjector() {
         return injector;
@@ -33,7 +33,6 @@ public class Injector {
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = field.getType();
-                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -43,6 +42,7 @@ public class Injector {
                 }
             }
         }
+        clazzImplementationInstance = createNewInstance(clazz);
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
@@ -62,9 +62,7 @@ public class Injector {
             Object object = constructor.newInstance();
             instances.put(clazz, object);
             return object;
-
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | IllegalAccessException | InstantiationException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of "
                     + clazz.getName(), e);
         }
@@ -74,13 +72,11 @@ public class Injector {
         if (interfaceClazz == null) {
             throw new RuntimeException("Class or interface is null");
         }
-        Map<Class<?>, Class<?>> implementationsMap = new HashMap<>();
-        implementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementationsMap.put(ProductParser.class, ProductParserImpl.class);
-        implementationsMap.put(ProductService.class, ProductServiceImpl.class);
+        implementationsMap = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return implementationsMap.get(interfaceClazz);
-
         }
         return interfaceClazz;
     }
