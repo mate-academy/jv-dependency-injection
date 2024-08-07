@@ -1,10 +1,9 @@
 package mate.academy.service.impl;
 
 import mate.academy.lib.Component;
-import mate.academy.model.Product;
 import java.math.BigDecimal;
+import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
-
 
 @Component
 public class ProductParserImpl implements ProductParser {
