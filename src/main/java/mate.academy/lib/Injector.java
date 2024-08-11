@@ -48,13 +48,15 @@ public class Injector {
         try {
             constructor = implementationClass.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No default constructor for " + implementationClass.getName(), e);
+            throw new RuntimeException(
+                    "No default constructor for " + implementationClass.getName(), e);
         }
         T instance;
         try {
             instance = (T) constructor.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Cannot create an instance of " + implementationClass.getName(), e);
+            throw new RuntimeException(
+                    "Cannot create an instance of " + implementationClass.getName(), e);
         }
         injectDependencies(instance);
         return instance;
