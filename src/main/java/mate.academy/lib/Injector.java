@@ -13,6 +13,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+
+    private static final Map<Class<?>, Class<?>> interfaceToImplementation = Map.of(
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
+
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     private Injector() {
@@ -41,15 +48,13 @@ public class Injector {
         try {
             constructor = implementationClass.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException(
-                    "No default constructor for " + implementationClass.getName(), e);
+            throw new RuntimeException("No default constructor for " + implementationClass.getName(), e);
         }
         T instance;
         try {
             instance = (T) constructor.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Cannot create an instance of " + implementationClass.getName(), e);
+            throw new RuntimeException("Cannot create an instance of " + implementationClass.getName(), e);
         }
         injectDependencies(instance);
         return instance;
@@ -71,11 +76,6 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClass) {
-        Map<Class<?>, Class<?>> interfaceToImplementation = new HashMap<>();
-        interfaceToImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceToImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceToImplementation.put(ProductService.class, ProductServiceImpl.class);
-
         if (interfaceClass.isInterface()) {
             return interfaceToImplementation.get(interfaceClass);
         }
