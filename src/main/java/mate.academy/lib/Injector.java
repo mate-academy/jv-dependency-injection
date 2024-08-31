@@ -15,6 +15,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations;
 
     public static Injector getInjector() {
         return injector;
@@ -22,10 +23,11 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new IllegalArgumentException("Interface class must be annotated with @Component");
+            throw new IllegalArgumentException(interfaceClazz.getName()
+                    + " must be annotated with @Component");
         }
         Object clazzImplementationInstanse = null;
-        Class<?> clazz = findImlementation(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -35,8 +37,8 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstanse, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("cant initialize field " + field.getName()
-                            + "class: " + clazz.getName());
+                    throw new RuntimeException("Can't initialize field " + field.getName()
+                            + " class: " + clazz.getName(), e);
                 }
             }
 
@@ -47,11 +49,10 @@ public class Injector {
         return clazzImplementationInstanse;
     }
 
-    private Class<?> findImlementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        interfaceImplementations = Map.of(FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
