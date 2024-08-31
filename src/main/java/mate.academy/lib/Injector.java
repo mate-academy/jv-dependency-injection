@@ -54,7 +54,8 @@ public class Injector {
 
     private static void validateComponentPresent(Class<?> implementationClass) {
         if (!implementationClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Target instance should have @Component present");
+            throw new RuntimeException("Target class = ["
+                    + implementationClass.getSimpleName() + "] should have @Component present");
         }
     }
 
