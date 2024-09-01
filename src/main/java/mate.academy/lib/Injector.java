@@ -1,6 +1,7 @@
 package mate.academy.lib;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -12,6 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Class<?>> interfaceImplementations;
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     private Injector() {
         interfaceImplementations = Map.of(
@@ -28,16 +30,25 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> implClass = interfaceImplementations.get(interfaceClazz);
 
-        if (implClass == null || !implClass.isAnnotationPresent(Component.class)) {
+        if (implClass == null) {
+            throw new RuntimeException(
+                    "No implementation found for interface " + interfaceClazz.getName());
+        }
+
+        if (!implClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException(
                     "Injection failed, missing @Component annotation on the class "
-                    + implClass);
+                            + implClass.getName());
+        }
+
+        if (instances.containsKey(implClass)) {
+            return instances.get(implClass);
         }
 
         try {
             Object instance = implClass.getDeclaredConstructor().newInstance();
+            instances.put(implClass, instance);
 
-            // Inject dependencies
             for (Field field : implClass.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     field.setAccessible(true);
@@ -53,4 +64,3 @@ public class Injector {
         }
     }
 }
-
