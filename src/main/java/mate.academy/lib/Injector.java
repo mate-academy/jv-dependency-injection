@@ -28,6 +28,24 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
+        Class<?> implClass = getImplementation(interfaceClazz);
+
+        if (instances.containsKey(implClass)) {
+            return instances.get(implClass);
+        }
+
+        try {
+            Object instance = createNewInstance(implClass);
+            instances.put(implClass, instance);
+            injectDependencies(instance, implClass);
+            return instance;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Injection failed, could not instantiate "
+                    + implClass.getName(), e);
+        }
+    }
+
+    private Class<?> getImplementation(Class<?> interfaceClazz) {
         Class<?> implClass = interfaceImplementations.get(interfaceClazz);
 
         if (implClass == null) {
@@ -41,26 +59,22 @@ public class Injector {
                             + implClass.getName());
         }
 
-        if (instances.containsKey(implClass)) {
-            return instances.get(implClass);
-        }
+        return implClass;
+    }
 
-        try {
-            Object instance = implClass.getDeclaredConstructor().newInstance();
-            instances.put(implClass, instance);
+    private Object createNewInstance(Class<?> implClass)
+            throws ReflectiveOperationException {
+        return implClass.getDeclaredConstructor().newInstance();
+    }
 
-            for (Field field : implClass.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    field.setAccessible(true);
-                    Object dependency = getInstance(field.getType());
-                    field.set(instance, dependency);
-                }
+    private void injectDependencies(Object instance, Class<?> implClass)
+            throws ReflectiveOperationException {
+        for (Field field : implClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                field.setAccessible(true);
+                Object dependency = getInstance(field.getType());
+                field.set(instance, dependency);
             }
-
-            return instance;
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Injection failed, could not instantiate "
-                    + implClass.getName(), e);
         }
     }
 }
