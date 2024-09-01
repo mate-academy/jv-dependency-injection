@@ -12,16 +12,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Class<?>> interfaceImplementations;
-    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
-    private Injector() {
-        interfaceImplementations = Map.of(
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class,
-                ProductService.class, ProductServiceImpl.class
-        );
-    }
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -49,8 +46,7 @@ public class Injector {
         Class<?> implClass = interfaceImplementations.get(interfaceClazz);
 
         if (implClass == null) {
-            throw new RuntimeException(
-                    "No implementation found for interface " + interfaceClazz.getName());
+            implClass = createNewImplementation(interfaceClazz);
         }
 
         if (!implClass.isAnnotationPresent(Component.class)) {
@@ -60,6 +56,10 @@ public class Injector {
         }
 
         return implClass;
+    }
+
+    private Class<?> createNewImplementation(Class<?> interfaceClazz) {
+        throw new UnsupportedOperationException("Dynamic class creation not implemented yet.");
     }
 
     private Object createNewInstance(Class<?> implClass)
