@@ -4,7 +4,6 @@ import mate.academy.lib.Component;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Component
 public class ProductParserImpl implements ProductParser {
