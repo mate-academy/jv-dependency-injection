@@ -35,9 +35,9 @@ public class Injector {
         // This method should return the implementation class for the given interface
         // For simplicity, let's assume we have a hardcoded map of implementations
         Map<Class<?>, Class<?>> implementations = Map.of(
-            ProductService.class, ProductServiceImpl.class,
-            ProductParser.class, ProductParserImpl.class,
-            FileReaderService.class, FileReaderServiceImpl.class
+        ProductService.class, ProductServiceImpl.class,
+        ProductParser.class, ProductParserImpl.class,
+        FileReaderService.class, FileReaderServiceImpl.class
         );
         return implementations.get(interfaceClazz);
     }
