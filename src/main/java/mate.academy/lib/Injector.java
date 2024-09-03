@@ -32,6 +32,8 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        // This method should return the implementation class for the given interface
+        // For simplicity, let's assume we have a hardcoded map of implementations
         Map<Class<?>, Class<?>> implementations = Map.of(
             ProductService.class, ProductServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
