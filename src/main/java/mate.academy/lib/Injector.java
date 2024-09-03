@@ -34,8 +34,11 @@ public class Injector {
     private Class<?> findImplementation(Class<?> interfaceClazz) {
 
         Map<Class<?>, Class<?>> implementations = Map.of(
+            
             ProductService.class, ProductServiceImpl.class,
+            
             ProductParser.class, ProductParserImpl.class,
+            
             FileReaderService.class, FileReaderServiceImpl.class
         );
         return implementations.get(interfaceClazz);
