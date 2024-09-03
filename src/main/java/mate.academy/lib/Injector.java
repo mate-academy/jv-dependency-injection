@@ -19,38 +19,34 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface()) {
-            throw new RuntimeException("Only interfaces are supported");
+        Object instance = instances.get(interfaceClazz);
+        if (instance == null) {
+            Class<?> implClass = findImplementation(interfaceClazz);
+            instance = createInstance(implClass);
+            instances.put(interfaceClazz, instance);
         }
-
-        Class<?> implClass = findImplementation(interfaceClazz);
-        if (implClass == null || !implClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
-        }
-
-        return createInstance(implClass);
+        return instance;
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-
-        Map<Class<?>, Class<?>> implementations = Map.of(
-            
-            ProductService.class, ProductServiceImpl.class,
-            
-            ProductParser.class, ProductParserImpl.class,
-            
-            FileReaderService.class, FileReaderServiceImpl.class
-        );
-        return implementations.get(interfaceClazz);
+        if (interfaceClazz.equals(ProductService.class)) {
+            return ProductServiceImpl.class;
+        } else if (interfaceClazz.equals(ProductParser.class)) {
+            return ProductParserImpl.class;
+        } else if (interfaceClazz.equals(FileReaderService.class)) {
+            return FileReaderServiceImpl.class;
+        }
+        throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
     }
 
     private Object createInstance(Class<?> implClass) {
-        if (instances.containsKey(implClass)) {
-            return instances.get(implClass);
+        Object instance = instances.get(implClass);
+        if (instance != null) {
+            return instance;
         }
 
         try {
-            Object instance = implClass.getDeclaredConstructor().newInstance();
+            instance = implClass.getDeclaredConstructor().newInstance();
             instances.put(implClass, instance);
 
             for (Field field : implClass.getDeclaredFields()) {
