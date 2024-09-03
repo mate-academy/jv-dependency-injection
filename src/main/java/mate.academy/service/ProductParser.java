@@ -1,7 +1,8 @@
 package mate.academy.service;
 
-import mate.academy.model.Product;
+import mate.academy.lib.Component;
 
+@Component
 public interface ProductParser {
     /**
      * Parse the productInfo and return created {@link Product} object.
