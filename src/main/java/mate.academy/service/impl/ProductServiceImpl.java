@@ -23,4 +23,12 @@ public class ProductServiceImpl implements ProductService {
                 .map(productParser::parse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Product> getAllFromFile(String fileName) {
+        return fileReaderService.readFile(fileName)
+                .stream()
+                .map(productParser::parse)
+                .collect(Collectors.toList());
+    }
 }
