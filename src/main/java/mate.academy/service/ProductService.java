@@ -1,8 +1,8 @@
 package mate.academy.service;
 
-import mate.academy.lib.Component;
+import mate.academy.model.Product;
+import java.util.List;
 
-@Component
 public interface ProductService {
-    List<Product> getAllFromFile(String filePath);
+    List<Product> getAllProducts();
 }
