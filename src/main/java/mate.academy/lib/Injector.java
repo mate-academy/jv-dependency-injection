@@ -11,6 +11,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Map<Class<?>, Class<?>> interfaceToImplementation = new HashMap<>();
+    private static final Injector injector = new Injector();
 
     static {
         interfaceToImplementation.put(ProductService.class, ProductServiceImpl.class);
@@ -18,7 +19,22 @@ public class Injector {
         interfaceToImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
     }
 
-    public Class<?> getImplementation(Class<?> interfaceClazz) {
-        return interfaceToImplementation.get(interfaceClazz);
+    private Injector() {
+    }
+
+    public static Injector getInjector() {
+        return injector;
+    }
+
+    public <T> T getInstance(Class<T> interfaceClazz) {
+        Class<?> implClass = interfaceToImplementation.get(interfaceClazz);
+        if (implClass == null) {
+            throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
+        }
+        try {
+            return (T) implClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't create instance of " + implClass.getName(), e);
+        }
     }
 }
