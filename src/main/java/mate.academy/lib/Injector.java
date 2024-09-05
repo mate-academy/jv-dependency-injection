@@ -34,7 +34,8 @@ public class Injector {
             throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
         }
         if (!implClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Implementation " + implClass.getName() + " is not annotated with @Component");
+            throw new RuntimeException("Implementation " + implClass.getName()
+                    + " is not annotated with @Component");
         }
         if (instances.containsKey(implClass)) {
             return (T) instances.get(implClass);
