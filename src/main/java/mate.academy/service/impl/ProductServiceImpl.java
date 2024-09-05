@@ -17,16 +17,8 @@ public class ProductServiceImpl implements ProductService {
     private FileReaderService fileReaderService;
 
     @Override
-    public List<Product> getAllProducts() {
-        return fileReaderService.readFile("products.txt")
-                .stream()
-                .map(productParser::parse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Product> getAllFromFile(String fileName) {
-        return fileReaderService.readFile(fileName)
+    public List<Product> getAllFromFile(String filePath) {
+        return fileReaderService.readFile(filePath)
                 .stream()
                 .map(productParser::parse)
                 .collect(Collectors.toList());
