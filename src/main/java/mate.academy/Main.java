@@ -7,6 +7,6 @@ public class Main {
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
         ProductService productService = injector.getInstance(ProductService.class);
-        productService.getAllProducts().forEach(System.out::println);
+        productService.getAllFromFile("products.txt").forEach(System.out::println);
     }
 }
