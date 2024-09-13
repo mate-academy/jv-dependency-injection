@@ -13,16 +13,13 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
 
-    static {
-        interfaceImplementations =
-                Map.of(FileReaderService.class, FileReaderServiceImpl.class,
-                        ProductParser.class, ProductParserImpl.class,
-                        ProductService.class, ProductServiceImpl.class
-                );
-    }
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Class<?>> interfaceImplementations;
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -30,35 +27,40 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-
         Object clazzImplementationInstance = null;
         Class<?> clazzImplementation = findImplementation(interfaceClazz);
+
         if (!clazzImplementation.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class implementation: "
-                    + clazzImplementation.getName()
-                    + "doesn't have 'Component' annotation ");
+            throw new RuntimeException("Injection failed: missing @Component "
+                    + "annotation on the class " + clazzImplementation.getName());
         }
-        Field[] fields = clazzImplementation.getFields();
+        clazzImplementationInstance = createNewInstance(clazzImplementation);
+
+        Field[] fields = clazzImplementation.getDeclaredFields();
 
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldTypeObject = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazzImplementation);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldTypeObject);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field: " + field.getName());
+
+                    throw new RuntimeException("Injection failed: can't initialize field "
+                            + field.getName() + " in class " + clazzImplementation.getName(), e);
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazzImplementation);
         }
         return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazzImplementation) {
+
+        if (!clazzImplementation.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Can't create instance of class: "
+                    + clazzImplementation.getName()
+                    + " because it is missing @Component annotation.");
+        }
         if (instances.containsKey(clazzImplementation)) {
             return instances.get(clazzImplementation);
         }
@@ -68,15 +70,20 @@ public class Injector {
             instances.put(clazzImplementation, newInstance);
             return newInstance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create instance of class: "
-                    + clazzImplementation.getName());
+            throw new RuntimeException("Creation failed: can't create instance of class "
+                    + clazzImplementation.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
         if (clazz.isInterface()) {
-            return interfaceImplementations.get(clazz);
+            Class<?> implementation = interfaceImplementations.get(clazz);
+            if (implementation == null) {
+                throw new RuntimeException("Implementation not found for interface: "
+                        + clazz.getName());
+            }
+            return implementation;
         }
-        throw new RuntimeException("Unsupported type class: " + clazz.getName());
+        throw new RuntimeException("Expected an interface but got class: " + clazz.getName());
     }
 }
