@@ -29,6 +29,7 @@ public class Injector {
                     + clazz.getName()
                     + " is not annotated with @Component");
         }
+
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -38,7 +39,9 @@ public class Injector {
                 try {
                     field.set(clazzImplementationInstance, filedInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("");
+                    throw new RuntimeException("No access for "
+                            + field.getName()
+                            + " field");
                 }
             }
         }
@@ -55,21 +58,20 @@ public class Injector {
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
-            Object instance = null;
-            instance = constructor.newInstance();
+            Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create instance");
+            throw new RuntimeException("Can't create a new instance of" + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-
+        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+                ProductService.class, ProductServiceImpl.class,
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class
+        );
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
