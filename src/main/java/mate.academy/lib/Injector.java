@@ -13,6 +13,11 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+    private static final Map<Class<?> , Class<?>> IMPLEMENTATIONS = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
@@ -52,6 +57,13 @@ public class Injector {
         return clazzImplementationInstance;
     }
 
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (interfaceClazz.isInterface()) {
+            IMPLEMENTATIONS.get(interfaceClazz);
+        }
+        return interfaceClazz;
+    }
+
     private Object createNewInstance(Class<?> clazz) {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
@@ -64,17 +76,5 @@ public class Injector {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of" + clazz.getName());
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-                ProductService.class, ProductServiceImpl.class,
-                FileReaderService.class, FileReaderServiceImpl.class,
-                ProductParser.class, ProductParserImpl.class
-        );
-        if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
-        }
-        return interfaceClazz;
     }
 }
