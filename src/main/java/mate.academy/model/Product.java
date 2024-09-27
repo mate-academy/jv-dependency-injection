@@ -1,12 +1,19 @@
 package mate.academy.model;
 
+import mate.academy.lib.Inject;
+
 import java.math.BigDecimal;
 
 public class Product {
+    @Inject
     private Long id;
+    @Inject
     private String name;
+    @Inject
     private String category;
+    @Inject
     private String description;
+    @Inject
     private BigDecimal price;
 
     public Long getId() {
