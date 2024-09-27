@@ -1,8 +1,7 @@
 package mate.academy.model;
 
-import mate.academy.lib.Inject;
-
 import java.math.BigDecimal;
+import mate.academy.lib.Inject;
 
 public class Product {
     @Inject
