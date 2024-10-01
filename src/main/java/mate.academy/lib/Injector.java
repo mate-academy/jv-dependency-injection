@@ -27,7 +27,7 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
         Object clazzImplementationInstance = createNewInstance(clazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
 
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -40,10 +40,6 @@ public class Injector {
                             + "Class;" + clazz.getName() + ".Field: " + field.getName());
                 }
             }
-        }
-
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
