@@ -45,7 +45,8 @@ public class Injector {
             return clazzImplementationInstance;
 
         } else {
-            throw new RuntimeException("This instance cannot be created, because...");
+            throw new RuntimeException("This instance cannot be created, because class has"
+                    + "no annotation '@Component'");
         }
     }
 
