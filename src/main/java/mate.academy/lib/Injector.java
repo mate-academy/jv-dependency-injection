@@ -13,21 +13,17 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        // Try to resolve implementation for the given interface
         Class<?> implClass = findImplementation(interfaceClazz);
 
-        // Check if class is annotated with @Component
         if (!implClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + implClass.getName()
                     + " is not marked as @Component");
         }
 
-        // Check if an instance already exists
         if (instances.containsKey(implClass)) {
             return instances.get(implClass);
         }
 
-        // Create a new instance and inject dependencies
         Object instance = createInstance(implClass);
         instances.put(implClass, instance);
         return instance;
@@ -37,7 +33,6 @@ public class Injector {
         try {
             Object instance = implClass.getDeclaredConstructor().newInstance();
 
-            // Inject dependencies into fields annotated with @Inject
             for (Field field : implClass.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     field.setAccessible(true);
