@@ -2,15 +2,9 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import mate.academy.service.FileReaderService;
-import mate.academy.service.ProductParser;
-import mate.academy.service.ProductService;
-import mate.academy.service.impl.FileReaderServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
+import mate.academy.service.impl.ImplementationFinder;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -45,8 +39,9 @@ public class Injector {
             return clazzImplementationInstance;
 
         } else {
-            throw new RuntimeException("This instance cannot be created, because class has"
-                    + "no annotation '@Component'");
+            throw new RuntimeException("This instance of "
+                    + interfaceClazz + " class, cannot be created, because "
+                    + "class has no annotation '@Component'");
         }
     }
 
@@ -60,21 +55,14 @@ public class Injector {
             Object object = constructor.newInstance();
             instances.put(clazz, object);
             return object;
-        } catch (NoSuchMethodException | InvocationTargetException
-                 | InstantiationException | IllegalAccessException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create new instance of: " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
-
-        implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementationMap.put(ProductParser.class, ProductParserImpl.class);
-        implementationMap.put(ProductService.class, ProductServiceImpl.class);
-
         if (interfaceClazz.isInterface()) {
-            return implementationMap.get(interfaceClazz);
+            return ImplementationFinder.getImplementation(interfaceClazz);
         }
         return interfaceClazz;
     }
