@@ -19,10 +19,13 @@ public class Injector {
             Object clazzImplementationInstance = null;
             Class<?> clazz = findImplementation(interfaceClazz);
             Field[] declaredFields = clazz.getDeclaredFields();
+            if (clazzImplementationInstance == null) {
+                clazzImplementationInstance = createNewInstance(clazz);
+            }
+            clazzImplementationInstance = createNewInstance(clazz);
             for (Field field : declaredFields) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
                     field.setAccessible(true);
                     try {
                         field.set(clazzImplementationInstance, fieldInstance);
@@ -32,12 +35,7 @@ public class Injector {
                     }
                 }
             }
-            if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstance(clazz);
-
-            }
             return clazzImplementationInstance;
-
         } else {
             throw new RuntimeException("This instance of "
                     + interfaceClazz + " class, cannot be created, because "

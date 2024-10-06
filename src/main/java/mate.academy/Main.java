@@ -11,6 +11,13 @@ public class Main {
         // Please test your Injector here. Feel free to push this class as a part of your solution
         Injector injector = Injector.getInjector();
         ProductService productService = (ProductService) injector.getInstance(ProductService.class);
+
+        // Checking the singleton pattern (on AI mentor request)
+        Injector injectorSecond = Injector.getInjector();
+        if (!injector.equals(injectorSecond)) {
+            throw new RuntimeException("The singleton pattern doesn't work correctly");
+        }
+
         List<Product> products = productService.getAllFromFile("products.txt");
         products.forEach(System.out::println);
     }
