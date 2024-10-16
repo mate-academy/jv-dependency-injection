@@ -12,12 +12,12 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Class<?>> interfaceClass = new HashMap<>();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
 
     static {
-        interfaceClass.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceClass.put(ProductParser.class, ProductParserImpl.class);
-        interfaceClass.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
     }
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
@@ -27,34 +27,33 @@ public class Injector {
     }
 
     public <T> T getInstance(Class<T> interfaceClazz) {
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + interfaceClazz.getName()
+        Class<?> implementationClass = interfaceImplementations.get(interfaceClazz);
+        if (implementationClass == null) {
+            throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
+        }
+        if (!implementationClass.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + implementationClass.getName()
                 + " doesn't have @Component");
         }
         if (instances.containsKey(interfaceClazz)) {
             return (T) instances.get(interfaceClazz);
         }
         try {
-            Class<?> implementationClass = interfaceClass.get(interfaceClazz);
-            if (implementationClass == null) {
-                throw new RuntimeException(
-                    "No implementation found for " + interfaceClazz.getName());
-            }
             Object instance = implementationClass.getDeclaredConstructor().newInstance();
             instances.put(interfaceClazz, instance);
             Field[] fields = implementationClass.getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Class<?> fieldType = field.getType();
-                    T fieldInstance = (T) getInstance(fieldType); // Рекурсивно создаем зависимости
+                    Object fieldInstance = getInstance(fieldType);
                     field.setAccessible(true);
                     field.set(instance, fieldInstance);
                 }
             }
             return (T) instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(
-                "Failed to create an instance of " + interfaceClazz.getName(), e);
+            throw new RuntimeException("Failed to create an instance of "
+                + interfaceClazz.getName(), e);
         }
     }
 }
