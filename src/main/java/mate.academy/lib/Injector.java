@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import mate.academy.exception.RequiredAnnotationAbsenceException;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -18,20 +19,21 @@ public class Injector {
     private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
             FileReaderService.class, FileReaderServiceImpl.class,
             ProductParser.class, ProductParserImpl.class,
-            ProductService.class, ProductServiceImpl.class);
+            ProductService.class, ProductServiceImpl.class
+            );
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        Object clazzImplementationInstance = createNewInstance(clazz);
+
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -41,9 +43,7 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
+
         return clazzImplementationInstance;
     }
 
@@ -67,6 +67,10 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
+        if (!interfaceImplementations.containsKey(interfaceClazz)) {
+            throw new NoSuchElementException("The key " + interfaceClazz + " not found in the map "
+                    + interfaceImplementations);
+        }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementations.get(interfaceClazz);
         }
