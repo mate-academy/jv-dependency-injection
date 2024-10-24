@@ -2,6 +2,7 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -28,15 +29,17 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+
+        // Throw an exception if the implementation class is null
         if (clazz == null) {
-            throw new RuntimeException("No implementation found for class: "
-                    + interfaceClazz.getName());
+            throw new RuntimeException("No implementation found for class: " + interfaceClazz.getName());
         }
+
         return createInstance(clazz);
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (implementationsMap.containsKey(interfaceClazz)) {
+        if (interfaceClazz.isInterface()) {
             return implementationsMap.get(interfaceClazz);
         }
         return null;
@@ -52,10 +55,15 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             injectDependencies(instance);
-
             return instance;
-        } catch (Exception e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("No default constructor found for class: " + clazz.getName(), e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("Can't instantiate class: " + clazz.getName(), e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Illegal access while creating instance of class: " + clazz.getName(), e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Constructor threw an exception for class: " + clazz.getName() + ". Cause: " + e.getCause(), e);
         }
     }
 
