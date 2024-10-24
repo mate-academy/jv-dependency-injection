@@ -29,10 +29,9 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-
-        // Throw an exception if the implementation class is null
         if (clazz == null) {
-            throw new RuntimeException("No implementation found for class: " + interfaceClazz.getName());
+            throw new RuntimeException("No implementation found for class: "
+                    + interfaceClazz.getName());
         }
 
         return createInstance(clazz);
@@ -57,13 +56,17 @@ public class Injector {
             injectDependencies(instance);
             return instance;
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No default constructor found for class: " + clazz.getName(), e);
+            throw new RuntimeException("No default constructor found for class: "
+                    + clazz.getName(), e);
         } catch (InstantiationException e) {
-            throw new RuntimeException("Can't instantiate class: " + clazz.getName(), e);
+            throw new RuntimeException("Can't instantiate class: "
+                    + clazz.getName(), e);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Illegal access while creating instance of class: " + clazz.getName(), e);
+            throw new RuntimeException("Illegal access while creating instance of class: "
+                    + clazz.getName(), e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException("Constructor threw an exception for class: " + clazz.getName() + ". Cause: " + e.getCause(), e);
+            throw new RuntimeException("Constructor threw an exception for class: "
+                    + clazz.getName() + ". Cause: " + e.getCause(), e);
         }
     }
 
