@@ -28,6 +28,9 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (clazz == null) {
+            throw new RuntimeException("No implementation found for class: " + interfaceClazz.getName());
+        }
         return createInstance(clazz);
     }
 
