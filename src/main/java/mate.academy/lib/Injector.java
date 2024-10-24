@@ -38,7 +38,7 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isInterface()) {
+        if (interfaceClazz != null && interfaceClazz.isInterface()) {
             return implementationsMap.get(interfaceClazz);
         }
         return null;
