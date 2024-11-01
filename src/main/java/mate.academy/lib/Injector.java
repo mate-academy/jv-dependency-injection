@@ -26,8 +26,8 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] decleredField = clazz.getDeclaredFields();
-        for (Field field : decleredField) {
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldsInstance = getInstance(field.getType());
                 clazzImplementationInstance = createNewInstance(clazz);
@@ -61,14 +61,17 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface()
-                && !interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + interfaceClazz + "don't have annotations"
-                    + " @Component");
+        if (!isValidClass(interfaceClazz)) {
+            throw new RuntimeException("Class " + interfaceClazz + " must be an interface or"
+                    + " annotated with @Component");
         }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
         }
         return interfaceClazz;
+    }
+
+    private boolean isValidClass(Class<?> clazz) {
+        return clazz.isInterface() || clazz.isAnnotationPresent(Component.class);
     }
 }
