@@ -1,17 +1,24 @@
 package mate.academy.lib;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final String IMPL_PACKAGE = "mate.academy.service.impl";
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceToImpl = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
@@ -27,7 +34,10 @@ public class Injector {
     private Object createInstance(Class<?> clazz) {
         try {
             if (clazz.isInterface()) {
-                clazz = findImplementation(clazz);
+                clazz = interfaceToImpl.get(clazz);
+                if (clazz == null) {
+                    throw new RuntimeException("No implementation found for " + clazz.getName());
+                }
             }
 
             if (!clazz.isAnnotationPresent(Component.class)) {
@@ -35,48 +45,22 @@ public class Injector {
                         + " is missing @Component annotation");
             }
 
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            Constructor<?> constructor;
+            try {
+                constructor = clazz.getDeclaredConstructor();
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Class " + clazz.getName()
+                        + " must have a no-argument constructor", e);
+            }
+
             Object instance = constructor.newInstance();
             injectDependencies(instance);
             instances.put(clazz, instance);
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to create an instance of class "
                     + clazz.getName(), e);
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        try {
-            String path = IMPL_PACKAGE.replace('.', '/');
-            URL resource = ClassLoader.getSystemClassLoader().getResource(path);
-            if (resource == null) {
-                throw new RuntimeException("Package " + IMPL_PACKAGE + " not found");
-            }
-
-            File directory = new File(resource.toURI());
-            if (!directory.exists()) {
-                throw new RuntimeException("Directory " + directory.getAbsolutePath()
-                        + " not found");
-            }
-
-            for (File file : Objects.requireNonNull(directory.listFiles())) {
-                if (file.getName().endsWith(".class")) {
-                    String className = IMPL_PACKAGE + "." + file.getName()
-                            .replace(".class", "");
-                    Class<?> implClass = Class.forName(className);
-
-                    if (interfaceClazz.isAssignableFrom(implClass)
-                            && implClass.isAnnotationPresent(Component.class)) {
-                        return implClass;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Implementation for " + interfaceClazz.getName()
-                    + " not found", e);
-        }
-        throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
     }
 
     private void injectDependencies(Object instance) throws IllegalAccessException {
