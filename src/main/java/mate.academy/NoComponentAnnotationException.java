@@ -1,4 +1,7 @@
 package mate.academy;
 
-public class NoComponentAnnotation {
+public class NoComponentAnnotationException extends RuntimeException {
+    public NoComponentAnnotationException(String mes) {
+        super(mes);
+    }
 }
