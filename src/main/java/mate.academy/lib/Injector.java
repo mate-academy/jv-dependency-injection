@@ -53,8 +53,8 @@ public class Injector {
                 throw new RuntimeException("",e);
             }
         } else {
-            throw new NoComponentAnnotationException("Cannot create instance." +
-                    " The class is not annotated with @component.");
+            throw new NoComponentAnnotationException("Cannot create instance."
+                    + " The class is not annotated with @component.");
         }
     }
 
