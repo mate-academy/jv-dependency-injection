@@ -22,19 +22,19 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImlementationInstance = null;
+        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
-        for (Field field : declaredFields) {
+        Field[] implementationClazz = interfaceClazz.getDeclaredFields();
+        for (Field field : implementationClazz) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fielginstance = getInstance(field.getType());
-                clazzImlementationInstance = createNewInstance(clazz);
+                Object fieldinstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
             }
         }
-        if (clazzImlementationInstance == null) {
-            clazzImlementationInstance = createNewInstance(clazz);
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstance(clazz);
         }
-        return clazzImlementationInstance;
+        return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -53,8 +53,8 @@ public class Injector {
                 throw new RuntimeException("",e);
             }
         } else {
-            throw new NoComponentAnnotationException("can't create class.N0 notification "
-                    + "Component");
+            throw new NoComponentAnnotationException("Cannot create instance." +
+                    " The class is not annotated with @component.");
         }
     }
 

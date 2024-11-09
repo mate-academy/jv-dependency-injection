@@ -8,15 +8,10 @@ import mate.academy.service.ProductParser;
 
 @Component
 public class ProductParserImpl implements ProductParser {
-    @Inject
     public static final int ID_POSITION = 0;
-    @Inject
     public static final int NAME_POSITION = 1;
-    @Inject
     public static final int CATEGORY_POSITION = 2;
-    @Inject
     public static final int DESCRIPTION_POSITION = 3;
-    @Inject
     public static final int PRICE_POSITION = 4;
 
     @Override
