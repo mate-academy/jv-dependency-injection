@@ -14,7 +14,6 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private static final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,18 +21,17 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + interfaceClazz.getName()
                     + " must be annotated with @Component");
         }
+
         Field[] declaredField = clazz.getDeclaredFields();
-        Object clazzImplementationInstance = null;
+        Object clazzImplementationInstance = createNewInstance(clazz);
         for (Field field : declaredField) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = createNewInstance(findImplementation(field.getType()));
-
-                clazzImplementationInstance = createNewInstance(clazz);
-
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
@@ -43,23 +41,13 @@ public class Injector {
             }
         }
 
-        if (clazzImplementationInstance == null) {
-            return createNewInstance(clazz);
-        }
-
         return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        }
-
         try {
             Constructor<?> constructor = clazz.getConstructor();
-            Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
-            return instance;
+            return constructor.newInstance();
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException
                  | IllegalAccessException e) {
             throw new RuntimeException("Cannot create a new instance of: " + clazz.getName());
