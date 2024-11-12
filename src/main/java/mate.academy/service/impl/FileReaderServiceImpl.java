@@ -9,6 +9,9 @@ import mate.academy.service.FileReaderService;
 
 @Component
 public class FileReaderServiceImpl implements FileReaderService {
+    public FileReaderServiceImpl() {
+    }
+
     @Override
     public List<String> readFile(String fileName) {
         try {
