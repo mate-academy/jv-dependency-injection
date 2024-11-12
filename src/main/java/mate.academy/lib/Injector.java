@@ -17,8 +17,8 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed," +
-                    " missing @Component annotation on the class "
+            throw new RuntimeException("Injection failed,"
+                    + " missing @Component annotation on the class "
                     + interfaceClazz.getName());
         }
         if (instances.containsKey(interfaceClazz)) {
@@ -48,4 +48,5 @@ public class Injector {
         }
     }
 }
+
 
