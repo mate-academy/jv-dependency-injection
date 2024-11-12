@@ -27,14 +27,17 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         if (!interfaceClazz.isInterface()) {
-            throw new RuntimeException("Expected an interface, but got: " + interfaceClazz.getName());
+            throw new RuntimeException("Expected an interface, but got: "
+                    + interfaceClazz.getName());
         }
         Class<?> implementationClass = interfaceImplementationMap.get(interfaceClazz);
         if (implementationClass == null) {
-            throw new RuntimeException("No implementation found for interface: " + interfaceClazz.getName());
+            throw new RuntimeException("No implementation found for interface: "
+                    + interfaceClazz.getName());
         }
         if (!implementationClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injection failed, missing @Component annotation on the class "
+            throw new RuntimeException("Injection failed, "
+                    + "missing @Component annotation on the class "
                     + implementationClass.getName());
         }
 
