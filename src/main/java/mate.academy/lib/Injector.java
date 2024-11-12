@@ -2,14 +2,14 @@ package mate.academy.lib;
 
 import java.util.HashMap;
 import java.util.Map;
-import mate.academy.service.impl.ProductServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.FileReaderServiceImpl;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import mate.academy.service.ProductService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.FileReaderService;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
