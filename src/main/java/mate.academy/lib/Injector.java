@@ -25,7 +25,8 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> implClass = findImplementation(interfaceClazz);
         if (!implClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + implClass.getName() + " is not marked with @Component");
+            throw new RuntimeException("Class " + implClass.getName()
+                    + " is not marked with @Component");
         }
 
         if (instances.containsKey(implClass)) {
@@ -48,7 +49,8 @@ public class Injector {
             instances.put(implClass, instance);
             return instance;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create instance of " + implClass.getName(), e);
+            throw new RuntimeException("Failed to create instance of "
+                    + implClass.getName(), e);
         }
     }
 
@@ -62,6 +64,7 @@ public class Injector {
         if (interfaceClazz == FileReaderService.class) {
             return FileReaderServiceImpl.class;
         }
-        throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
+        throw new RuntimeException("No implementation found for "
+                + interfaceClazz.getName());
     }
 }
