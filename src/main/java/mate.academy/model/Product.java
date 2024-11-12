@@ -9,7 +9,6 @@ public class Product {
     private String description;
     private BigDecimal price;
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }

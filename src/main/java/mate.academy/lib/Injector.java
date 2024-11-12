@@ -27,18 +27,15 @@ public class Injector {
             throw new RuntimeException("Class " + implClass.getName() + " is not marked with @Component");
         }
 
-        // Если экземпляр уже существует, возвращаем его
         if (instances.containsKey(implClass)) {
             return instances.get(implClass);
         }
 
-        // Создаем новый экземпляр
         try {
             Constructor<?> constructor = implClass.getDeclaredConstructor();
             constructor.setAccessible(true);
             Object instance = constructor.newInstance();
 
-            // Инжектим зависимости
             for (Field field : implClass.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Object dependency = getInstance(field.getType());
