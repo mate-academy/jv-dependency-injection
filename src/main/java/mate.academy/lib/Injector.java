@@ -52,7 +52,8 @@ public class Injector {
                 return o;
 
             } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Something went wrong during object creation.");
+                throw new RuntimeException(
+                        String.format("Failed to create instance of %s", interfaceClazz));
             }
         }
         throw new RuntimeException(
@@ -69,18 +70,23 @@ public class Injector {
     private List<Class<?>> findClassesInPackage(String packageName) {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         InputStream stream = classLoader.getResourceAsStream(packageName);
-        return new BufferedReader(new InputStreamReader(stream)).lines()
-                .filter(i -> i.endsWith(CLASS_EXTENSION))
-                .map(i -> i.substring(0, i.indexOf(CLASS_EXTENSION)))
-                .map(i -> getClazz(packageName, i)).collect(Collectors.toList());
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+            return br.lines()
+                    .filter(i -> i.endsWith(CLASS_EXTENSION))
+                    .map(i -> i.substring(0, i.indexOf(CLASS_EXTENSION)))
+                    .map(i -> getClazz(packageName, i)).collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read classes in package:" + packageName);
+        }
     }
 
-    private Class<?> getClazz(String packageName, String name) {
+    private Class<?> getClazz(String packageName, String className) {
         try {
             return Class.forName(
-                    packageName.replace(PATH_DELIMITER, CLASSNAME_DELIMITER) + "." + name);
+                    packageName.replace(PATH_DELIMITER, CLASSNAME_DELIMITER) + "." + className);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("There is no such class in your project.");
+            throw new RuntimeException(
+                    String.format("There is no class: %s in your project.", className));
         }
     }
 
