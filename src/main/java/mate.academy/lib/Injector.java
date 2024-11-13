@@ -69,7 +69,7 @@ public class Injector {
 
     private List<Class<?>> findClassesInPackage(String packageName) {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        try(InputStream stream = classLoader.getResourceAsStream(packageName)){
+        try (InputStream stream = classLoader.getResourceAsStream(packageName)) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
                 return br.lines()
                         .filter(i -> i.endsWith(CLASS_EXTENSION))
