@@ -69,12 +69,13 @@ public class Injector {
 
     private List<Class<?>> findClassesInPackage(String packageName) {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        InputStream stream = classLoader.getResourceAsStream(packageName);
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
-            return br.lines()
-                    .filter(i -> i.endsWith(CLASS_EXTENSION))
-                    .map(i -> i.substring(0, i.indexOf(CLASS_EXTENSION)))
-                    .map(i -> getClazz(packageName, i)).collect(Collectors.toList());
+        try(InputStream stream = classLoader.getResourceAsStream(packageName)){
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(stream))) {
+                return br.lines()
+                        .filter(i -> i.endsWith(CLASS_EXTENSION))
+                        .map(i -> i.substring(0, i.indexOf(CLASS_EXTENSION)))
+                        .map(i -> getClazz(packageName, i)).collect(Collectors.toList());
+            }
         } catch (Exception e) {
             throw new RuntimeException("Failed to read classes in package:" + packageName);
         }
