@@ -33,7 +33,7 @@ public class Injector {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
-                            + "Clazz; " + clazz.getName() + ". Field" + field.getName());
+                            + "Clazz:" + clazz.getName() + ".Field:" + field.getName());
                 }
             }
         }
@@ -66,7 +66,7 @@ public class Injector {
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (!interfaceImplementation.containsKey(interfaceClazz)) {
-            throw new RuntimeException("We can't handle unsupported class");
+            throw new RuntimeException("We can't handle unsupported class " + interfaceClazz);
         }
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
