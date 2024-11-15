@@ -70,11 +70,10 @@ public class Injector {
             instances.put(clazz, instance);
 
             return instance;
-        } catch (
-        NoSuchMethodException
-        | InvocationTargetException
-        | InstantiationException
-        | IllegalAccessException e
+        } catch (NoSuchMethodException
+            | InvocationTargetException
+            | InstantiationException
+            | IllegalAccessException e
         ) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
