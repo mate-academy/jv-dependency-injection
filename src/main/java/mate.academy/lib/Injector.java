@@ -55,14 +55,20 @@ public class Injector {
 
         try {
             Constructor<?> constructor = clazz.getConstructor();
+
+            if (!constructor.canAccess(null)) {
+                constructor.canAccess(true);
+            }
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException
-                 | InvocationTargetException
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " must have no-argument constructor", e);
+        } catch (InvocationTargetException
                  | InstantiationException
                  | IllegalAccessException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz + e);
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName() + e);
         }
     }
 
@@ -76,6 +82,10 @@ public class Injector {
 
         if (interfaceClazz.isInterface()) {
             clazzImplementation = interfaceImplementations.get(interfaceClazz);
+
+            if (clazzImplementation == null) {
+                throw new RuntimeException("There is no implementation for: " + interfaceClazz);
+            }
         }
 
         if (!clazzImplementation.isAnnotationPresent(Component.class)) {
