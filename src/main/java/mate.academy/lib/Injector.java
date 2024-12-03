@@ -60,11 +60,16 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchElementException | InstantiationException
-                 | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchElementException e) {
+            throw new RuntimeException("There is no a such element");
+        } catch (NoSuchMethodException x) {
+            throw new RuntimeException("There is no a such method");
+        } catch (InstantiationException z) {
             throw new RuntimeException("Can't create instance");
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException y) {
+            throw new RuntimeException("Can't access to the class");
+        } catch (InvocationTargetException f) {
+            throw new RuntimeException("Can't find instance");
         }
     }
 
