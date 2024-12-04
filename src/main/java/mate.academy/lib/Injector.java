@@ -32,7 +32,8 @@ public class Injector {
             for (Field field : fields) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
+
+                    clazzImplementationInstance = createNewInstanceOrGetFromCacheIfPresent(clazz);
                     field.setAccessible(true);
                     try {
                         field.set(clazzImplementationInstance, fieldInstance);
@@ -42,7 +43,7 @@ public class Injector {
                 }
             }
             if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstance(clazz);
+                clazzImplementationInstance = createNewInstanceOrGetFromCacheIfPresent(clazz);
             }
             return clazzImplementationInstance;
         } else {
@@ -50,7 +51,12 @@ public class Injector {
         }
     }
 
-    private Object createNewInstance(Class<?> clazz) {
+    private Object createNewInstanceOrGetFromCacheIfPresent(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Injected field " + clazz.getName()
+                    + " must belong to a class annotated with @Component");
+        }
+
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
