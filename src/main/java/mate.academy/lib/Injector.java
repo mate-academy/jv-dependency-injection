@@ -25,38 +25,32 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            Object clazzImplementationInstance = null;
-            Class<?> clazz = findImplementation(interfaceClazz);
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-
-                    clazzImplementationInstance = createNewInstanceOrGetFromCacheIfPresent(clazz);
-                    field.setAccessible(true);
-                    try {
-                        field.set(clazzImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value");
-                    }
-                }
-            }
-            if (clazzImplementationInstance == null) {
-                clazzImplementationInstance = createNewInstanceOrGetFromCacheIfPresent(clazz);
-            }
-            return clazzImplementationInstance;
-        } else {
+        Object clazzImplementationInstance = null;
+        Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("This class don't have Component annotation");
         }
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
+
+                clazzImplementationInstance = createNewInstanceOrGetFromCacheIfPresent(clazz);
+                field.setAccessible(true);
+                try {
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value");
+                }
+            }
+        }
+        if (clazzImplementationInstance == null) {
+            clazzImplementationInstance = createNewInstanceOrGetFromCacheIfPresent(clazz);
+        }
+        return clazzImplementationInstance;
     }
 
     private Object createNewInstanceOrGetFromCacheIfPresent(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Injected field " + clazz.getName()
-                    + " must belong to a class annotated with @Component");
-        }
-
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
