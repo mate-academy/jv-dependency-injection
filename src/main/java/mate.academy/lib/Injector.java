@@ -84,11 +84,11 @@ public class Injector {
     }
 
     private Map<Class<?>, Class<?>> createImplementationMap() {
-        Map<Class<?>, Class<?>> immplementationsMap = new HashMap<>();
-        immplementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        immplementationsMap.put(ProductParser.class, ProductParserImpl.class);
-        immplementationsMap.put(ProductService.class, ProductServiceImpl.class);
-        return immplementationsMap;
+        Map<Class<?>, Class<?>> implementationsMap = new HashMap<>();
+        implementationsMap.put(FileReaderService.class, FileReaderServiceImpl.class);
+        implementationsMap.put(ProductParser.class, ProductParserImpl.class);
+        implementationsMap.put(ProductService.class, ProductServiceImpl.class);
+        return implementationsMap;
     }
 
     private Class<?> determineImplementation(Class<?> interfaceClazz,
