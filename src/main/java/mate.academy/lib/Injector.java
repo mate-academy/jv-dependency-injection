@@ -1,17 +1,20 @@
 package mate.academy.lib;
 
 import java.util.Map;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
 
     private static final Map<Class<?>, Class<?>> IMPLEMENTATIONS = Map.of(
-            mate.academy.service.ProductService.class,
-            mate.academy.service.impl.ProductServiceImpl.class,
-            mate.academy.service.ProductParser.class,
-            mate.academy.service.impl.ProductParserImpl.class,
-            mate.academy.service.FileReaderService.class,
-            mate.academy.service.impl.FileReaderServiceImpl.class
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class
     );
 
     private Injector() {
