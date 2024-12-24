@@ -64,10 +64,6 @@ public class Injector {
         interfaceMap.put(ProductParser.class, ProductParserImpl.class);
         interfaceMap.put(ProductService.class, ProductServiceImpl.class);
 
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
-            return interfaceClazz;
-        }
-
         if (interfaceClazz.isInterface()) {
             return interfaceMap.get(interfaceClazz);
         }
