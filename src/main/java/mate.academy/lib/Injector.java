@@ -24,6 +24,7 @@ public class Injector {
     }
 
     public <T> T getInstance(Class<T> clazz) {
+        // Check if instance already exists
         if (instances.containsKey(clazz)) {
             return (T) instances.get(clazz);
         }
@@ -43,6 +44,10 @@ public class Injector {
     private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
         // Resolve to mapped class if it's an interface
         Class<?> mappedClass = mappings.getOrDefault(clazz, clazz);
+
+        if (mappedClass == null) {
+            throw new RuntimeException("Unsupported class: " + clazz.getName());
+        }
 
         // Try to find the constructor with @Inject annotation
         for (Constructor<?> constructor : mappedClass.getDeclaredConstructors()) {
