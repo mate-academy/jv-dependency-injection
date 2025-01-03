@@ -12,8 +12,11 @@ import mate.academy.service.ProductService;
 @Component // Ensure this annotation is present
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductParser productParser;
-    private final FileReaderService fileReaderService;
+    @Inject
+    private ProductParser productParser;
+
+    @Inject
+    private FileReaderService fileReaderService;
 
     @Inject
     public ProductServiceImpl(ProductParser productParser, FileReaderService fileReaderService) {

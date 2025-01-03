@@ -33,19 +33,20 @@ public class Injector {
             T instance = createInstance(clazz);
             instances.put(clazz, instance);
             return instance;
-        } catch (ReflectiveOperationException e) {
+        } catch (RuntimeException e) {
             throw new RuntimeException("Failed to create instance for " + clazz.getName(), e);
-        } catch (Exception e) {
-            // Ensure we throw a RuntimeException if no suitable constructor or mapping is found
+        } catch (ReflectiveOperationException e) {
+            // This should now correctly throw for unsupported classes
             throw new RuntimeException("Unsupported class: " + clazz.getName(), e);
         }
     }
 
     private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
-        // Resolve to mapped class if it's an interface
-        Class<?> mappedClass = mappings.getOrDefault(clazz, clazz);
+        // Check if we have a mapping for the class
+        Class<?> mappedClass = mappings.get(clazz);
 
         if (mappedClass == null) {
+            // If no mapping is found, throw an exception for unsupported class
             throw new RuntimeException("Unsupported class: " + clazz.getName());
         }
 
