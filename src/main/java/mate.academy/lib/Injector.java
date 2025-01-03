@@ -35,6 +35,7 @@ public class Injector {
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to create instance for " + clazz.getName(), e);
         } catch (Exception e) {
+            // Ensure we throw a RuntimeException if no suitable constructor or mapping is found
             throw new RuntimeException("Unsupported class: " + clazz.getName(), e);
         }
     }
