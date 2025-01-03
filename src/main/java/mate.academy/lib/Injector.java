@@ -11,12 +11,9 @@ public class Injector {
 
     private Injector() {
         // Manually map interfaces to concrete classes
-        mappings.put(mate.academy.service.ProductService.class,
-                mate.academy.service.impl.ProductServiceImpl.class);
-        mappings.put(mate.academy.service.FileReaderService.class,
-                mate.academy.service.impl.FileReaderServiceImpl.class);
-        mappings.put(mate.academy.service.ProductParser.class,
-                mate.academy.service.impl.ProductParserImpl.class);
+        mappings.put(mate.academy.service.ProductService.class, mate.academy.service.impl.ProductServiceImpl.class);
+        mappings.put(mate.academy.service.FileReaderService.class, mate.academy.service.impl.FileReaderServiceImpl.class);
+        mappings.put(mate.academy.service.ProductParser.class, mate.academy.service.impl.ProductParserImpl.class);
     }
 
     public static Injector getInjector() {
@@ -34,30 +31,52 @@ public class Injector {
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to create instance for " + clazz.getName(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Unsupported class: " + clazz.getName(), e);
         }
     }
 
     private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
-        // If clazz is an interface, get the mapped implementation
+        // Resolve to mapped class if it's an interface
         Class<?> mappedClass = mappings.getOrDefault(clazz, clazz);
 
-        // Look for a constructor with @Inject annotation
+        // Try to find the constructor with @Inject annotation
         for (Constructor<?> constructor : mappedClass.getDeclaredConstructors()) {
             if (constructor.isAnnotationPresent(Inject.class)) {
+                // Inject dependencies into the constructor
                 Class<?>[] parameterTypes = constructor.getParameterTypes();
                 Object[] parameters = new Object[parameterTypes.length];
 
-                // Inject dependencies by recursively calling getInstance
                 for (int i = 0; i < parameterTypes.length; i++) {
                     parameters[i] = getInstance(parameterTypes[i]);
                 }
 
                 constructor.setAccessible(true);
-                return (T) constructor.newInstance(parameters);
+                T instance = (T) constructor.newInstance(parameters);
+
+                // Inject fields that are annotated with @Inject
+                injectFields(instance);
+
+                return instance;
             }
         }
 
-        // If no constructor with @Inject annotation, fallback to default constructor
-        return (T) mappedClass.getDeclaredConstructor().newInstance();
+        // If no @Inject constructor, fallback to default constructor
+        T instance = (T) mappedClass.getDeclaredConstructor().newInstance();
+
+        // Inject fields if no @Inject constructor
+        injectFields(instance);
+
+        return instance;
+    }
+
+    private void injectFields(Object instance) throws IllegalAccessException {
+        for (var field : instance.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                field.setAccessible(true);
+                Object fieldInstance = getInstance(field.getType());
+                field.set(instance, fieldInstance); // Inject the field
+            }
+        }
     }
 }
