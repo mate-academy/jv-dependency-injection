@@ -1,7 +1,7 @@
 package mate.academy.service.impl;
 
-import java.util.stream.Collectors;
 import java.util.List;
+import java.util.stream.Collectors;
 import mate.academy.lib.Component;
 import mate.academy.lib.Inject;
 import mate.academy.model.Product;
