@@ -38,7 +38,8 @@ public class Injector {
                 }
             }
         } else {
-            throw new RuntimeException("Invalid class");
+            throw new RuntimeException("Can't get instance of class: " + interfaceClazz
+                    + ". Invalid class.");
         }
         if (clazzImplInstance == null) {
             clazzImplInstance = createNewInstance(clazz);
@@ -59,7 +60,7 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException
                  | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Can't create instance of class " + clazz);
+            throw new RuntimeException("Can't create instance of class " + clazz + e.getMessage());
         }
     }
 
