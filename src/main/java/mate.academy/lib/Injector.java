@@ -11,9 +11,12 @@ public class Injector {
 
     private Injector() {
         // Manually map interfaces to concrete classes
-        mappings.put(mate.academy.service.ProductService.class, mate.academy.service.impl.ProductServiceImpl.class);
-        mappings.put(mate.academy.service.FileReaderService.class, mate.academy.service.impl.FileReaderServiceImpl.class);
-        mappings.put(mate.academy.service.ProductParser.class, mate.academy.service.impl.ProductParserImpl.class);
+        mappings.put(mate.academy.service.ProductService.class,
+                mate.academy.service.impl.ProductServiceImpl.class);
+        mappings.put(mate.academy.service.FileReaderService.class,
+                mate.academy.service.impl.FileReaderServiceImpl.class);
+        mappings.put(mate.academy.service.ProductParser.class,
+                mate.academy.service.impl.ProductParserImpl.class);
     }
 
     public static Injector getInjector() {
