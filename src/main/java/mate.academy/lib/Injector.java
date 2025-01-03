@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -22,10 +21,9 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> implementation = findImplementation(interfaceClazz);
-        Field[] fields = implementation.getDeclaredFields();
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        Field[] fields = clazz.getDeclaredFields();
+        Object clazzImplementationInstance = null;
         for (Field field: fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -46,9 +44,8 @@ public class Injector {
 
     private Object createNewInstance(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create instance of the class. Class "
-                    + clazz.getName()
-                    + "is not annotated as @Component");
+            throw new RuntimeException("Can't create instance of the class"
+                    + ". Class is not annotated as @Component");
         }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
@@ -58,8 +55,7 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                 | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
     }
