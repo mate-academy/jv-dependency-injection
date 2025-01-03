@@ -2,9 +2,9 @@ package mate.academy.service.impl;
 
 import mate.academy.lib.Component;
 import mate.academy.lib.Inject;
-import mate.academy.service.ProductParser;
 import mate.academy.model.Product;
 import java.math.BigDecimal;
+import mate.academy.service.ProductParser;
 
 @Component
 public class ProductParserImpl implements ProductParser {
@@ -15,7 +15,9 @@ public class ProductParserImpl implements ProductParser {
     public static final int PRICE_POSITION = 4;
 
     @Inject
-    public ProductParserImpl() {}
+    public ProductParserImpl() {
+
+    }
 
     @Override
     public Product parse(String productInfo) {
