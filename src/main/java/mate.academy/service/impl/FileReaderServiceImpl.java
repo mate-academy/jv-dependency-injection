@@ -1,11 +1,11 @@
 package mate.academy.service.impl;
 
-import mate.academy.lib.Component;
-import mate.academy.lib.Inject;
 import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import mate.academy.lib.Component;
+import mate.academy.lib.Inject;
 import mate.academy.service.FileReaderService;
 
 @Component
