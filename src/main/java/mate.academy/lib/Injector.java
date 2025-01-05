@@ -25,7 +25,9 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
 
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("This class is now allowed for creating instances.");
+            throw new RuntimeException("This class is now allowed to instantiate, "
+                    + "then this class cannot be instantiated because"
+                    + " it is not @component annotated.");
         }
 
         Field[] fields = interfaceClazz.getDeclaredFields();
