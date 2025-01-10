@@ -1,92 +1,155 @@
 package mate.academy.lib;
 
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> mappings = new HashMap<>();
-
-    private Injector() {
-        // Manually map interfaces to concrete classes
-        mappings.put(mate.academy.service.ProductService.class,
-                mate.academy.service.impl.ProductServiceImpl.class);
-        mappings.put(mate.academy.service.FileReaderService.class,
-                mate.academy.service.impl.FileReaderServiceImpl.class);
-        mappings.put(mate.academy.service.ProductParser.class,
-                mate.academy.service.impl.ProductParserImpl.class);
-    }
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
     }
 
-    public <T> T getInstance(Class<T> clazz) {
-        // Check if instance already exists
-        if (instances.containsKey(clazz)) {
-            return (T) instances.get(clazz);
-        }
-
-        try {
-            T instance = createInstance(clazz);
-            instances.put(clazz, instance);
-            return instance;
-        } catch (RuntimeException e) {
-            throw new RuntimeException("Failed to create instance for " + clazz.getName(), e);
-        } catch (ReflectiveOperationException e) {
-            // This should now correctly throw for unsupported classes
-            throw new RuntimeException("Unsupported class: " + clazz.getName(), e);
-        }
-    }
-
-    private <T> T createInstance(Class<T> clazz) throws ReflectiveOperationException {
-        // Check if we have a mapping for the class
-        Class<?> mappedClass = mappings.get(clazz);
-
-        if (mappedClass == null) {
-            // If no mapping is found, throw an exception for unsupported class
-            throw new RuntimeException("Unsupported class: " + clazz.getName());
-        }
-
-        // Try to find the constructor with @Inject annotation
-        for (Constructor<?> constructor : mappedClass.getDeclaredConstructors()) {
-            if (constructor.isAnnotationPresent(Inject.class)) {
-                // Inject dependencies into the constructor
-                Class<?>[] parameterTypes = constructor.getParameterTypes();
-                Object[] parameters = new Object[parameterTypes.length];
-
-                for (int i = 0; i < parameterTypes.length; i++) {
-                    parameters[i] = getInstance(parameterTypes[i]);
+    public Object getInstance(Class<?> clazz) {
+        Class<?> implementation = findImplementation(clazz);
+        Object instance = null;
+        Field[] fields = implementation.getFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object newInstance = getInstance(field.getType());
+                instance = createNewInstance(implementation);
+                field.setAccessible(true);
+                try {
+                    field.set(instance, newInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
                 }
-
-                constructor.setAccessible(true);
-                T instance = (T) constructor.newInstance(parameters);
-
-                // Inject fields that are annotated with @Inject
-                injectFields(instance);
-
-                return instance;
             }
         }
-
-        // If no @Inject constructor, fallback to default constructor
-        T instance = (T) mappedClass.getDeclaredConstructor().newInstance();
-
-        // Inject fields if no @Inject constructor
-        injectFields(instance);
-
+        if (instance == null) {
+            instance = createNewInstance(implementation);
+        }
         return instance;
     }
 
-    private void injectFields(Object instance) throws IllegalAccessException {
-        for (var field : instance.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(Inject.class)) {
-                field.setAccessible(true);
-                Object fieldInstance = getInstance(field.getType());
-                field.set(instance, fieldInstance); // Inject the field
-            }
+    private Object createNewInstance(Class<?> implementation) {
+        if (instances.containsKey(implementation)) {
+            return instances.get(implementation);
         }
+
+        try {
+            Constructor<?>[] constructors = implementation.getConstructors();
+            for (Constructor<?> constructor : constructors) {
+                if (constructor.getParameterCount() > 0) {
+                    Class<?>[] parameterTypes = constructor.getParameterTypes();
+                    Object[] objects = new Object[parameterTypes.length];
+                    for (int i = 0; i < objects.length; i++) {
+                        objects[i] = getInstance(parameterTypes[i]);
+                    }
+                    return constructor.newInstance(objects);
+                }
+            }
+        } catch (InvocationTargetException
+                 | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            Constructor<?> constructor = implementation.getConstructor();
+            Object object = constructor.newInstance();
+                instances.put(implementation, object);
+                return constructor.newInstance();
+            } catch (NoSuchMethodException | IllegalAccessException
+                     | InstantiationException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+    }
+
+    private Class<?> findImplementation(Class<?> clazz) {
+        Map<Class<?>,Class<?>> implemetations = new HashMap<>();
+        implemetations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        implemetations.put(ProductParser.class, ProductParserImpl.class);
+        implemetations.put(ProductService.class, ProductServiceImpl.class);
+        if (implemetations.containsKey(clazz)) {
+            return implemetations.get(clazz);
+        }
+        return clazz;
     }
 }
+
+/* private static final Injector injector = new Injector();
+    private Map<Class<?>, Object> instances = new HashMap<>();
+
+    public static Injector getInjector() {
+        return injector;
+    }
+
+        public Object getInstance(Class<?> interfaceClazz) {
+            Object clazzImplement = null;
+            Class<?> clazz = findImplementation(interfaceClazz);
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                if (field.isAnnotationPresent(Inject.class)) {
+                    Object fieldInstance = getInstance(field.getType());
+                    clazzImplement = createNewInstance(clazz);
+                    try {
+                        field.setAccessible(true);
+                        field.set(clazzImplement, fieldInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            if (clazzImplement == null) {
+                clazzImplement = createNewInstance(clazz);
+            }
+            return clazzImplement;
+        }
+
+        private Object createNewInstance(Class<?> clazz) {
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
+            try {
+                Constructor<?>[] constructors = clazz.getConstructors();
+                for (Constructor<?> constructor : constructors) {
+                    // Перевіряємо, чи є конструктор з параметрами
+                    if (constructor.getParameterCount() > 0) {
+                        Class<?>[] parameterTypes = constructor.getParameterTypes();
+                        Object[] parameters = new Object[parameterTypes.length];
+                        for (int i = 0; i < parameterTypes.length; i++) {
+                            parameters[i] = getInstance(parameterTypes[i]); // Інжектуємо залежності
+                        }
+                        return constructor.newInstance(parameters);
+                    }
+                }
+                Constructor<?> constructor = clazz.getConstructor();
+                Object instance = constructor.newInstance();
+                instances.put(clazz, instance);
+                return instance;
+            } catch (NoSuchMethodException | InvocationTargetException
+                     | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private Class<?> findImplementation(Class<?> interfaceClazz) {
+            Map<Class<?> , Class<?>> interfaceImplementations = new HashMap<>();
+            interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+            interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+            interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+            if (interfaceClazz.isInterface()) {
+                return interfaceImplementations.get(interfaceClazz);
+            }
+            return interfaceClazz;
+        }
+     */
