@@ -5,12 +5,12 @@ import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -66,12 +66,12 @@ public class Injector {
         try {
             Constructor<?> constructor = implementation.getConstructor();
             Object object = constructor.newInstance();
-                instances.put(implementation, object);
-                return constructor.newInstance();
-            } catch (NoSuchMethodException | IllegalAccessException
-                     | InstantiationException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            instances.put(implementation, object);
+            return constructor.newInstance();
+        } catch (NoSuchMethodException | IllegalAccessException
+                 | InstantiationException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
