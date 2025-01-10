@@ -9,7 +9,7 @@ import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 
-@Component // Ensure this annotation is present
+@Component
 public class ProductServiceImpl implements ProductService {
 
     @Inject
@@ -18,11 +18,6 @@ public class ProductServiceImpl implements ProductService {
     @Inject
     private FileReaderService fileReaderService;
 
-    @Inject
-    public ProductServiceImpl(ProductParser productParser, FileReaderService fileReaderService) {
-        this.productParser = productParser;
-        this.fileReaderService = fileReaderService;
-    }
 
     @Override
     public List<Product> getAllFromFile(String filePath) {

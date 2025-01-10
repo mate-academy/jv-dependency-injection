@@ -14,11 +14,6 @@ public class ProductParserImpl implements ProductParser {
     public static final int DESCRIPTION_POSITION = 3;
     public static final int PRICE_POSITION = 4;
 
-    @Inject
-    public ProductParserImpl() {
-
-    }
-
     @Override
     public Product parse(String productInfo) {
         String[] data = productInfo.split(",");
