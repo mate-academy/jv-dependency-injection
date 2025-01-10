@@ -18,7 +18,6 @@ public class ProductServiceImpl implements ProductService {
     @Inject
     private FileReaderService fileReaderService;
 
-
     @Override
     public List<Product> getAllFromFile(String filePath) {
         return fileReaderService.readFile(filePath)
