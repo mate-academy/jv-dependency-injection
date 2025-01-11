@@ -12,9 +12,9 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
     private static Map<Class<?>,Class<?>> implemetations;
+    private Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Injector injector = new Injector();
 
     static {
         implemetations = Map.of(
