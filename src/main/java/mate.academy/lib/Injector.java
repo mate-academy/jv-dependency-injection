@@ -14,24 +14,30 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
-    private Map<Class<?>,Class<?>> implemetations = new HashMap<>();
+    private static Map<Class<?>,Class<?>> implemetations;
 
+    static {
+        implemetations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class);
+    }
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
+        Class<?> newCLazz = findImplementation(clazz);
+        if (!newCLazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class is not annotated with @Component: "
                     + clazz.getName());
         }
-        Class<?> implementation = findImplementation(clazz);
         Object instance = null;
-        Field[] fields = implementation.getDeclaredFields();
+        Field[] fields = newCLazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object newInstance = getInstance(field.getType());
-                instance = createNewInstance(implementation);
+                instance = createNewInstance(newCLazz);
                 field.setAccessible(true);
                 try {
                     field.set(instance, newInstance);
@@ -41,7 +47,7 @@ public class Injector {
             }
         }
         if (instance == null) {
-            instance = createNewInstance(implementation);
+            instance = createNewInstance(newCLazz);
         }
         return instance;
     }
@@ -62,9 +68,6 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> clazz) {
-        implemetations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implemetations.put(ProductParser.class, ProductParserImpl.class);
-        implemetations.put(ProductService.class, ProductServiceImpl.class);
         if (implemetations.containsKey(clazz)) {
             return implemetations.get(clazz);
         }
