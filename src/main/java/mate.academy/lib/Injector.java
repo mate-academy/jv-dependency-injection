@@ -22,6 +22,7 @@ public class Injector {
                 ProductService.class, ProductServiceImpl.class,
                 ProductParser.class, ProductParserImpl.class);
     }
+
     public static Injector getInjector() {
         return injector;
     }
