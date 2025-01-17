@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.exceptions.FindImplementationMappingException;
 import mate.academy.exceptions.MissingComponentAnnotationException;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -81,6 +82,12 @@ public class Injector {
         interfaceImplMap.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplMap.put(ProductService.class, ProductServiceImpl.class);
 
-        return interfaceClazz.isInterface() ? interfaceImplMap.get(interfaceClazz) : interfaceClazz;
+        Class<?> result = interfaceClazz.isInterface()
+                ? interfaceImplMap.get(interfaceClazz) : interfaceClazz;
+        if (result != null) {
+            return result;
+        }
+        throw new FindImplementationMappingException("Can't find implementation for interface "
+                + interfaceClazz.getName());
     }
 }
