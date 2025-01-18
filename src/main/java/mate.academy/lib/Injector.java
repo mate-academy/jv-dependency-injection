@@ -26,7 +26,11 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
 
-        if (clazz == null || !clazz.isAnnotationPresent(Component.class)) {
+        if (clazz == null) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " is null ");
+        }
+        if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + clazz.getName()
                     + " must be annotated with @Component.");
         }
@@ -61,11 +65,11 @@ public class Injector {
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            instances.put(clazz,instance);
+            instances.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException
                  | IllegalAccessException e) {
-            throw new RuntimeException("Cannot create instance of " + clazz.getName());
+            throw new RuntimeException("Cannot create instance of " + clazz.getName(), e);
         }
     }
 
