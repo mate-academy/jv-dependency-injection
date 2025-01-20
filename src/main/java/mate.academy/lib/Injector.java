@@ -4,12 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import mate.academy.service.FileReaderService;
-import mate.academy.service.ProductParser;
-import mate.academy.service.ProductService;
-import mate.academy.service.impl.FileReaderServiceImpl;
-import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
+import java.util.Set;
+import org.reflections.Reflections;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -67,8 +63,16 @@ public class Injector {
     }
 
     private void scanPackageForImplementations(String packageName) {
-        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        Reflections reflections = new Reflections(packageName);
+        Set<Class<?>> componentClasses = reflections.getTypesAnnotatedWith(Component.class);
+
+        for (Class<?> implementationClass : componentClasses) {
+            Class<?>[] interfaces = implementationClass.getInterfaces();
+            if (interfaces.length != 1) {
+                throw new RuntimeException("Class " + implementationClass.getName()
+                        + " should implement exactly one interface.");
+            }
+            interfaceImplementations.put(interfaces[0], implementationClass);
+        }
     }
 }
