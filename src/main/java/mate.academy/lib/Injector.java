@@ -68,10 +68,14 @@ public class Injector {
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
+        Class<?> implementation = interfaceImplementations.get(interfaceClazz);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            return implementation;
+        }
+        if (implementation == null) {
+            throw new RuntimeException("Given interface does not have an implementation: "
+                    + interfaceClazz);
         }
         return interfaceClazz;
-
     }
 }
