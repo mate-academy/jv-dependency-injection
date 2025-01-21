@@ -5,12 +5,12 @@ import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
-import mate.academy.service.impl.ProductServiceImpl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
@@ -19,11 +19,15 @@ public class Injector {
         return injector;
     }
 
-    private Map<Class<?>, Object> intances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new IllegalArgumentException(
+                    "No @Component annotation present in class: " + clazz.getName());
+        }
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -34,8 +38,8 @@ public class Injector {
                     field.set(clazzImplementationInstance, fildInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(
-                            "Can`t initialize field value. " +
-                                    "Class; " + clazz.getName()
+                            "Error injecting dependency into field. "
+                                    + "Class: " + clazz.getName()
                                     + ". Field: " + field.getName());
                 }
             }
@@ -47,13 +51,13 @@ public class Injector {
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (intances.containsKey(clazz)) {
-            return intances.get(clazz);
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
-            intances.put(clazz, instance);
+            instances.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException
                  | InvocationTargetException
