@@ -26,44 +26,44 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClass) {
         Object classImplementation = null;
         Class<?> clazz = findImpl(interfaceClass);
-        if (clazz.isAnnotationPresent(Component.class)) {
-            Field[] declaredFields = clazz.getDeclaredFields();
-            for (Field field : declaredFields) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    classImplementation = createNewInstance(clazz);
-                    field.setAccessible(true);
-                    try {
-                        field.set(classImplementation, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Can't initialize field value. "
-                                + "Class: " + clazz.getName()
-                                + ". Field: " + field.getName() + ".", e);
-                    }
-                }
-
-            }
-            if (classImplementation == null) {
+        Field[] declaredFields = clazz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
                 classImplementation = createNewInstance(clazz);
+                field.setAccessible(true);
+                try {
+                    field.set(classImplementation, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value. "
+                            + "Class: " + clazz.getName()
+                            + ". Field: " + field.getName() + ".", e);
+                }
             }
-            return classImplementation;
         }
-        throw new RuntimeException("Injection failed, missing @Component annotaion on the class: "
-                + clazz.getSimpleName() + ".");
+        if (classImplementation == null) {
+            classImplementation = createNewInstance(clazz);
+        }
+        return classImplementation;
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
+        if (clazz.isAnnotationPresent(Component.class)) {
+            if (instances.containsKey(clazz)) {
+                return instances.get(clazz);
+            }
+            try {
+                Constructor<?> constructor = clazz.getConstructor();
+                Object instance = constructor.newInstance();
+                instances.put(clazz, instance);
+                return instance;
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Can't create new instance of "
+                        + clazz.getName() + ".", e);
+            }
         }
-        try {
-            Constructor<?> constructor = clazz.getConstructor();
-            Object instance = constructor.newInstance();
-            instances.put(clazz, instance);
-            return instance;
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create new instance of " + clazz.getName() + ".", e);
-        }
+        throw new RuntimeException("Injection failed, missing @Component annotaion on the class: "
+                + clazz.getSimpleName() + ".");
     }
 
     private Class<?> findImpl(Class<?> interfaceClass) {
