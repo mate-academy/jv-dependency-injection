@@ -22,24 +22,23 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("There is no Component annotation in class: "
                     + clazz.getName());
         }
         Field[] fields = clazz.getDeclaredFields();
+
+        Object clazzImplInstance = createNewInstance(clazz);
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object filedInstance = getInstance(field.getType());
-
-                clazzImplInstance = createNewInstance(clazz);
 
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplInstance, filedInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t set filed: " + field.getName()
+                    throw new RuntimeException("Can`t set field: " + field.getName()
                         + " of class: " + clazz.getName());
                 }
 
@@ -64,7 +63,7 @@ public class Injector {
 
         } catch (InstantiationException | InvocationTargetException
                  | IllegalAccessException | NoSuchMethodException e) {
-            throw new RuntimeException("Can`t create new instans of " + clazz.getName());
+            throw new RuntimeException("Can`t create new instance of " + clazz.getName());
         }
     }
 
