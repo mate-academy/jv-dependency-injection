@@ -23,8 +23,8 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object interfaceClazzInstance = null;
-        if (interfaceClazz.isAnnotationPresent(Component.class)) {
             Class<?> clazz = findImplementation(interfaceClazz);
+        if (clazz.isAnnotationPresent(Component.class)) {
             Field[] declaredFields = clazz.getDeclaredFields();
             for (Field field : declaredFields) {
                 if (field.isAnnotationPresent(Inject.class)) {
