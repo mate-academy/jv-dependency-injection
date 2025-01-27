@@ -23,7 +23,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object interfaceClazzInstance = null;
-            Class<?> clazz = findImplementation(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
         if (clazz.isAnnotationPresent(Component.class)) {
             Field[] declaredFields = clazz.getDeclaredFields();
             for (Field field : declaredFields) {
@@ -39,7 +39,6 @@ public class Injector {
                         throw new RuntimeException("Can't initialize field value."
                                 + " Class: " + clazz.getName() + ". Field: " + field.getName());
                     }
-
                 }
             }
             if (interfaceClazzInstance == null) {
