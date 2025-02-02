@@ -35,7 +35,7 @@ public class Injector {
                 return instances.get(interfaceClazz);
             }
 
-            Object classImplementationInstance = createNewInstance(interfaceClazz);
+            Object classImplementationInstance = createNewInstance(implClass);
             instances.put(interfaceClazz, classImplementationInstance);
             return classImplementationInstance;
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class Injector {
             }
         }
 
-        instances.put(interfaceClazz, instance);
+        instances.put(implClass, instance);
         return instance;
     }
 }
