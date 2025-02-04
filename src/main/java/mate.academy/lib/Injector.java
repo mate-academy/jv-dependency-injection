@@ -68,7 +68,12 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClass.isInterface()) {
-            return interfaceImplementations.get(interfaceClass);
+            Class<?> implementation = interfaceImplementations.get(interfaceClass);
+            if (implementation == null) {
+                throw new IllegalArgumentException("No implementation found for interface: "
+                        + interfaceClass.getName());
+            }
+            return implementation;
         }
         return interfaceClass;
     }
