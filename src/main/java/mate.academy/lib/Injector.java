@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,6 +22,10 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Please annotate class with '@Component' annotation"
+                    + " to create its instance. Class: " + clazz.getName());
+        }
         Field[] declaredFields = clazz.getDeclaredFields();
         Object classImplementationInstance = null;
         for (Field field : declaredFields) {
