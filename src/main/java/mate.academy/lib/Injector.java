@@ -16,17 +16,23 @@ import java.util.Map;
 public class Injector {
     private static final Injector injector = new Injector();
 
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
+
     public static Injector getInjector() {
         return injector;
     }
 
-    private final Map<Class<?>, Object> instances = new HashMap<>();
-
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (clazz == null) {
-            throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
+
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("This class don't have Component annotation");
         }
 
         if (instances.containsKey(clazz)) {
@@ -44,10 +50,10 @@ public class Injector {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Failed to inject dependency for " + field.getName(), e);
+                    throw new RuntimeException("Сan't initialize field value. "
+                            + "Class: " + clazz.getName() + ". Field: "
+                            + field.getName());
                 }
-            } else {
-                throw new RuntimeException("Unsupported class was passed.");
             }
         }
         if(clazzImplementationInstance == null) {
@@ -60,25 +66,22 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
+        Constructor<?> constructor = null;
         try {
-            Constructor<?> constructor = clazz.getConstructor();
+            constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
         }
 
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
-        return interfaceClazz;
+            return interfaceClazz;
     }
 }
