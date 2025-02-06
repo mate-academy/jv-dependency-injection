@@ -1,19 +1,12 @@
 package mate.academy;
 
 import java.util.List;
-
-import mate.academy.lib.Inject;
 import mate.academy.lib.Injector;
 import mate.academy.model.Product;
-import mate.academy.service.FileReaderService;
-import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
 
 public class Main {
-//    @Inject
-//    ProductService ps;
     public static void main(String[] args) {
-        // Please test your Injector here. Feel free to push this class as a part of your solution
         Injector injector = Injector.getInjector();
         ProductService productService = (ProductService) injector.getInstance(ProductService.class);
         List<Product> products = productService.getAllFromFile("products.txt");
