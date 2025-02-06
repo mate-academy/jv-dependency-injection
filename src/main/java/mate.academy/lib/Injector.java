@@ -74,7 +74,7 @@ public class Injector {
             return instance;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
             | InvocationTargetException e) {
-        throw new RuntimeException(
+            throw new RuntimeException(
             "Can't create a new instance of " + clazz.getName() + e.getMessage());
         }
     }
