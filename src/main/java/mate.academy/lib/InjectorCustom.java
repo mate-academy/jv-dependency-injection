@@ -6,13 +6,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Injector {
-    private static final Injector injector = new Injector();
+public class InjectorCustom {
+    private static final InjectorCustom injector = new InjectorCustom();
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> container = new HashMap<>();
+    private final Map<Class<?>, Class<?>> implementations = new HashMap<>();
 
-    public static Injector getInjector() {
+    public static InjectorCustom getInjector() {
         return injector;
     }
 
@@ -58,11 +58,16 @@ public class Injector {
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            Class clazz = interfaceClazz.getPermittedSubclasses().getClass();
-//            for (Class<?> clazz1 : clazz) {  here logic with 2 or more implementation may be added
-//
-//            }
+            Class[] clazzArray = interfaceClazz.getPermittedSubclasses();
+            for (Class<?> clazz : clazzArray) {
+
+
+            }
         }
         return interfaceClazz;
+    }
+
+    private Object injectAnnotatedFields(Object object, Field[] declaredFields) {
+
     }
 }
