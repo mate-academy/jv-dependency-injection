@@ -2,15 +2,22 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-
+    private final Map<Class<?>, Class<?>> implementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class);
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> container = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,10 +29,9 @@ public class Injector {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
-
-                clazzImplInstance = createNewInstance(field.getType());
                 field.setAccessible(true);
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplInstance = createNewInstance(clazz);
                 try {
                     field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
@@ -36,9 +42,9 @@ public class Injector {
 
         }
         if (clazzImplInstance == null) {
-            clazzImplInstance = createNewInstance(interfaceClazz);
+            clazzImplInstance = createNewInstance(clazz);
         }
-        return null;
+        return clazzImplInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
@@ -50,19 +56,25 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
         if (interfaceClazz.isInterface()) {
-            Class clazz = interfaceClazz.getPermittedSubclasses().getClass();
-//            for (Class<?> clazz1 : clazz) {  here logic with 2 or more implementation may be added
-//
-//            }
+            if (implementations.containsKey(interfaceClazz)) {
+                return isComponentPresent(implementations.get(interfaceClazz));
+            }
         }
-        return interfaceClazz;
+        return isComponentPresent(interfaceClazz);
+    }
+
+    private Class<?> isComponentPresent(Class<?> clazz) {
+        if (clazz.isAnnotationPresent(Component.class)) {
+            return clazz;
+        }
+        throw new RuntimeException("Injection failed, missing @Component annotation on the class "
+                + clazz.getName());
     }
 }

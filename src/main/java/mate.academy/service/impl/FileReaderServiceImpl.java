@@ -2,11 +2,8 @@ package mate.academy.service.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.nio.file.Files;
 import java.util.List;
-
 import mate.academy.lib.Component;
 import mate.academy.service.FileReaderService;
 
