@@ -39,7 +39,6 @@ public class Injector {
                             + clazz.getName() + " Field: " + field.getName(), e);
                 }
             }
-
         }
         if (clazzImplInstance == null) {
             clazzImplInstance = createNewInstance(clazz);
