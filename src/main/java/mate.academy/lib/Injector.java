@@ -22,29 +22,28 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
+        Object clazzImplementationInstance = createNewInstance(clazz);
+
         Field[] fields = clazz.getDeclaredFields();
-        Object clazzImplementationInstance = null;
-        for (Field field: fields) {
+        for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = injector.getInstance(field.getType());
-
-                clazzImplementationInstance = createNewInstance(clazz);
 
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't create field instance");
+                    throw new RuntimeException("Can't create field instance", e);
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
+
         if (!clazzImplementationInstance.getClass().isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Can't create implementation object because class: "
-                    + clazzImplementationInstance.getClass() + " is not component (@Component)");
+            throw new RuntimeException("Can't create implementation object because class "
+                    + "must be annotated with @Component: "
+                    + clazzImplementationInstance.getClass());
         }
+
         return clazzImplementationInstance;
     }
 
