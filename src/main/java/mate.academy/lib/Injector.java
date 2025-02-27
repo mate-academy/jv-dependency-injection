@@ -22,24 +22,22 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Object clazzImplementationInstance = null;
-        Class<?> clazz = findInplementation(interfaceClazz);
+        Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field: declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                if (field.isAnnotationPresent(Inject.class)) {
-                    Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
-                    try {
-                        field.setAccessible(true);
-                        field.set(clazzImplementationInstance, fieldInstance);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Cant initialize field value.Clazz"
-                                + clazz.getName() + " field " + field.getName(), e);
-                    }
+                Object fieldInstance = getInstance(field.getType());
+                clazzImplementationInstance = createNewInstance(clazz);
+                try {
+                    field.setAccessible(true);
+                    field.set(clazzImplementationInstance, fieldInstance);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("Can't initialize field value.Clazz"
+                            + clazz.getName() + " field " + field.getName(), e);
                 }
             } else {
                 throw new RuntimeException("shouldn't be able to create an "
-                        + "instance of this class in Injector");
+                        + "instance of this class " + clazz.getName() + " in Injector");
             }
         }
         if (clazzImplementationInstance == null) {
@@ -59,17 +57,17 @@ public class Injector {
             return instance;
         } catch (InstantiationException | IllegalAccessException
                  | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException("Can't create a new instance" + clazz.getName());
+            throw new RuntimeException("Can't create a new instance " + clazz.getName());
         }
     }
 
-    private Class<?> findInplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplamentations = new HashMap<>();
-        interfaceImplamentations.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplamentations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplamentations.put(ProductParser.class, ProductParserImpl.class);
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
+        interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementations.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplamentations.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
