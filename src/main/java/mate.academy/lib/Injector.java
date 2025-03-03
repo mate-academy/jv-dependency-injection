@@ -33,7 +33,7 @@ public class Injector {
             return instances.get(clazz);
         }
 
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
 
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
@@ -80,7 +80,12 @@ public class Injector {
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
 
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            Class<?> implementation = interfaceImplementation.get(interfaceClazz);
+            if (implementation == null) {
+                throw new RuntimeException("No implementation found for interface: "
+                        + interfaceClazz.getName());
+            }
+            return implementation;
         }
         return interfaceClazz;
     }

@@ -12,7 +12,7 @@ public class Main {
         // Please test your Injector here. Feel free to push this class as a part of your solution
         Injector injector = Injector.getInjector();
 
-        ProductService productService = (ProductServiceImpl) injector
+        ProductService productService = (ProductService) injector
                 .getInstance(ProductServiceImpl.class);
 
         List<Product> products = productService.getAllFromFile("products.txt");
