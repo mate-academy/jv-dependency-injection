@@ -1,5 +1,8 @@
 package mate.academy.lib;
 
+import java.lang.annotation.Retention;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -8,10 +11,6 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.lang.annotation.Retention;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 
 class InjectorTest {
     private Injector injector = Injector.getInjector();
