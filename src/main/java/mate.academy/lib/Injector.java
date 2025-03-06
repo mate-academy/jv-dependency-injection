@@ -22,16 +22,15 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        Object interfaceClazzInstance = null;
-        Field[] clazzFields = clazz.getDeclaredFields();
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Interface class " + interfaceClazz.getName()
                     + " is not annotated with @Component so you can't inject it");
         }
+        Object interfaceClazzInstance = createNewInstance(clazz);
+        Field[] clazzFields = clazz.getDeclaredFields();
         for (Field clazzField : clazzFields) {
             if (clazzField.isAnnotationPresent(Inject.class)) {
                 Object clazzFieldObject = getInstance(clazzField.getType());
-                interfaceClazzInstance = createNewInstance(clazz);
                 clazzField.setAccessible(true);
                 try {
                     clazzField.set(interfaceClazzInstance, clazzFieldObject);
@@ -41,9 +40,6 @@ public class Injector {
                             + " of the class: " + clazz.getName(),e);
                 }
             }
-        }
-        if (interfaceClazzInstance == null) {
-            interfaceClazzInstance = createNewInstance(clazz);
         }
         return interfaceClazzInstance;
     }
@@ -70,6 +66,10 @@ public class Injector {
         interfaceMap.put(ProductParser.class, ProductParserImpl.class);
         interfaceMap.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
+            if (!interfaceMap.containsKey(interfaceClazz)) {
+                throw new RuntimeException("Interface class " + interfaceClazz.getName()
+                + " does not have registered implementation, please add implementation!");
+            }
             return interfaceMap.get(interfaceClazz);
         }
         return interfaceClazz;
