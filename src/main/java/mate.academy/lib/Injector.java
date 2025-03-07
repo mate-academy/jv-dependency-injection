@@ -55,7 +55,8 @@ public class Injector {
             instancesMap.put(clazz, object);
             return object;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't do something 16:10" + clazz.getName(), e);
+            throw new RuntimeException("Can't create a new instance of class "
+                    + clazz.getName(), e);
         }
     }
 
