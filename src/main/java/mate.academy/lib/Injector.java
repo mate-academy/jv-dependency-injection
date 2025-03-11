@@ -2,16 +2,19 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
     private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
-            mate.academy.service.ProductParser.class, mate.academy.service.impl.ProductParserImpl.class,
-            mate.academy.service.FileReaderService.class, mate.academy.service.impl.FileReaderServiceImpl.class,
-            mate.academy.service.ProductService.class, mate.academy.service.impl.ProductServiceImpl.class
+            mate.academy.service.ProductParser.class,
+            mate.academy.service.impl.ProductParserImpl.class,
+            mate.academy.service.FileReaderService.class,
+            mate.academy.service.impl.FileReaderServiceImpl.class,
+            mate.academy.service.ProductService.class,
+            mate.academy.service.impl.ProductServiceImpl.class
     );
 
     public static Injector getInjector() {
