@@ -20,7 +20,8 @@ public class Injector {
 
         Class<?> implementationClazz = findImplementation(interfaceClazz);
         if (!implementationClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("No @Component annotation found for class: " + implementationClazz.getName());
+            throw new RuntimeException("No @Component annotation found for class: "
+                    + implementationClazz.getName());
         }
 
         return createInstance(implementationClazz);
@@ -55,7 +56,8 @@ public class Injector {
             }
             return instance;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create an instance of " + implementationClazz.getName(), e);
+            throw new RuntimeException("Failed to create an instance of "
+                    + implementationClazz.getName(), e);
         }
     }
 }
