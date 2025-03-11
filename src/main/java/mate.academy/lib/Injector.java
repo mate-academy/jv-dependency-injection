@@ -21,33 +21,27 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplIns = null;
         Class<?> clazz = findImpl(interfaceClazz);
+        isComponent(clazz);
+        Object clazzImplIns = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplIns = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplIns, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't initialize field value. "
-                    + "Class: " + clazz.getName() + ". Field: " + field.getName());
+                            + "Class: " + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
-        }
-        if (clazzImplIns == null) {
-            clazzImplIns = createNewInstance(clazz);
         }
         return clazzImplIns;
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Class " + clazz.getName()
-                    + " is not annotated with @Component");
-        }
+        isComponent(clazz);
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -59,7 +53,7 @@ public class Injector {
         } catch (NoSuchMethodException | InstantiationException
                  | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Can't create new instance of "
-                    + clazz.getName());
+                    + clazz.getName(), e);
         }
     }
 
@@ -69,8 +63,20 @@ public class Injector {
         interfaceImplementations.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementations.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementations.get(interfaceClazz);
+            Class<?> implementation = interfaceImplementations.get(interfaceClazz);
+            if (implementation == null) {
+                throw new RuntimeException("No implementation found for interface: "
+                        + interfaceClazz.getName());
+            }
+            return implementation;
         }
         return interfaceClazz;
+    }
+
+    private void isComponent(Class<?> clazz) {
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName()
+                    + " is not annotated with @Component");
+        }
     }
 }
