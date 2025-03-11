@@ -2,12 +2,17 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            mate.academy.service.ProductParser.class, mate.academy.service.impl.ProductParserImpl.class,
+            mate.academy.service.FileReaderService.class, mate.academy.service.impl.FileReaderServiceImpl.class,
+            mate.academy.service.ProductService.class, mate.academy.service.impl.ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
@@ -28,14 +33,11 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz == mate.academy.service.ProductParser.class) {
-            return mate.academy.service.impl.ProductParserImpl.class;
-        } else if (interfaceClazz == mate.academy.service.FileReaderService.class) {
-            return mate.academy.service.impl.FileReaderServiceImpl.class;
-        } else if (interfaceClazz == mate.academy.service.ProductService.class) {
-            return mate.academy.service.impl.ProductServiceImpl.class;
+        if (!interfaceImplementations.containsKey(interfaceClazz)) {
+            throw new RuntimeException("No implementation found for "
+                    + interfaceClazz.getName());
         }
-        throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
+        return interfaceImplementations.get(interfaceClazz);
     }
 
     private Object createInstance(Class<?> implementationClazz) {
@@ -44,6 +46,11 @@ public class Injector {
         }
         try {
             Constructor<?> constructor = implementationClazz.getDeclaredConstructor();
+            if (constructor.getParameterCount() > 0) {
+                throw new RuntimeException("No default constructor found in "
+                        + implementationClazz.getName());
+            }
+
             Object instance = constructor.newInstance();
             instances.put(implementationClazz, instance);
 
@@ -55,7 +62,7 @@ public class Injector {
                 }
             }
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Failed to create an instance of "
                     + implementationClazz.getName(), e);
         }
