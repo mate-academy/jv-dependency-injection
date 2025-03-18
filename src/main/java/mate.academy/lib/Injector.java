@@ -31,12 +31,11 @@ public class Injector {
     public Object getInstance(Class<?> interfaceClazz) {
         if (interfaceClazz.isAnnotationPresent(Component.class)) {
             Class clazz = findImplementation(interfaceClazz);
-            Object clazzImplementationInstance = null;
+            Object clazzImplementationInstance = createNewInstance(clazz);
             Field[] declaredFields = clazz.getDeclaredFields();
             for (Field field : declaredFields) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Object fieldInstance = getInstance(field.getType());
-                    clazzImplementationInstance = createNewInstance(clazz);
                     try {
                         field.setAccessible(true);
                         field.set(clazzImplementationInstance, fieldInstance);
