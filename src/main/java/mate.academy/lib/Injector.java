@@ -14,7 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -22,53 +22,61 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("There is no Component annotation in class: "
-                    + clazz.getName());
-        }
-        Field[] fields = clazz.getDeclaredFields();
-        Object clazzImplInstance = createNewInstance(clazz);
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(Inject.class)) {
-                Object filedInstance = getInstance(field.getType());
 
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("No @Component annotation in class: " + clazz.getName());
+        }
+
+        if (instances.containsKey(clazz)) {
+            return instances.get(clazz);
+        }
+
+        Object clazzImplInstance = createNewInstance(clazz);
+
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Inject.class)) {
+                Object fieldInstance = getInstance(field.getType());
                 try {
                     field.setAccessible(true);
-                    field.set(clazzImplInstance, filedInstance);
+                    field.set(clazzImplInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can`t set field: " + field.getName()
-                            + " of class: " + clazz.getName());
+                    throw new RuntimeException("Can't inject field: " + field.getName()
+                            + " in class: " + clazz.getName(), e);
                 }
-
             }
         }
-        if (clazzImplInstance == null) {
-            clazzImplInstance = createNewInstance(clazz);
-        }
+
+        instances.put(clazz, clazzImplInstance);
         return clazzImplInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
-        if (instances.containsKey(clazz)) {
-            return instances.get(clazz);
-        } else {
-            try {
-                Constructor<?> constructor = clazz.getConstructor();
-                Object instance = constructor.newInstance();
-                return instance;
-            } catch (InstantiationException | InvocationTargetException
-                     | IllegalAccessException | NoSuchMethodException e) {
-                throw new RuntimeException("Can't create new instance of " + clazz.getName());
-            }
+        try {
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            Object instance = constructor.newInstance();
+            instances.put(clazz, instance);
+            return instance;
+        } catch (InstantiationException | InvocationTargetException
+                 | IllegalAccessException | NoSuchMethodException e) {
+            throw new RuntimeException("Can't create an instance of " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementations = new HashMap<>();
-        implementations.put(FileReaderService.class, FileReaderServiceImpl.class);
-        implementations.put(ProductParser.class, ProductParserImpl.class);
-        implementations.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceClazz.isInterface() ? implementations.get(interfaceClazz)
-                : interfaceClazz;
+        Map<Class<?>, Class<?>> implementations = Map.of(
+                FileReaderService.class, FileReaderServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                ProductService.class, ProductServiceImpl.class
+        );
+
+        if (interfaceClazz.isInterface()) {
+            Class<?> implClass = implementations.get(interfaceClazz);
+            if (implClass == null) {
+                throw new RuntimeException("No implementation found for interface: "
+                        + interfaceClazz.getName());
+            }
+            return implClass;
+        }
+        return interfaceClazz;
     }
 }
