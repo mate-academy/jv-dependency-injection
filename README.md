@@ -8,4 +8,6 @@ Object instances. The convention is to use `Component` on the classes that are u
 and `Inject` to mark fields that need to be initialized. If the `Component` annotation is missing above the class, we shouldn't be able to create an instance of this class in Injector, and we should throw an exception <br>
 NOTE: Pay attention to the annotation's visibility when you want to use it with reflection API, the `@Retention` property may help you configure it.
 
+To test your code coverage locally - run `mvn clean verify` in the terminal.
+
 [Try to avoid these common mistakes while solving task](./checklist.md)
