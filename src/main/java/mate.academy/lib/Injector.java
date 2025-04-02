@@ -14,8 +14,16 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementation;
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
+
+    static {
+        interfaceImplementation = new HashMap<>();
+        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
+        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
+    }
 
     public static Injector getInjector() {
         return injector;
@@ -30,9 +38,7 @@ public class Injector {
         }
 
         componentAnnotationChecker(clazz);
-
         Object classImplementationInstance = createNewInstance(clazz);
-
         List<Field> fields = List.of(clazz.getDeclaredFields());
 
         for (Field field : fields) {
@@ -52,14 +58,6 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClass) {
-        Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
-                ProductParser.class,
-                ProductParserImpl.class,
-                FileReaderService.class,
-                FileReaderServiceImpl.class,
-                ProductService.class,
-                ProductServiceImpl.class
-        );
         return interfaceImplementation.get(interfaceClass);
     }
 
@@ -81,7 +79,7 @@ public class Injector {
 
     private void componentAnnotationChecker(Class<?> clazz) {
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("There is no '@Component' annotation in class "
+            throw new RuntimeException("There is no Component annotation in class "
                     + clazz.getName());
         }
     }
