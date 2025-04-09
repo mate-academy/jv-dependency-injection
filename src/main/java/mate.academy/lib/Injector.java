@@ -7,6 +7,7 @@ import mate.academy.service.impl.FileReaderServiceImpl;
 import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,17 +28,20 @@ public class Injector {
         Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
-        for (Field field : declaredFields) {
-            field.setAccessible(true);
-
-            if (field.isAnnotationPresent(Inject.class) && interfaceClazz.getClass().isAnnotationPresent(Component.class)) {
+//        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+//            throw new RuntimeException("");
+//        }
+        if (interfaceClazz.isAnnotationPresent(Component.class)) {
+            for (Field field : declaredFields) {
+                field.setAccessible(true);
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
-                try {
-                    field.set(clazzImplementationInstance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. " + "Class: "
-                            + clazz.getName() + ". Field: " + field.getName());
+                if (field.isAnnotationPresent(Inject.class)) {
+                    try {
+                        field.set(clazzImplementationInstance, fieldInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Can't initialize field value. " + "Class: "
+                                + clazz.getName() + ". Field: " + field.getName());
+                    }
                 }
             }
         }
