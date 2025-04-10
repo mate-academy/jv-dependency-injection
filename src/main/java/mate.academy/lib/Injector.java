@@ -14,6 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+//    private Object clazzImplementationInstance;
 
     public static Injector getInjector() {
         return injector;
@@ -27,7 +28,7 @@ public class Injector {
                     + interfaceClazz.getName());
         }
         Field[] declaredFields = clazz.getDeclaredFields();
-        if (clazz.getClass().isAnnotationPresent(Component.class)) {
+        if (clazz.isAnnotationPresent(Component.class)) {
             for (Field field : declaredFields) {
                 field.setAccessible(true);
                 Object fieldInstance = getInstance(field.getType());
@@ -69,10 +70,6 @@ public class Injector {
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             return interfaceImplementation.get(interfaceClazz);
-        }
-        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Unsupported class: " + interfaceClazz.getName()
-                    + ". It should be an interface annotated with @Component.");
         }
         return interfaceClazz;
     }
