@@ -2,7 +2,6 @@ package mate.academy.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import mate.academy.lib.Component;
 import mate.academy.lib.Inject;
 import mate.academy.model.Product;
@@ -19,9 +18,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllFromFile(String filePath) {
-            return fileReaderService.readFile(filePath)
-                    .stream()
-                    .map(productParser::parse)
-                    .collect(Collectors.toList());
+        return fileReaderService.readFile(filePath)
+                .stream()
+                .map(productParser::parse)
+                .collect(Collectors.toList());
     }
 }
