@@ -14,25 +14,24 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
-//    private Object clazzImplementationInstance;
 
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (clazz == null) {
             throw new RuntimeException("No implementation found for interface: "
                     + interfaceClazz.getName());
         }
+        Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         if (clazz.isAnnotationPresent(Component.class)) {
             for (Field field : declaredFields) {
                 field.setAccessible(true);
-                Object fieldInstance = getInstance(field.getType());
                 if (field.isAnnotationPresent(Inject.class)) {
+                    Object fieldInstance = getInstance(field.getType());
                     try {
                         field.set(clazzImplementationInstance, fieldInstance);
                     } catch (IllegalAccessException e) {
@@ -42,16 +41,12 @@ public class Injector {
                 }
             }
         }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
-        }
         return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
-
         if (instances.containsKey(clazz)) {
-            return instances.getClass();
+            return instances.get(clazz);
         }
         try {
             Constructor<?> constructor = clazz.getConstructor();
@@ -69,7 +64,14 @@ public class Injector {
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
+            if (!interfaceImplementation.containsKey(interfaceClazz)) {
+                throw new RuntimeException("Unsupported interface: " + interfaceClazz.getName());
+            }
             return interfaceImplementation.get(interfaceClazz);
+        }
+        if (!interfaceClazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Unsupported class: " + interfaceClazz.getName()
+                    + ". It should be an interface or annotated with @Component.");
         }
         return interfaceClazz;
     }
