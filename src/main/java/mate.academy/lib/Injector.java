@@ -49,7 +49,7 @@ public class Injector {
             }
 
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of class: " + implClass.getName(), e);
         }
     }
