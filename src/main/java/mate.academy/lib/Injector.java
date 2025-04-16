@@ -40,8 +40,7 @@ public class Injector {
 
             return instance;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create instance of "
-                    + clazz.getName(), e);
+            throw new RuntimeException("Failed to create instance of " + clazz.getName(), e);
         }
     }
 
