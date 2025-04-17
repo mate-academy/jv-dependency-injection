@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -21,29 +20,39 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
+        if (interfaceClazz == null) {
+            throw new RuntimeException("Cannot instantiate null class");
+        }
         Class<?> clazz = findImplementation(interfaceClazz);
+        Object clazzImplementationInstance = instances.get(clazz);
+        if (clazzImplementationInstance != null) {
+            return clazzImplementationInstance;
+        }
+        clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = interfaceClazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplementationInstance = createNewInstance(clazz);
                 field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field value. "
-                        + "Clazz;" + clazz.getName() + ". Field: " + field.getName());
+                    throw new RuntimeException("Failed to initialize field '" + field.getName()
+                        + "' in class " + clazz.getName(), e);
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
 
     private Object createNewInstance(Class<?> clazz) {
+        if (clazz == null) {
+            throw new RuntimeException("Cannot create instance of null class");
+        }
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + clazz.getName() + " is not annotated"
+            + " with @Component");
+        }
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
@@ -52,17 +61,16 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                 | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of" + clazz.getName());
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementation = new HashMap<>();
-        interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
-        interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementation.put(FileReaderService.class, FileReaderServiceImpl.class);
+        Map<Class<?>, Class<?>> interfaceImplementation = Map.of(
+                ProductService.class, ProductServiceImpl.class,
+                ProductParser.class, ProductParserImpl.class,
+                FileReaderService.class, FileReaderServiceImpl.class);
         if (interfaceClazz.isInterface()) {
             Class<?> implementationClass = interfaceImplementation.get(interfaceClazz);
             if (implementationClass == null) {
