@@ -29,7 +29,7 @@ public class Injector {
             return clazzImplementationInstance;
         }
         clazzImplementationInstance = createNewInstance(clazz);
-        Field[] declaredFields = interfaceClazz.getDeclaredFields();
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -62,7 +62,7 @@ public class Injector {
             instances.put(clazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Can't create a new instance of" + clazz.getName());
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
@@ -79,7 +79,7 @@ public class Injector {
             }
             if (!implementationClass.isAnnotationPresent(Component.class)) {
                 throw new RuntimeException("Implementation class "
-                    + implementationClass.getName() + "is not annotation with @Component");
+                    + implementationClass.getName() + " is not annotation with @component");
             }
             return interfaceImplementation.get(interfaceClazz);
         }
