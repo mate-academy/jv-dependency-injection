@@ -70,7 +70,7 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isInterface()) {
+        if (interfaceClazz.isInterface() && interfaceClazz != null) {
             return implementations.get(interfaceClazz);
         }
         return interfaceClazz;
