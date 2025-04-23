@@ -70,9 +70,14 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.isInterface() && interfaceClazz != null) {
-            return implementations.get(interfaceClazz);
+        try {
+            if (interfaceClazz.isInterface()) {
+                return implementations.get(interfaceClazz);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Failed to retrieve an implementation for the " + interfaceClazz + "class");
         }
+
         return interfaceClazz;
     }
 }
