@@ -75,7 +75,8 @@ public class Injector {
                 return implementations.get(interfaceClazz);
             }
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Failed to retrieve an implementation for the " + interfaceClazz + "class");
+            throw new RuntimeException("Failed to retrieve an implementation for the "
+                    + interfaceClazz + "class");
         }
 
         return interfaceClazz;
