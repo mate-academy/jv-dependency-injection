@@ -1,9 +1,11 @@
 package mate.academy.service.impl;
 
 import java.math.BigDecimal;
+import mate.academy.lib.Component;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
 
+@Component
 public class ProductParserImpl implements ProductParser {
     public static final int ID_POSITION = 0;
     public static final int NAME_POSITION = 1;
@@ -13,7 +15,16 @@ public class ProductParserImpl implements ProductParser {
 
     @Override
     public Product parse(String productInfo) {
+        if (productInfo == null) {
+            throw new RuntimeException("Product info is null");
+        }
         String[] data = productInfo.split(",");
+        if (Long.parseLong(data[ID_POSITION]) < 0) {
+            throw new RuntimeException("Id cannot be negative");
+        }
+        if (Integer.parseInt(data[PRICE_POSITION]) < 0) {
+            throw new RuntimeException("Price cannot be negative");
+        }
         Product product = new Product();
         product.setId(Long.valueOf(data[ID_POSITION]));
         product.setName(data[NAME_POSITION]);
