@@ -1,5 +1,8 @@
 package mate.academy.lib;
 
+import mate.academy.model.lib.Component;
+import mate.academy.model.lib.Inject;
+import mate.academy.model.lib.Injector;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
