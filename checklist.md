@@ -6,7 +6,8 @@
 * Don't forget about annotations checks in your Injector class.
 * Let's check instances map before new instance creation.
 * Make Interface Implementations map a class field. You can fill it in using `Map.of()`.  
-* When throwing an exception add an informative message to it. Also, don't forget to add an exception you're catching in `catch` block to the `RuntimeException` object you throw
+* When throwing an exception add an informative message to it. Also, don't forget to 
+* add an exception you're catching in `catch` block to the `RuntimeException` object you throw
 
 Bad example:
 ```java
