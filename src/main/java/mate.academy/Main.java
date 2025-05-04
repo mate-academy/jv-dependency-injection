@@ -8,10 +8,14 @@ import mate.academy.service.ProductService;
 public class Main {
 
     public static void main(String[] args) {
-        // Please test your Injector here. Feel free to push this class as a part of your solution
         Injector injector = Injector.getInjector();
-        ProductService productService = null;
-        List<Product> products = productService.getAllFromFile("products.txt");
-        products.forEach(System.out::println);
+        try {
+            ProductService productService =
+                    (ProductService) injector.getInstance(ProductService.class);
+            List<Product> products = productService.getAllFromFile("products.txt");
+            products.forEach(System.out::println);
+        } catch (RuntimeException e) {
+            System.err.println("An error occurred while retrieving products: " + e.getMessage());
+        }
     }
 }
