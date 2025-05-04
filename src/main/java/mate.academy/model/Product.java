@@ -53,10 +53,13 @@ public class Product {
     public String toString() {
         return "Product{"
                 + "id=" + id
-                + ", name='" + name + '\''
-                + ", category='" + category + '\''
-                + ", description='" + description + '\''
-                + ", price=" + price
-                + '}';
+                + ", name='"
+                + name + '\''
+                + ", category='"
+                + category + '\''
+                + ", description='"
+                + description + '\''
+                + ", price="
+                + price + '}';
     }
 }
