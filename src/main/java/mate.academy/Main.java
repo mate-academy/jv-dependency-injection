@@ -8,10 +8,16 @@ import mate.academy.service.ProductService;
 public class Main {
 
     public static void main(String[] args) {
-        // Please test your Injector here. Feel free to push this class as a part of your solution
         Injector injector = Injector.getInjector();
-        ProductService productService = null;
-        List<Product> products = productService.getAllFromFile("products.txt");
-        products.forEach(System.out::println);
+        Object productServiceObj = injector.getInstance(ProductService.class);
+
+        List<Product> products;
+        if (productServiceObj instanceof ProductService) {
+            ProductService productService = (ProductService) productServiceObj;
+            products = productService.getAllFromFile("products.txt");
+            products.forEach(System.out::println);
+        } else {
+            System.out.println("Couldn't cast to ProductService");
+        }
     }
 }
