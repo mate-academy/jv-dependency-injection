@@ -1,0 +1,10 @@
+1,Apple,Fruit,Fresh red apple,0.50
+2,Banana,Fruit,Ripe yellow banana,0.30
+3,Carrot,Vegetable,Organic carrot,0.20
+4,Milk,Dairy,Fresh whole milk,1.50
+5,Bread,Bakery,Whole grain bread,2.00
+6,Chicken,Meat,Free-range chicken,5.00
+7,Orange,Fruit,Juicy orange,0.60
+8,Cucumber,Vegetable,Fresh green cucumber,0.40
+9,Cereal,Bakery,Healthy breakfast cereal,3.00
+10,Cheese,Dairy,Cheddar cheese,2.50
