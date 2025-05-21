@@ -16,15 +16,14 @@ public class Injector {
             throw new RuntimeException("Class " + implementation.getName()
                     + "don`t have @Component !");
         }
-
         try {
             Object instance = implementation.getDeclaredConstructor().newInstance();
 
-            for (Field filed : implementation.getDeclaredFields()) {
-                if (filed.isAnnotationPresent(Inject.class)) {
-                    Object dependency = getInstance(filed.getType());
-                    filed.setAccessible(true);
-                    filed.set(instance, dependency);
+            for (Field field : implementation.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Inject.class)) {
+                    Object dependency = getInstance(field.getType());
+                    field.setAccessible(true);
+                    field.set(instance, dependency);
                 }
             }
             return instance;
