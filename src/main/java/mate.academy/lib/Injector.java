@@ -1,5 +1,7 @@
 package mate.academy.lib;
 
+import java.lang.reflect.Field;
+
 public class Injector {
     private static final Injector injector = new Injector();
 
@@ -8,6 +10,37 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        return null;
+        Class<?> implementation = findImplementation(interfaceClazz);
+
+        if (!implementation.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("Class " + implementation.getName()
+                    + "don`t have @Component !");
+        }
+        try {
+            Object instance = implementation.getDeclaredConstructor().newInstance();
+
+            for (Field field : implementation.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Inject.class)) {
+                    Object dependency = getInstance(field.getType());
+                    field.setAccessible(true);
+                    field.set(instance, dependency);
+                }
+            }
+            return instance;
+        } catch (Exception e) {
+            throw new RuntimeException("Did not to create object of Class!"
+                    + implementation.getName(), e);
+        }
+    }
+
+    private Class<?> findImplementation(Class<?> interfaceClazz) {
+        String interfaceName = interfaceClazz.getSimpleName();
+        String classImplName = "mate.academy.service.impl." + interfaceName + "Impl";
+        try {
+            return Class.forName(classImplName);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Not found implementation for interface "
+                    + interfaceClazz.getName(), e);
+        }
     }
 }
