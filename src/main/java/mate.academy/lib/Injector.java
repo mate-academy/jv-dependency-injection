@@ -24,6 +24,7 @@ public class Injector {
         Class<?> clazz = fileImplementation(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = null;
+        Object fieldInstance;
 
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
@@ -31,7 +32,7 @@ public class Injector {
 
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
+                fieldInstance = getInstance(field.getType());
 
                 clazzImplementationInstance = createNewInstance(clazz);
 
