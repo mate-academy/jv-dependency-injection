@@ -13,16 +13,19 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> interfaceImplementations;
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
-    private final Map<Class<?>, Class<?>> interfaceImplementations;
 
-    private Injector() {
+    static {
         interfaceImplementations = Map.of(
                 FileReaderService.class, FileReaderServiceImpl.class,
                 ProductParser.class, ProductParserImpl.class,
                 ProductService.class, ProductServiceImpl.class
         );
+    }
+
+    private Injector() {
     }
 
     public static Injector getInjector() {
@@ -34,22 +37,36 @@ public class Injector {
             return instances.get(interfaceClazz);
         }
 
-        Class<?> implementationClass = interfaceImplementations.get(interfaceClazz);
-        if (implementationClass == null) {
-            throw new RuntimeException("No implementation found for interface "
-                    + interfaceClazz.getName());
-        }
+        Class<?> implementationClass = getImplementation(interfaceClazz);
 
         if (!implementationClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class " + implementationClass.getName()
                     + " is not annotated with @Component");
         }
 
+        Object instance = createNewInstance(implementationClass);
+        instances.put(interfaceClazz, instance);
+
+        return instance;
+    }
+
+    private Class<?> getImplementation(Class<?> interfaceClazz) {
+        Class<?> implementationClass = interfaceImplementations.get(interfaceClazz);
+
+        if (implementationClass == null) {
+            throw new RuntimeException("No implementation found for interface "
+                    + interfaceClazz.getName());
+        }
+
+        return implementationClass;
+    }
+
+    private Object createNewInstance(Class<?> implementationClass) {
         try {
             Constructor<?> constructor = implementationClass.getConstructor();
             Object instance = constructor.newInstance();
-
             Field[] declaredFields = implementationClass.getDeclaredFields();
+
             for (Field field : declaredFields) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     Object fieldInstance = getInstance(field.getType());
@@ -58,8 +75,8 @@ public class Injector {
                 }
             }
 
-            instances.put(interfaceClazz, instance);
             return instance;
+
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Cannot create instance of "
                     + implementationClass.getName(), e);
