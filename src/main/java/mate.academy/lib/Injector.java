@@ -4,13 +4,25 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
+
+    private static final Map<Class<?>, Class<?>> interfaceToImpl = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
+
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new ConcurrentHashMap<>();
 
     private Injector() {
-
     }
 
     public static Injector getInjector() {
@@ -25,14 +37,10 @@ public class Injector {
 
         Class<?> implClass = clazz;
         if (clazz.isInterface()) {
-            try {
-                implClass = Class.forName(clazz.getPackageName()
-                        + ".impl."
-                        + clazz.getSimpleName() + "Impl");
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Can't create instance of "
-                        + clazz.getName()
-                        + " - missing @Component");
+            implClass = interfaceToImpl.get(clazz);
+            if (implClass == null) {
+                throw new RuntimeException("No implementation found for interface "
+                        + clazz.getName());
             }
         }
 
