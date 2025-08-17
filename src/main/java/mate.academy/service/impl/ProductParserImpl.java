@@ -1,9 +1,12 @@
 package mate.academy.service.impl;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+import mate.academy.lib.Component;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
 
+@Component
 public class ProductParserImpl implements ProductParser {
     public static final int ID_POSITION = 0;
     public static final int NAME_POSITION = 1;
@@ -12,14 +15,18 @@ public class ProductParserImpl implements ProductParser {
     public static final int PRICE_POSITION = 4;
 
     @Override
-    public Product parse(String productInfo) {
-        String[] data = productInfo.split(",");
-        Product product = new Product();
-        product.setId(Long.valueOf(data[ID_POSITION]));
-        product.setName(data[NAME_POSITION]);
-        product.setCategory(data[CATEGORY_POSITION]);
-        product.setDescription(data[DESCRIPTION_POSITION]);
-        product.setPrice(new BigDecimal(data[PRICE_POSITION]));
-        return product;
+    public List<Product> parse(List<String> lines) {
+        return lines.stream()
+                .map(line -> {
+                    String[] parts = line.split(",");
+                    return new Product(
+                            Long.parseLong(parts[ID_POSITION]),
+                            parts[NAME_POSITION],
+                            parts[CATEGORY_POSITION],
+                            parts[DESCRIPTION_POSITION],
+                            Double.parseDouble(parts[PRICE_POSITION])
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }
