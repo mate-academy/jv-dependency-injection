@@ -63,7 +63,7 @@ class InjectorTest {
     }
 
     @Test
-    public void getInstance_productParserInstance() {
+    public void getInstance_productParserInstance() throws IllegalAccessException {
         Object actual = injector.getInstance(ProductParser.class);
 
         Assertions.assertTrue(actual instanceof ProductParser,
@@ -71,7 +71,7 @@ class InjectorTest {
     }
 
     @Test
-    public void getInstance_productServiceInstance() {
+    public void getInstance_productServiceInstance() throws IllegalAccessException {
         Object actual = injector.getInstance(ProductService.class);
 
         Assertions.assertTrue(actual instanceof ProductService,
@@ -79,7 +79,7 @@ class InjectorTest {
     }
 
     @Test
-    public void getInstance_fileReaderInstance() {
+    public void getInstance_fileReaderInstance() throws IllegalAccessException {
         Object actual = injector.getInstance(FileReaderService.class);
 
         Assertions.assertTrue(actual instanceof FileReaderService,
