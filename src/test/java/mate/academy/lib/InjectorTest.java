@@ -13,7 +13,7 @@ import java.lang.annotation.Retention;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-class InjectorTest {
+public class InjectorTest {
     private Injector injector = Injector.getInjector();
 
     @Test
