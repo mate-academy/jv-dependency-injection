@@ -1,5 +1,6 @@
 package mate.academy.lib;
 
+import mate.academy.model.Product;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
 import mate.academy.service.ProductService;
@@ -11,7 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 class InjectorTest {
     private Injector injector = Injector.getInjector();
@@ -97,5 +100,24 @@ class InjectorTest {
 
         Assertions.assertTrue(areAllPresent, "ProductServiceImpl fields "
                 + "should be marked with Inject annotation to be initialized");
+    }
+
+    @Test
+    public void isThrowExceptionWhenAnnotationComponentDoesntExist_notOk() {
+        Assertions.assertThrows(RuntimeException.class,
+                () -> injector.getInstance(Product.class));
+    }
+
+    @Test
+    public void getInstance_ok() {
+        FileReaderService fileReaderService = new FileReaderServiceImpl();
+        ProductService productService = new ProductServiceImpl();
+        ProductParser productParser = new ProductParserImpl();
+        Assertions.assertEquals(fileReaderService.getClass(),
+                injector.getInstance(FileReaderService.class).getClass());
+        Assertions.assertEquals(productParser.getClass(),
+                injector.getInstance(ProductParser.class).getClass());
+        Assertions.assertEquals(productService.getClass(),
+                injector.getInstance(ProductService.class).getClass());
     }
 }
