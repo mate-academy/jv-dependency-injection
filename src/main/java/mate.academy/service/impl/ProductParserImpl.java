@@ -1,8 +1,13 @@
 package mate.academy.service.impl;
 
 import java.math.BigDecimal;
+
+import mate.academy.lib.Component;
+import mate.academy.lib.Inject;
 import mate.academy.model.Product;
 import mate.academy.service.ProductParser;
+
+@Component
 
 public class ProductParserImpl implements ProductParser {
     public static final int ID_POSITION = 0;
