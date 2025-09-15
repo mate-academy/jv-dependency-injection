@@ -18,7 +18,12 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
-        Object clazzImplementationInstance = createNewInstance(clazz); // ✅ створити одразу
+        if (!clazz.isAnnotationPresent(Component.class)) {
+            throw new RuntimeException("The class " + clazz.getName()
+                    + " is not annotated with @Component and cannot be instantiated");
+        }
+
+        Object clazzImplementationInstance = createNewInstance(clazz);
 
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -27,7 +32,7 @@ public class Injector {
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplementationInstance, fieldInstance); // ✅ інжекція
-                } catch (IllegalAccessException e) {
+                } catch (ReflectiveOperationException e) {
                     throw new RuntimeException("Can't initialize field value. "
                             + "Class: " + clazz.getName() + ". Field: " + field.getName(), e);
                 }
@@ -40,7 +45,7 @@ public class Injector {
     private Object createNewInstance(Class<?> clazz) {
         try {
             return clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create an instance of class: " + clazz.getName(), e);
         }
     }
