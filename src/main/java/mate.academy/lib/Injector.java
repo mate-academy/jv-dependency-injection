@@ -30,13 +30,19 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        if (instanceCache.containsKey(interfaceClazz)) {
-            return instanceCache.get(interfaceClazz);
+        Class<?> implClass;
+        if (interfaceClazz.isInterface()) {
+            implClass = interfaceToImpl.get(interfaceClazz);
+            if (implClass == null) {
+                throw new RuntimeException("No implementation found for "
+                        + interfaceClazz.getName());
+            }
+        } else {
+            implClass = interfaceClazz;
         }
 
-        Class<?> implClass = interfaceToImpl.get(interfaceClazz);
-        if (implClass == null) {
-            throw new RuntimeException("No implementation found for " + interfaceClazz.getName());
+        if (instanceCache.containsKey(implClass)) {
+            return instanceCache.get(implClass);
         }
 
         if (!implClass.isAnnotationPresent(Component.class)) {
@@ -57,7 +63,7 @@ public class Injector {
                 }
             }
 
-            instanceCache.put(interfaceClazz, instance);
+            instanceCache.put(implClass, instance);
             return instance;
 
         } catch (ReflectiveOperationException e) {
