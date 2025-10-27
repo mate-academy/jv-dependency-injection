@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         Injector injector = Injector.getInjector();
         ProductService productService =
-                (ProductService) Injector.getInjector().getInstance(ProductService.class);
+                (ProductService) injector.getInstance(ProductService.class);
 
         List<Product> products = productService.getAllFromFile("products.txt");
         products.forEach(System.out::println);
