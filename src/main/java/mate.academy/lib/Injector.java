@@ -53,9 +53,8 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
         try {
-            constructor = clazz.getConstructor();
+            Constructor<?> constructor = clazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
