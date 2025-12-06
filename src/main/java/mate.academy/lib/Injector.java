@@ -4,9 +4,21 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import mate.academy.service.FileReaderService;
+import mate.academy.service.ProductParser;
+import mate.academy.service.ProductService;
+import mate.academy.service.impl.FileReaderServiceImpl;
+import mate.academy.service.impl.ProductParserImpl;
+import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+
+    private final Map<Class<?>, Class<?>> interfaceToImpl = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     private final Map<Class<?>, Object> instancesCache = new HashMap<>();
 
@@ -28,6 +40,10 @@ public class Injector {
 
         if (requestedType.isInterface()) {
             implementationType = findImplementation(requestedType);
+        }
+
+        if (instancesCache.containsKey(implementationType)) {
+            return instancesCache.get(implementationType);
         }
 
         if (!implementationType.isAnnotationPresent(Component.class)) {
@@ -55,22 +71,18 @@ public class Injector {
                 }
             }
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
-                    "Instance of " + implementationType.getName() + " cannot be created" + e);
+                    "Failed to create instance of " + implementationType.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        String interfacePackage = interfaceClazz.getPackageName();
-        String implPackage = interfacePackage + ".impl";
-        String implClassName = implPackage + "." + interfaceClazz.getSimpleName() + "Impl";
-
-        try {
-            return Class.forName(implClassName);
-        } catch (ClassNotFoundException e) {
+        Class<?> implClass = interfaceToImpl.get(interfaceClazz);
+        if (implClass == null) {
             throw new RuntimeException(
-                    "Cannot find implementation for " + interfaceClazz.getName(), e);
+                    "Cannot find implementation for " + interfaceClazz.getName());
         }
+        return implClass;
     }
 }
