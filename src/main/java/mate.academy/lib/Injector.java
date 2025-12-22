@@ -13,6 +13,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Object> interfaceImpls = new HashMap<>();
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -20,13 +21,12 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplInstance = null;
         Class<?> clazz = findImpl(interfaceClazz);
         Field[] declaredFields = clazz.getDeclaredFields();
+        Object clazzImplInstance = createNewInstance(clazz);
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                clazzImplInstance = createNewInstance(clazz);
                 try {
                     field.setAccessible(true);
                     field.set(clazzImplInstance, fieldInstance);
@@ -63,7 +63,6 @@ public class Injector {
     }
 
     private Class<?> findImpl(Class<?> interfaceClazz) {
-        Map<Class<?>, Object> interfaceImpls = new HashMap<>();
         interfaceImpls.put(FileReaderService.class, FileReaderServiceImpl.class);
         interfaceImpls.put(ProductParser.class, ProductParserImpl.class);
         interfaceImpls.put(ProductService.class, ProductServiceImpl.class);
