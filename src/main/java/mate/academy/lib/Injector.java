@@ -49,10 +49,10 @@ public class Injector {
                 try {
                     field.setAccessible(true);
                     field.set(newObject, dependencyObject);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new RuntimeException("Cant initialize field value. Class:"
-                            + implementationClass.getName() + ".Field:"
-                            + field.getName());
+                } catch (ReflectiveOperationException e) {
+                    throw new RuntimeException("Cant initialize field value. Class: "
+                            + implementationClass.getName() + ". Field: "
+                            + field.getName(), e);
                 }
             }
         }
