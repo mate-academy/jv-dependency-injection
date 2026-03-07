@@ -25,17 +25,15 @@ public class Injector {
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Object clazzImplementationInstance = null;
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Class: " + clazz + " isn't have annotation Component");
         }
+        Object clazzImplementationInstance = createNewInstance(clazz);
         Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object instance = getInstance(field.getType());
-
-                clazzImplementationInstance = createNewInstance(clazz);
 
                 try {
                     field.setAccessible(true);
@@ -45,9 +43,6 @@ public class Injector {
                             + clazz.getName() + ". Field: " + field.getName(), e);
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
