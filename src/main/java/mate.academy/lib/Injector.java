@@ -26,23 +26,7 @@ public class Injector {
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> implementationClazz = findImplementation(interfaceClazz);
-        Field[] fields = implementationClazz.getDeclaredFields();
-        Object clazzImplementationInstance = createNewInstance(implementationClazz);
-        for (Field field : fields) {
-            if (field.isAnnotationPresent(Inject.class)) {
-                Object fieldInstance = getInstance(field.getType());
-                try {
-                    field.setAccessible(true);
-                    field.set(clazzImplementationInstance, fieldInstance);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Can't initialize field. "
-                    + "Type: " + implementationClazz.getName()
-                    + ". Field: " + field.getName());
-                }
-            }
-        }
-
-        return clazzImplementationInstance;
+        return createNewInstance(implementationClazz);
     }
 
     private Object createNewInstance(Class<?> implementationClazz) {
@@ -54,6 +38,23 @@ public class Injector {
             Constructor<?> constructor = implementationClazz.getConstructor();
             Object instance = constructor.newInstance();
             instances.put(implementationClazz, instance);
+
+            // инжектим поля только при создании нового инстанса
+            Field[] fields = implementationClazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(Inject.class)) {
+                    Object fieldInstance = getInstance(field.getType());
+                    try {
+                        field.setAccessible(true);
+                        field.set(instance, fieldInstance);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Can't initialize field. "
+                                + "Type: " + implementationClazz.getName()
+                                + ". Field: " + field.getName(), e); // добавили e
+                    }
+                }
+            }
+
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't get instance of "
