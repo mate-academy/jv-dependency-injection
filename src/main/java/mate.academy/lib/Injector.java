@@ -62,11 +62,19 @@ public class Injector {
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (!interfaceClazz.isInterface()) {
+        if (!interfaceClazz.isInterface() && interfaceClazz.isAnnotationPresent(Component.class)) {
             return interfaceClazz;
         }
 
         Class<?> implementation = implementations.get(interfaceClazz);
+
+        if (implementation == null) {
+            throw new RuntimeException("Can't initialize for unsupported class. "
+                    + "Class "
+                    + interfaceClazz.getName()
+                    + "does not have an implementations"
+                    + "in this project");
+        }
 
         if (!implementation.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Interface " + interfaceClazz.getSimpleName()
