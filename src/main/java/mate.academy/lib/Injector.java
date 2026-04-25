@@ -13,12 +13,20 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
 
+    private static final Map<Class<?>, Class<?>> interfaceToImpl = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
+
+    private final Map<Class<?>, Object> instances = new HashMap<>();
+
     public static Injector getInjector() {
         return injector;
     }
 
     public Object getInstance(Class<?> interfaceClazz) {
-        Class<?> implClass = findImplementation(interfaceClazz);
+        Class<?> implClass = interfaceToImpl.get(interfaceClazz);
 
         if (implClass == null) {
             throw new RuntimeException("No implementation found for: "
@@ -29,27 +37,25 @@ public class Injector {
             throw new RuntimeException("Class " + implClass.getName() + " is not a @Component");
         }
 
+        if (instances.containsKey(implClass)) {
+            return instances.get(implClass);
+        }
+
         try {
             Object instance = implClass.getDeclaredConstructor().newInstance();
 
+            instances.put(implClass, instance);
             injectFields(instance, implClass);
 
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of: "
                     + implClass.getName(), e);
         }
     }
 
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceToImpl = new HashMap<>();
-        interfaceToImpl.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceToImpl.put(ProductParser.class, ProductParserImpl.class);
-        interfaceToImpl.put(ProductService.class, ProductServiceImpl.class);
-        return interfaceToImpl.get(interfaceClazz);
-    }
-
-    private void injectFields(Object instance, Class<?> clazz) throws Exception {
+    private void injectFields(Object instance, Class<?> clazz)
+            throws ReflectiveOperationException {
         Field[] fields = clazz.getDeclaredFields();
 
         for (Field field : fields) {
