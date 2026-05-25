@@ -10,11 +10,17 @@ public class Injector {
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
+    private final Map<String, String> implementationMap = Map.of(
+            "FileReaderService", "mate.academy.service.impl.FileReaderServiceImpl",
+            "ProductParser", "mate.academy.service.impl.ProductParserImpl",
+            "ProductService", "mate.academy.service.impl.ProductServiceImpl"
+    );
+
     public static Injector getInjector() {
         return injector;
     }
 
-    public Object getInstance(Class<?> interfaceClazz) {
+    public Object getInstance(Class<?> interfaceClazz) throws ClassNotFoundException {
         Class<?> clazz = findImplementation(interfaceClazz);
         if (!clazz.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("Injection failed: Class "
@@ -36,31 +42,20 @@ public class Injector {
                 }
             }
             return classInstance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of class: " + clazz.getName(), e);
         }
     }
 
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
+    private Class<?> findImplementation(Class<?> interfaceClazz) throws ClassNotFoundException {
         if (!interfaceClazz.isInterface()) {
             return interfaceClazz;
         }
         String interfaceName = interfaceClazz.getSimpleName();
-        try {
-            switch (interfaceName) {
-                case "FileReaderService":
-                    return Class.forName("mate.academy.service.impl.FileReaderServiceImpl");
-                case "ProductParser":
-                    return Class.forName("mate.academy.service.impl.ProductParserImpl");
-                case "ProductService":
-                    return Class.forName("mate.academy.service.impl.ProductServiceImpl");
-                default:
-                    throw new RuntimeException("No implementation found for interface: "
-                            + interfaceClazz.getName());
-            }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not find implementation class for "
-                    + interfaceName, e);
+        String className = implementationMap.get(interfaceName);
+        if (className == null) {
+            throw new RuntimeException("Wrong implementation");
         }
+        return Class.forName(className);
     }
 }
