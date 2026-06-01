@@ -17,7 +17,7 @@ Bad example:
 Good example:
 ```java
 } catch(Exception e) {
-  throw new SomeException("Injection failed, missing @Component annotaion on the class " + someInfoAboutClass, e);
+  throw new SomeException("Injection failed, missing @Component annotation on the class " + someInfoAboutClass, e);
 }
 ```
 * It is better to replace many exceptions that have a common parent with a general parental exception.
