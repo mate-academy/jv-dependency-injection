@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -14,6 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
+    private static final Map<Class<?>, Class<?>> implementationMap = Map.of(
+            ProductService.class, ProductServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class
+    );
     private Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
@@ -62,21 +66,21 @@ public class Injector {
             Object object = constructor.newInstance();
             instances.put(clazz, object);
             return object;
-        } catch (InstantiationException
-                 | IllegalAccessException
-                 | InvocationTargetException | NoSuchMethodException e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
-        implementationMap.put(ProductService.class, ProductServiceImpl.class);
-        implementationMap.put(ProductParser.class, ProductParserImpl.class);
-        implementationMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-
         if (interfaceClazz.isInterface()) {
-            return implementationMap.get(interfaceClazz);
+            Class<?> implClass = implementationMap.get(interfaceClazz);
+
+            if (implClass == null) {
+                throw new RuntimeException("No implementation for "
+                        + interfaceClazz.getName());
+            }
+
+            return implClass;
         }
 
         return interfaceClazz;
