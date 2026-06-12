@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -28,12 +27,12 @@ public class Injector {
 
         Class<?> implementationClass = getClazzImplementation(interfaceClazz);
         if (!implementationClass.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("Interface class " + interfaceClazz.getName()
+            throw new RuntimeException("Implementation class " + implementationClass.getName()
                     + " is not annotated with @Component");
         }
 
         Object classImplementationInstance = null;
-        Field[] fields = implementationClass.getFields();
+        Field[] fields = implementationClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
@@ -66,10 +65,9 @@ public class Injector {
             if (constructor.getParameterCount() == 0) {
                 try {
                     Object instance = constructor.newInstance();
-                    classInstances.put(clazz, instance.getClass());
+                    classInstances.put(clazz, instance);
                     return instance;
-                } catch (InstantiationException | IllegalAccessException
-                         | InvocationTargetException e) {
+                } catch (ReflectiveOperationException e) {
                     throw new RuntimeException("Error while instantiating " + clazz.getName(), e);
                 }
             }
