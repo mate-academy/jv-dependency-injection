@@ -14,6 +14,7 @@ public class Injector {
     private static final Injector injector = new Injector();
 
     private final Map<Class<?>, Class<?>> implementationMap = new HashMap<>();
+    private final Map<Class<?>, Object> instanceMap = new HashMap<>();
 
     private Injector() {
         implementationMap.put(ProductService.class, ProductServiceImpl.class);
@@ -38,6 +39,10 @@ public class Injector {
                     implementation.getName() + " doesn't have @Component annotation");
         }
 
+        if (instanceMap.containsKey(implementation)) {
+            return instanceMap.get(implementation);
+        }
+
         try {
             Object instance = implementation.getDeclaredConstructor().newInstance();
 
@@ -49,6 +54,8 @@ public class Injector {
                     field.set(instance, dependency);
                 }
             }
+
+            instanceMap.put(implementation, instance);
 
             return instance;
         } catch (Exception e) {
