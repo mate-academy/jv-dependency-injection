@@ -58,7 +58,7 @@ public class Injector {
             instanceMap.put(implementation, instance);
 
             return instance;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             throw new RuntimeException("Can't create instance of "
                     + implementation.getName(), e);
         }
