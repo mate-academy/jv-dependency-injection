@@ -2,7 +2,6 @@ package mate.academy.lib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
@@ -15,6 +14,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
     private Map<Class<?>, Object> instances = new HashMap<>();
+    private Map<Class<?>, Class<?>> interfaceImplementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
@@ -25,7 +29,8 @@ public class Injector {
         Object clazzImplementationInstance = null;
 
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new RuntimeException("class / interface haven't @Component annotation");
+            throw new RuntimeException("class / interface: "
+                    + clazz.getName() + " haven't @Component annotation");
         }
 
         Field[] declaredFields = clazz.getDeclaredFields();
@@ -66,20 +71,14 @@ public class Injector {
             Object instance = constructor.newInstance();
             instances.put(clazz, instance);
             return instance;
-        } catch (NoSuchMethodException | InstantiationException
-                 | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Can't create a new instance of " + clazz.getName());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create a new instance of " + clazz.getName(), e);
         }
     }
 
     private Class<?> findImplementation(Class<?> interfaceClazz) {
-        Map<Class<?>, Class<?>> interfaceImplementaions = new HashMap<>();
-        interfaceImplementaions.put(FileReaderService.class, FileReaderServiceImpl.class);
-        interfaceImplementaions.put(ProductParser.class, ProductParserImpl.class);
-        interfaceImplementaions.put(ProductService.class, ProductServiceImpl.class);
-
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementaions.get(interfaceClazz);
+            return interfaceImplementations.get(interfaceClazz);
         }
         return interfaceClazz;
     }
