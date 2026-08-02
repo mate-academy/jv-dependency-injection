@@ -92,7 +92,8 @@ class InjectorTest {
         boolean areAllPresent = Arrays.stream(serviceFields)
                 .allMatch(field -> {
                     return Arrays.stream(field.getDeclaredAnnotations())
-                            .anyMatch(annotation -> annotation.annotationType().equals(Inject.class));
+                            .anyMatch(annotation -> annotation.annotationType()
+                                    .equals(Inject.class));
                 });
 
         Assertions.assertTrue(areAllPresent, "ProductServiceImpl fields "
