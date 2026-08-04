@@ -23,8 +23,8 @@ public class Injector {
         }
 
         try {
-            Object instance = implementationClass.
-                    getDeclaredConstructor()
+            Object instance = implementationClass
+                    .getDeclaredConstructor()
                     .newInstance();
 
             Field[] fields = implementationClass.getDeclaredFields();
