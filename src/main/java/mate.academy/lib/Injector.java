@@ -41,6 +41,8 @@ public class Injector {
             throw new RuntimeException("Can't create instance of " + clazz.getName(), e);
         }
 
+        instances.put(clazz, instance);
+
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Inject.class)) {
