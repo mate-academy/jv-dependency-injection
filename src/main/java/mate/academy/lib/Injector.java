@@ -19,6 +19,9 @@ public class Injector {
             ProductService.class, ProductServiceImpl.class
     );
 
+    private Injector() {
+    }
+
     public static Injector getInjector() {
         return injector;
     }
@@ -28,8 +31,8 @@ public class Injector {
         if (implementationClazz == null) {
             throw new IllegalStateException("No implementation for " + interfaceClazz);
         }
-        if (instances.containsKey(implementationClazz)) {
-            return instances.get(implementationClazz);
+        if (instances.containsKey(interfaceClazz)) {
+            return instances.get(interfaceClazz);
         }
         if (!implementationClazz.isAnnotationPresent(Component.class)) {
             throw new IllegalStateException(
@@ -46,7 +49,7 @@ public class Injector {
                     field.set(instance, fieldInstance);
                 }
             }
-            instances.put(implementationClazz, instance);
+            instances.put(interfaceClazz, instance);
             return instance;
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(
