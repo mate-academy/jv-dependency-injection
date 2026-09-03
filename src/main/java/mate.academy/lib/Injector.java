@@ -14,6 +14,13 @@ public class Injector {
     private static final Injector injector = new Injector();
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
+    // Мапа інтерфейс → імплементація
+    private final Map<Class<?>, Class<?>> implementations = Map.of(
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductParser.class, ProductParserImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
+
     public static Injector getInjector() {
         return injector;
     }
@@ -23,7 +30,10 @@ public class Injector {
             return instances.get(interfaceClazz);
         }
 
-        Class<?> implClass = findImplementation(interfaceClazz);
+        Class<?> implClass = implementations.get(interfaceClazz);
+        if (implClass == null) {
+            throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
+        }
 
         if (!implClass.isAnnotationPresent(Component.class)) {
             throw new RuntimeException("No @Component annotation on class: " + implClass.getName());
@@ -45,18 +55,5 @@ public class Injector {
         } catch (Exception e) {
             throw new RuntimeException("Can't create instance of " + implClass.getName(), e);
         }
-    }
-
-    private Class<?> findImplementation(Class<?> interfaceClazz) {
-        if (interfaceClazz.equals(FileReaderService.class)) {
-            return FileReaderServiceImpl.class;
-        }
-        if (interfaceClazz.equals(ProductParser.class)) {
-            return ProductParserImpl.class;
-        }
-        if (interfaceClazz.equals(ProductService.class)) {
-            return ProductServiceImpl.class;
-        }
-        throw new RuntimeException("Unsupported class: " + interfaceClazz.getName());
     }
 }
