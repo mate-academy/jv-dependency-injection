@@ -28,7 +28,7 @@ public class Injector {
         Class<?> clazz = findImplementation(interfaceClazz);
 
         if (!clazz.isAnnotationPresent(Component.class)) {
-            throw new IllegalArgumentException(interfaceClazz.getName()
+            throw new RuntimeException(interfaceClazz.getName()
                     + " is not annotated with @Component");
         }
 
