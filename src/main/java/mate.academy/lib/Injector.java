@@ -1,8 +1,6 @@
 package mate.academy.lib;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
 import mate.academy.service.FileReaderService;
 import mate.academy.service.ProductParser;
@@ -40,10 +38,9 @@ public class Injector {
 
         try {
             instance = clazz.getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException  e) {
-            throw new RuntimeException(
-                    "Can't create instance of class: " + clazz.getName(), e
-            );
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Can't create instance of class: "
+                    + clazz.getName(), e);
         }
 
         Field[] fields = clazz.getDeclaredFields();
@@ -56,8 +53,8 @@ public class Injector {
                     field.set(instance, dependency);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(
-                            "Can't create instance of class: " + clazz.getName(), e
-                    );
+                            "Can't create instance of class: "
+                                    + clazz.getName(), e);
                 }
             }
         }
