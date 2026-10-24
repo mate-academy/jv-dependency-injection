@@ -13,13 +13,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-    private final Map<Class<?>, Class<?>> injectorMap = new HashMap<>();
-
-    public Injector() {
-        injectorMap.put(ProductParser.class, ProductParserImpl.class);
-        injectorMap.put(FileReaderService.class, FileReaderServiceImpl.class);
-        injectorMap.put(ProductService.class, ProductServiceImpl.class);
-    }
+    private final Map<Class<?>, Class<?>> injectorMap = Map.of(
+            ProductParser.class, ProductParserImpl.class,
+            FileReaderService.class, FileReaderServiceImpl.class,
+            ProductService.class, ProductServiceImpl.class
+    );
 
     public static Injector getInjector() {
         return injector;
@@ -42,14 +40,10 @@ public class Injector {
 
         try {
             instance = clazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+        } catch (ReflectiveOperationException  e) {
+            throw new RuntimeException(
+                    "Can't create instance of class: " + clazz.getName(), e
+            );
         }
 
         Field[] fields = clazz.getDeclaredFields();
@@ -61,7 +55,9 @@ public class Injector {
                 try {
                     field.set(instance, dependency);
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(
+                            "Can't create instance of class: " + clazz.getName(), e
+                    );
                 }
             }
         }
